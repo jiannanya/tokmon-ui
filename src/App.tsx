@@ -40,7 +40,12 @@ import {
   ArrowUp,
   ShieldAlert,
   Brain,
-  CircleDashed
+  CircleDashed,
+  FolderOpen,
+  GitBranch,
+  ExternalLink,
+  HardDrive,
+  RefreshCw
 } from 'lucide-react'
 
 // Tokmon Brand Logo Image in Warm Terracotta/Sand (#c86a28)
@@ -241,6 +246,19 @@ export default function App() {
   const [reasoningLevel, setReasoningLevel] = useState<'最高' | '标准' | '低'>('最高')
   const [showReasoningDropdown, setShowReasoningDropdown] = useState(false)
 
+  // Active Workspace & Project Space State (Agent Desktop Working Directory)
+  const [activeWorkspace, setActiveWorkspace] = useState({
+    group: '内容生产',
+    name: '🎬 字幕制作空间',
+    path: 'C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent',
+    shortPath: '~/Projects/subtitle-agent',
+    branch: 'main',
+    indexedFiles: 142,
+    totalTokens: '84.2k'
+  })
+  const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false)
+  const [copiedPathToast, setCopiedPathToast] = useState(false)
+
   // Settings Modal & Active Tab State
   const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [activeSettingsTab, setActiveSettingsTab] = useState<
@@ -357,6 +375,47 @@ export default function App() {
   const handleSelectConversation = (name: string) => {
     setSelectedConversation(name)
     setConversationTitle(name)
+    if (name.includes('字幕')) {
+      setActiveWorkspace({
+        group: '内容生产',
+        name: '🎬 字幕制作空间',
+        path: 'C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent',
+        shortPath: '~/Projects/subtitle-agent',
+        branch: 'main',
+        indexedFiles: 142,
+        totalTokens: '84.2k'
+      })
+    } else if (name.includes('音频') || name.includes('降噪')) {
+      setActiveWorkspace({
+        group: '内容生产',
+        name: '🎧 音频切片处理',
+        path: 'C:\\Users\\User\\Tokmon\\Projects\\audio-slice',
+        shortPath: '~/Projects/audio-slice',
+        branch: 'feature/vad',
+        indexedFiles: 68,
+        totalTokens: '36.1k'
+      })
+    } else if (name.includes('知识库')) {
+      setActiveWorkspace({
+        group: '核心系统',
+        name: '📚 知识库管理',
+        path: 'C:\\Users\\User\\Tokmon\\Projects\\knowledge-base',
+        shortPath: '~/Projects/knowledge-base',
+        branch: 'main',
+        indexedFiles: 184,
+        totalTokens: '128.5k'
+      })
+    } else if (name.includes('行程') || name.includes('助手')) {
+      setActiveWorkspace({
+        group: '日常助手',
+        name: '🧭 智能助手空间',
+        path: 'C:\\Users\\User\\Tokmon\\Projects\\assistant-space',
+        shortPath: '~/Projects/assistant-space',
+        branch: 'main',
+        indexedFiles: 52,
+        totalTokens: '29.4k'
+      })
+    }
   }
 
   // Handle Copy All Subtitles
@@ -1380,7 +1439,184 @@ export default function App() {
 
           {/* Bottom Floating Input Box Area (Reconstructed from Reference Image 1 & 2) */}
           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#fafaf9] via-[#fafaf9]/90 to-transparent pointer-events-none">
-            <div className="max-w-[760px] mx-auto bg-[#ffffff] border border-[#e7e5e4] rounded-2xl shadow-lg p-3 pointer-events-auto transition-all focus-within:border-[#f59e0b] space-y-2">
+            <div className="max-w-[760px] mx-auto pointer-events-auto space-y-1">
+
+              {/* WORKSPACE DIRECTORY BAR (Distinct compact status bar directly above input dialog box) */}
+              <div className="relative">
+                <div 
+                  onClick={() => setShowWorkspaceMenu(!showWorkspaceMenu)}
+                  className="flex items-center justify-between px-3 py-1 bg-[#ffffff]/95 hover:bg-white backdrop-blur-md border border-[#e7e5e4] hover:border-[#d6d3d1] rounded-xl text-[11px] text-[#57534e] shadow-2xs transition-all cursor-pointer group select-none"
+                >
+                  {/* Left: Folder Icon + Workspace & Project Name + Path + Branch */}
+                  <div className="flex items-center space-x-1.5 min-w-0 flex-1 mr-2">
+                    <FolderOpen className="w-3 h-3 text-[#c86a28] flex-shrink-0" />
+
+                    {/* Group & Project Space Name */}
+                    <div className="flex items-center space-x-1 flex-shrink-0">
+                      <span className="text-[10.5px] font-medium text-[#78716c]">{activeWorkspace.group}</span>
+                      <span className="text-[#d6d3d1] text-[9px]">/</span>
+                      <span className="text-[11px] font-semibold text-[#1c1917] tracking-tight">{activeWorkspace.name}</span>
+                    </div>
+
+                    {/* Path Badge */}
+                    <span 
+                      title={`工作空间物理路径: ${activeWorkspace.path}`}
+                      className="hidden sm:inline-flex items-center font-mono text-[10px] text-[#78716c] bg-[#ffffff] hover:bg-[#eceae5] px-1.5 py-0.2 rounded border border-[#e7e5e4] truncate max-w-[210px] transition-colors"
+                    >
+                      {activeWorkspace.shortPath}
+                    </span>
+
+                    {/* Git Branch Badge */}
+                    <span className="hidden md:inline-flex items-center space-x-0.5 font-mono text-[9.5px] bg-[#fef8f4] text-[#c86a28] border border-[#f5d9c3] px-1 py-0.2 rounded flex-shrink-0">
+                      <GitBranch className="w-2.5 h-2.5 text-[#c86a28]" />
+                      <span>{activeWorkspace.branch}</span>
+                    </span>
+                  </div>
+
+                  {/* Right: Index Status & Switch action */}
+                  <div className="flex items-center space-x-2 flex-shrink-0">
+                    <div className="flex items-center space-x-1 text-[10px] text-[#78716c]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a]" />
+                      <span>{activeWorkspace.indexedFiles} 文件</span>
+                    </div>
+
+                    <div className="flex items-center space-x-0.5 text-[#78716c] group-hover:text-[#1c1917] text-[10.5px] pl-1 font-medium transition-colors">
+                      <span>空间</span>
+                      <ChevronDown className={`w-3 h-3 transition-transform duration-150 ${showWorkspaceMenu ? 'rotate-180' : ''}`} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Workspace Switcher & Directory Action Popover Card */}
+                {showWorkspaceMenu && (
+                  <div className="absolute left-0 bottom-full mb-1.5 w-full bg-white border border-[#e7e5e4] rounded-2xl shadow-2xl p-3 text-[12px] z-50 text-[#1c1917] space-y-2.5 animate-in fade-in zoom-in-95 duration-150">
+                    {/* Header */}
+                    <div className="flex items-center justify-between pb-2 border-b border-[#f5f5f4]">
+                      <div className="flex items-center space-x-1.5">
+                        <FolderOpen className="w-3.5 h-3.5 text-[#c86a28]" />
+                        <span className="font-bold text-[12.5px] text-[#1c1917]">当前 Agent 工作空间与项目目录</span>
+                      </div>
+                      <span className="text-[10.5px] font-mono text-[#a8a29e] bg-[#fafaf9] px-1.5 py-0.5 rounded border border-[#e7e5e4]">
+                        {activeWorkspace.indexedFiles} 文件 · {activeWorkspace.totalTokens} Tokens
+                      </span>
+                    </div>
+
+                    {/* Current Full Path & Quick Actions */}
+                    <div className="bg-[#fafaf9] border border-[#e7e5e4] rounded-xl p-2.5 space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px] text-[#78716c]">
+                        <span className="font-medium">工作空间物理路径</span>
+                        {copiedPathToast && (
+                          <span className="text-[#16a34a] font-medium flex items-center space-x-1">
+                            <Check className="w-3 h-3" />
+                            <span>已复制到剪贴板</span>
+                          </span>
+                        )}
+                      </div>
+                      <div className="font-mono text-[11px] text-[#1c1917] bg-white border border-[#e7e5e4] px-2 py-1 rounded-lg select-all break-all">
+                        {activeWorkspace.path}
+                      </div>
+                      <div className="flex items-center space-x-2 pt-0.5">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            navigator.clipboard.writeText(activeWorkspace.path)
+                            setCopiedPathToast(true)
+                            setTimeout(() => setCopiedPathToast(false), 2000)
+                          }}
+                          className="flex items-center space-x-1 px-2 py-0.8 rounded-md bg-white border border-[#e7e5e4] hover:border-[#c86a28] hover:text-[#c86a28] text-[11px] font-medium text-[#44403c] transition-colors cursor-pointer"
+                        >
+                          <Copy className="w-3 h-3" />
+                          <span>复制路径</span>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            alert(`已在系统文件管理器中定位工作空间:\n${activeWorkspace.path}`)
+                          }}
+                          className="flex items-center space-x-1 px-2 py-0.8 rounded-md bg-white border border-[#e7e5e4] hover:border-[#c86a28] hover:text-[#c86a28] text-[11px] font-medium text-[#44403c] transition-colors cursor-pointer"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          <span>在资源管理器中打开</span>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setActiveWorkspace(prev => ({ ...prev, indexedFiles: prev.indexedFiles + 1 }))
+                          }}
+                          className="flex items-center space-x-1 px-2 py-0.8 rounded-md bg-white border border-[#e7e5e4] hover:border-[#c86a28] hover:text-[#c86a28] text-[11px] font-medium text-[#44403c] transition-colors cursor-pointer"
+                        >
+                          <RefreshCw className="w-3 h-3" />
+                          <span>重新扫描索引</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Quick Switch Workspaces */}
+                    <div className="space-y-1">
+                      <div className="text-[10.5px] font-medium text-[#78716c] px-1">快速切换项目空间</div>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {[
+                          { group: '内容生产', name: '🎬 字幕制作空间', path: 'C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent', short: '~/Projects/subtitle-agent', branch: 'main', files: 142, tokens: '84.2k' },
+                          { group: '内容生产', name: '🎧 音频切片处理', path: 'C:\\Users\\User\\Tokmon\\Projects\\audio-slice', short: '~/Projects/audio-slice', branch: 'feature/vad', files: 68, tokens: '36.1k' },
+                          { group: '核心系统', name: '🚀 Agent 任务中心', path: 'C:\\Users\\User\\Tokmon\\Projects\\agent-runner', short: '~/Projects/agent-runner', branch: 'main', files: 215, tokens: '142.8k' },
+                          { group: '核心系统', name: '⚙️ Tokmon Core', path: 'C:\\Users\\User\\Tokmon\\Projects\\tokmon-core', short: '~/Projects/tokmon-core', branch: 'dev', files: 310, tokens: '290.4k' },
+                        ].map((ws) => (
+                          <div
+                            key={ws.name}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setActiveWorkspace({
+                                group: ws.group,
+                                name: ws.name,
+                                path: ws.path,
+                                shortPath: ws.short,
+                                branch: ws.branch,
+                                indexedFiles: ws.files,
+                                totalTokens: ws.tokens
+                              })
+                              setShowWorkspaceMenu(false)
+                            }}
+                            className={`p-1.5 rounded-lg border transition-all cursor-pointer flex items-start justify-between ${
+                              activeWorkspace.name === ws.name
+                                ? 'bg-[#fef8f4] border-[#c86a28] shadow-2xs'
+                                : 'bg-[#fafaf9] border-[#e7e5e4] hover:border-[#d6d3d1] hover:bg-white'
+                            }`}
+                          >
+                            <div className="space-y-0.5 min-w-0">
+                              <div className="font-semibold text-[11.5px] text-[#1c1917] truncate">{ws.name}</div>
+                              <div className="font-mono text-[10px] text-[#78716c] truncate">{ws.short}</div>
+                            </div>
+                            {activeWorkspace.name === ws.name && (
+                              <Check className="w-3 h-3 text-[#c86a28] flex-shrink-0 mt-0.5 ml-1" />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Bottom Choose New Directory Button */}
+                    <div className="pt-1 border-t border-[#f5f5f4] flex justify-between items-center text-[11px]">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowSettingsModal(true)
+                          setActiveSettingsTab('workspace')
+                          setShowWorkspaceMenu(false)
+                        }}
+                        className="text-[#c86a28] hover:text-[#b45309] font-medium flex items-center space-x-1 cursor-pointer"
+                      >
+                        <HardDrive className="w-3 h-3" />
+                        <span>在设置中配置工作空间...</span>
+                      </button>
+                      <span className="text-[#a8a29e] text-[10.5px]">Tokmon Agent Desktop</span>
+                    </div>
+
+                  </div>
+                )}
+              </div>
+
+              {/* Main Input Dialog Box Card (Independent 4-rounded-corner card) */}
+              <div className="bg-[#ffffff] border border-[#e7e5e4] rounded-2xl shadow-lg p-3 pointer-events-auto transition-all focus-within:border-[#f59e0b] space-y-2">
               <textarea
                 ref={textareaRef}
                 value={inputMessage}
@@ -1601,6 +1837,7 @@ export default function App() {
 
               </div>
             </div>
+          </div>
           </div>
 
         </main>
