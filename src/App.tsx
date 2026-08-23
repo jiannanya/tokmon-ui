@@ -122,6 +122,7 @@ export default function App() {
   const [isDraggingMainRight, setIsDraggingMainRight] = useState(false)
   const isDragging = isDraggingLeft || isDraggingRight || isDraggingMainRight
 
+
   // Dragging start references to preserve overall window width during split drag
   const dragRef = useRef<{
     startX: number
@@ -502,10 +503,13 @@ export default function App() {
     { id: 'account', label: '账户', icon: User },
   ] as const
 
+  const effectiveMainWidth = leftSidebarOpen ? mainWidth : (mainWidth + leftSidebarWidth + 6)
+
   const totalWindowWidth =
-    (leftSidebarOpen ? leftSidebarWidth + 6 : 0) +
+    leftSidebarWidth +
+    6 +
     mainWidth +
-    (rightPanelOpen ? rightPanelWidth + 6 : 6)
+    (rightPanelOpen ? rightPanelWidth + 6 : 0)
 
   return (
     <div className="w-screen h-screen bg-[#eceae5] flex items-center justify-start overflow-x-auto overflow-y-hidden select-none font-sans">
@@ -524,26 +528,27 @@ export default function App() {
         {/* ========================================================= */}
         {/* COLUMN 1: LEFT SIDEBAR */}
         {/* ========================================================= */}
-        {leftSidebarOpen ? (
-          <aside 
-            style={{ width: `${leftSidebarWidth}px` }}
-            className={`h-full flex-shrink-0 bg-[#f9f9f8] border-r border-[#e7e5e4] flex flex-col justify-between overflow-hidden ${
-              isDragging ? 'transition-none' : 'transition-[width] duration-150 ease-out'
-            }`}
-          >
-            {/* Header with Tokmon Logo (Pinned outside scrollable tree) */}
-            <div className="h-[46px] flex-shrink-0 px-4 border-b border-[#e7e5e4] flex items-center justify-between bg-[#f9f9f8]">
-              <div className="flex items-center space-x-2 cursor-pointer">
-                <TokmonLogo />
-                <span className="text-[17px] font-bold tracking-tight text-[#1c1917]">Tokmon</span>
-              </div>
+        <aside 
+          style={{ width: leftSidebarOpen ? `${leftSidebarWidth}px` : '0px' }}
+          className={`h-full flex-shrink-0 bg-[#f9f9f8] ${
+            leftSidebarOpen ? 'border-r border-[#e7e5e4]' : 'border-r-0'
+          } flex flex-col justify-between overflow-hidden ${
+            isDragging ? 'transition-none' : 'transition-[width] duration-150 ease-out'
+          }`}
+        >
+          {/* Header with Tokmon Logo (Pinned outside scrollable tree) */}
+          <div className="h-[46px] min-w-[240px] flex-shrink-0 px-4 border-b border-[#e7e5e4] flex items-center justify-between bg-[#f9f9f8]">
+            <div className="flex items-center space-x-2 cursor-pointer">
+              <TokmonLogo />
+              <span className="text-[17px] font-bold tracking-tight text-[#1c1917]">Tokmon</span>
             </div>
+          </div>
 
-            {/* Scrollable Tree Navigation & Content Area (Fills entire window height, zero horizontal scrollbar) */}
-            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-3 space-y-3.5 custom-scrollbar">
-              
-              {/* New Conversation Button */}
-              <button 
+          {/* Scrollable Tree Navigation & Content Area (Fills entire window height, zero horizontal scrollbar) */}
+          <div className="flex-1 min-h-0 min-w-[240px] overflow-y-auto overflow-x-hidden p-3 space-y-3.5 custom-scrollbar">
+            
+            {/* New Conversation Button */}
+            <button 
                 onClick={() => {
                   const newName = `新会话 ${Date.now().toString().slice(-4)}`
                   setSelectedConversation(newName)
@@ -751,7 +756,7 @@ export default function App() {
             </div>
 
             {/* Settings at Bottom (Pinned at bottom) */}
-            <div className="p-3 border-t border-[#e7e5e4] flex-shrink-0 bg-[#f9f9f8]">
+            <div className="p-3 min-w-[240px] border-t border-[#e7e5e4] flex-shrink-0 bg-[#f9f9f8]">
               <button 
                 onClick={() => setShowSettingsModal(true)}
                 className="w-full flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#efeee8] text-[13.5px] text-[#44403c] font-medium transition-colors text-left cursor-pointer"
@@ -761,35 +766,40 @@ export default function App() {
               </button>
             </div>
           </aside>
-        ) : null}
 
         {/* LEFT SIDEBAR RESIZER DIVIDER */}
         {leftSidebarOpen && (
-          <div
-            onMouseDown={(e) => {
-              e.preventDefault()
-              dragRef.current = {
-                startX: e.clientX,
-                startLeftWidth: leftSidebarWidth,
-                startMainWidth: mainWidth,
-                startRightWidth: rightPanelWidth
-              }
-              setIsDraggingLeft(true)
-            }}
-            title="按住左右拖拽调整左侧栏与工作区宽度"
-            className="w-2 -mx-1 h-full cursor-col-resize z-40 flex-shrink-0 relative group flex justify-center items-center select-none"
-          >
-            {/* Glowing line on hover/active */}
-            <div className={`w-[2px] h-full transition-colors duration-150 ${isDraggingLeft ? 'bg-[#c86a28]' : 'bg-transparent group-hover:bg-[#c86a28]/80'}`} />
+          <div className="relative flex-shrink-0 z-40 select-none h-full flex items-center">
+            {/* Drag Hit Zone & Glowing Line */}
+            <div
+              onMouseDown={(e) => {
+                e.preventDefault()
+                dragRef.current = {
+                  startX: e.clientX,
+                  startLeftWidth: leftSidebarWidth,
+                  startMainWidth: mainWidth,
+                  startRightWidth: rightPanelWidth
+                }
+                setIsDraggingLeft(true)
+              }}
+              title="按住左右拖拽调整左侧栏与工作区宽度"
+              className="w-2 -mx-1 h-full cursor-col-resize flex justify-center items-center group/line"
+            >
+              <div className={`w-[2px] h-full transition-colors duration-150 ${
+                isDraggingLeft ? 'bg-[#c86a28]/80' : 'bg-transparent group-hover/line:bg-[#c86a28]/80'
+              }`} />
+            </div>
 
-            {/* Floating Border Toggle Pill Button (Zero-movement docked on left divider) */}
+            {/* Floating Border Toggle Pill Button (Sibling, does not trigger line hover) */}
             <button
+              onMouseDown={(e) => e.stopPropagation()}
+              onMouseUp={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation()
                 setLeftSidebarOpen(false)
               }}
               title="折叠侧边栏"
-              className="absolute top-2.5 z-50 w-6 h-6 rounded-md bg-white border border-[#e5e2da] shadow-2xs hover:shadow-md hover:border-[#c86a28] hover:bg-[#fafaf9] text-[#78716c] hover:text-[#c86a28] flex items-center justify-center transition-all cursor-pointer group-hover:scale-105 active:scale-95"
+              className="absolute top-2.5 -left-2 z-50 w-6 h-6 rounded-md bg-white border border-[#e5e2da] shadow-2xs hover:shadow-md hover:border-[#c86a28] hover:bg-[#fafaf9] text-[#78716c] hover:text-[#c86a28] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
             >
               <PanelLeftClose className="w-3.5 h-3.5" />
             </button>
@@ -800,18 +810,20 @@ export default function App() {
         {/* COLUMN 2: MAIN CHAT & WORKFLOW EXECUTION */}
         {/* ========================================================= */}
         <main 
-          style={{ width: isMaximized && !rightPanelOpen ? undefined : `${mainWidth}px` }}
+          style={{ width: isMaximized && !rightPanelOpen ? undefined : `${effectiveMainWidth}px` }}
           className={`${isMaximized && !rightPanelOpen ? 'flex-1' : 'flex-shrink-0'} flex flex-col bg-[#fafaf9] overflow-hidden relative ${
             isDragging ? 'transition-none' : 'transition-[width] duration-150 ease-out'
           }`}
         >
           {/* Left border micro-pill to expand left sidebar when closed */}
           {!leftSidebarOpen && (
-            <div className="absolute left-0 top-0 bottom-0 w-2 z-40 flex justify-center items-start select-none group pointer-events-none">
+            <div className="absolute left-0 top-0 bottom-0 w-2 z-40 flex justify-center items-start select-none pointer-events-none">
               <button
+                onMouseDown={(e) => e.stopPropagation()}
+                onMouseUp={(e) => e.stopPropagation()}
                 onClick={() => setLeftSidebarOpen(true)}
                 title="展开侧边栏"
-                className="absolute top-2.5 left-1.5 z-50 w-6 h-6 rounded-md bg-[#fef8f4] border border-[#ebdcd0] shadow-2xs hover:shadow-md hover:border-[#c86a28] hover:bg-[#fcf2ea] text-[#c86a28] flex items-center justify-center transition-all cursor-pointer group-hover:scale-105 active:scale-95 pointer-events-auto"
+                className="absolute top-2.5 left-1.5 z-50 w-6 h-6 rounded-md bg-[#fef8f4] border border-[#ebdcd0] shadow-2xs hover:shadow-md hover:border-[#c86a28] hover:bg-[#fcf2ea] text-[#c86a28] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 pointer-events-auto"
               >
                 <PanelLeftOpen className="w-3.5 h-3.5 text-[#c86a28]" />
               </button>
@@ -860,7 +872,7 @@ export default function App() {
             {/* Right Controls in Main Header */}
             <div className="flex items-center">
               {!rightPanelOpen && (
-                <div className="pr-2">
+                <div className="pr-8">
                   <WindowControls 
                     isMaximized={isMaximized} 
                     onToggleMaximize={() => setIsMaximized(!isMaximized)} 
@@ -1595,31 +1607,37 @@ export default function App() {
 
         {/* RIGHT PANEL RESIZER DIVIDER */}
         {rightPanelOpen && (
-          <div
-            onMouseDown={(e) => {
-              e.preventDefault()
-              dragRef.current = {
-                startX: e.clientX,
-                startLeftWidth: leftSidebarWidth,
-                startMainWidth: mainWidth,
-                startRightWidth: rightPanelWidth
-              }
-              setIsDraggingRight(true)
-            }}
-            title="按住左右拖拽调整中间工作区与右侧栏宽度"
-            className="w-2 -mx-1 h-full cursor-col-resize z-40 flex-shrink-0 relative group flex justify-center items-center select-none"
-          >
-            {/* Glowing line on hover/active */}
-            <div className={`w-[2px] h-full transition-colors duration-150 ${isDraggingRight ? 'bg-[#c86a28]' : 'bg-transparent group-hover:bg-[#c86a28]/80'}`} />
+          <div className="relative flex-shrink-0 z-40 select-none h-full flex items-center">
+            {/* Drag Hit Zone & Glowing Line */}
+            <div
+              onMouseDown={(e) => {
+                e.preventDefault()
+                dragRef.current = {
+                  startX: e.clientX,
+                  startLeftWidth: leftSidebarWidth,
+                  startMainWidth: mainWidth,
+                  startRightWidth: rightPanelWidth
+                }
+                setIsDraggingRight(true)
+              }}
+              title="按住左右拖拽调整中间工作区与右侧栏宽度"
+              className="w-2 -mx-1 h-full cursor-col-resize flex justify-center items-center group/line"
+            >
+              <div className={`w-[2px] h-full transition-colors duration-150 ${
+                isDraggingRight ? 'bg-[#c86a28]/80' : 'bg-transparent group-hover/line:bg-[#c86a28]/80'
+              }`} />
+            </div>
 
-            {/* Floating Border Toggle Pill Button (Zero-movement docked on divider) */}
+            {/* Floating Border Toggle Pill Button (Exact same physical pixel alignment) */}
             <button
+              onMouseDown={(e) => e.stopPropagation()}
+              onMouseUp={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation()
                 handleToggleRightPanel()
               }}
               title="折叠代码审阅"
-              className="absolute top-2.5 z-50 w-6 h-6 rounded-md bg-white border border-[#e5e2da] shadow-2xs hover:shadow-md hover:border-[#c86a28] hover:bg-[#fafaf9] text-[#78716c] hover:text-[#c86a28] flex items-center justify-center transition-all cursor-pointer group-hover:scale-105 active:scale-95"
+              className="absolute top-2.5 -left-[28px] z-50 w-6 h-6 rounded-md bg-white border border-[#e5e2da] shadow-2xs hover:shadow-md hover:border-[#c86a28] hover:bg-[#fafaf9] text-[#78716c] hover:text-[#c86a28] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
             >
               <PanelRightClose className="w-3.5 h-3.5" />
             </button>
@@ -1812,31 +1830,37 @@ export default function App() {
 
         {/* WINDOW RIGHT BORDER RESIZER (when right panel closed) */}
         {!rightPanelOpen && (
-          <div
-            onMouseDown={(e) => {
-              e.preventDefault()
-              dragRef.current = {
-                startX: e.clientX,
-                startLeftWidth: leftSidebarWidth,
-                startMainWidth: mainWidth,
-                startRightWidth: rightPanelWidth
-              }
-              setIsDraggingMainRight(true)
-            }}
-            title="按住左右拖拽调整工作区宽度"
-            className="w-2 -mx-1 h-full cursor-col-resize z-40 flex-shrink-0 relative group flex justify-center items-center select-none"
-          >
-            {/* Glowing line on hover/active */}
-            <div className={`w-[2px] h-full transition-colors duration-150 ${isDraggingMainRight ? 'bg-[#c86a28]' : 'bg-transparent group-hover:bg-[#c86a28]/80'}`} />
+          <div className="absolute right-0 top-0 bottom-0 z-40 select-none flex items-center pointer-events-none">
+            {/* Drag Hit Zone & Glowing Line right on the window's right border */}
+            <div
+              onMouseDown={(e) => {
+                e.preventDefault()
+                dragRef.current = {
+                  startX: e.clientX,
+                  startLeftWidth: leftSidebarWidth,
+                  startMainWidth: mainWidth,
+                  startRightWidth: rightPanelWidth
+                }
+                setIsDraggingMainRight(true)
+              }}
+              title="按住左右拖拽调整工作区宽度"
+              className="w-2.5 h-full cursor-col-resize flex justify-end items-center group/line pointer-events-auto"
+            >
+              <div className={`w-[2px] h-full transition-colors duration-150 ${
+                isDraggingMainRight ? 'bg-[#c86a28]/80' : 'bg-transparent group-hover/line:bg-[#c86a28]/80'
+              }`} />
+            </div>
 
-            {/* Floating Border Toggle Pill Button (Zero-movement docked on divider) */}
+            {/* Floating Border Toggle Pill Button (Exact same physical position, unclipped) */}
             <button
+              onMouseDown={(e) => e.stopPropagation()}
+              onMouseUp={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation()
                 handleToggleRightPanel()
               }}
               title="展开代码审阅"
-              className="absolute top-2.5 z-50 w-6 h-6 rounded-md bg-[#fef8f4] border border-[#ebdcd0] shadow-2xs hover:shadow-md hover:border-[#c86a28] hover:bg-[#fcf2ea] text-[#c86a28] flex items-center justify-center transition-all cursor-pointer group-hover:scale-105 active:scale-95"
+              className="absolute top-2.5 right-1.5 z-50 w-6 h-6 rounded-md bg-[#fef8f4] border border-[#ebdcd0] shadow-2xs hover:shadow-md hover:border-[#c86a28] hover:bg-[#fcf2ea] text-[#c86a28] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 pointer-events-auto"
             >
               <PanelRightOpen className="w-3.5 h-3.5 text-[#c86a28]" />
             </button>
