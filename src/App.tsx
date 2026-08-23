@@ -870,6 +870,72 @@ export default function App() {
     { id: 'account', label: '账户', icon: User },
   ] as const
 
+  // Highlight search keyword in text helper
+  const renderHighlightedText = (text: string, query: string) => {
+    if (!query.trim()) return text
+    const q = query.trim()
+    const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
+    const parts = text.split(regex)
+    return parts.map((part, i) => 
+      regex.test(part) ? (
+        <mark key={i} className="bg-[#fed7aa] text-[#9a3412] font-semibold px-0.5 py-0 rounded">
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    )
+  }
+
+  // Filtered Tree Data according to search query (supports searching Groups, Projects, and Conversations)
+  const filteredTreeData = (() => {
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return treeData
+
+    return treeData.map(group => {
+      const groupMatches = group.name.toLowerCase().includes(q)
+
+      const filteredProjects = group.projects.map(proj => {
+        const projectMatches = proj.name.toLowerCase().includes(q) || 
+                               proj.workspacePath.toLowerCase().includes(q)
+
+        const matchedConversations = proj.conversations.filter(conv =>
+          conv.toLowerCase().includes(q)
+        )
+
+        // If group or project matches, show all conversations in that project or matched ones
+        if (groupMatches || projectMatches) {
+          return {
+            ...proj,
+            isOpen: true,
+            conversations: projectMatches && matchedConversations.length === 0 ? proj.conversations : (matchedConversations.length > 0 ? matchedConversations : proj.conversations)
+          }
+        }
+
+        // If only conversation matched
+        if (matchedConversations.length > 0) {
+          return {
+            ...proj,
+            isOpen: true,
+            conversations: matchedConversations
+          }
+        }
+
+        return null
+      }).filter(Boolean) as typeof group.projects
+
+      if (groupMatches || filteredProjects.length > 0) {
+        return {
+          ...group,
+          isOpen: true,
+          projects: groupMatches && filteredProjects.length === 0 ? group.projects : filteredProjects
+        }
+      }
+
+      return null
+    }).filter(Boolean) as typeof treeData
+  })()
+
   const effectiveMainWidth = leftSidebarOpen ? mainWidth : (mainWidth + leftSidebarWidth + 6)
 
   const totalWindowWidth =
@@ -930,104 +996,133 @@ export default function App() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="搜索项目或会话..."
-                className="w-full bg-[#f0eee8] border border-transparent rounded-xl pl-9 pr-3 py-1.5 text-[12.5px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:bg-white focus:border-[#f5e4ab] transition-all"
+                placeholder="搜索会话、项目或分组..."
+                className="w-full bg-[#f0eee8] border border-transparent rounded-xl pl-9 pr-8 py-1.5 text-[12.5px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:bg-white focus:border-[#c86a28] transition-all"
               />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 hover:bg-[#e2e0d8] rounded text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer"
+                  title="清空搜索"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
             {/* 3-Level Dynamic Tree Navigation (分组 Group -> 项目 Project -> 会话 Conversation) */}
             <div className="pt-1 space-y-1">
               <div className="flex items-center justify-between px-2 py-1 text-[11.5px] text-[#78716c] font-medium tracking-wider">
                 <span>分组 / 项目 / 会话</span>
+                {searchQuery.trim() && (
+                  <span className="text-[10px] bg-[#fef8f4] text-[#c86a28] border border-[#f5d9c3] px-1.5 py-0.2 rounded font-medium">
+                    找到 {filteredTreeData.reduce((acc, g) => acc + g.projects.reduce((pAcc, p) => pAcc + p.conversations.length, 0), 0)} 个会话
+                  </span>
+                )}
               </div>
 
-              {treeData.map((group) => (
-                <div key={group.id} className="space-y-0.5 text-[13px]">
-                  {/* Group Header Row */}
-                  <div className="flex items-center justify-between pl-2 pr-1 py-1 rounded-md hover:bg-[#f3f2eb] text-[#292524] transition-colors group/group">
-                    <button 
-                      onClick={() => {
-                        setTreeData(prev => prev.map(g => g.id === group.id ? { ...g, isOpen: !g.isOpen } : g))
-                      }}
-                      className="flex items-center space-x-1.5 font-semibold text-left flex-1 min-w-0 cursor-pointer"
-                    >
-                      {group.isOpen ? <ChevronDown className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" /> : <ChevronRight className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />}
-                      <Folder className="w-4 h-4 text-[#c86a28] flex-shrink-0" />
-                      <span className="truncate">{group.name}</span>
-                    </button>
-
-                    {/* Quick Add Button on Group Header (Hidden by default, shows on hover of this group only, aligned) */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleQuickCreateInGroup(group.name)
-                      }}
-                      className="w-5.5 h-5.5 rounded-md hover:bg-[#e4e2da] text-[#78716c] hover:text-[#c86a28] flex items-center justify-center opacity-0 group-hover/group:opacity-100 transition-all cursor-pointer flex-shrink-0"
-                      title={`在「${group.name}」快速新建会话`}
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                    </button>
+              {filteredTreeData.length === 0 ? (
+                <div className="py-8 px-2 text-center space-y-2">
+                  <div className="w-9 h-9 mx-auto rounded-full bg-[#f5f5f4] flex items-center justify-center text-[#a8a29e]">
+                    <Search className="w-4 h-4" />
                   </div>
-
-                  {/* Group Projects */}
-                  {group.isOpen && (
-                    <div className="pl-3.5 space-y-1 border-l-2 border-[#f0eee6] ml-3.5">
-                      {group.projects.map((project) => (
-                        <div key={project.id}>
-                          {/* Project Header Row */}
-                          <div className="flex items-center justify-between pl-1.5 pr-1 py-1 rounded-md hover:bg-[#f3f2eb] text-[#44403c] transition-colors group/proj">
-                            <button 
-                              onClick={() => {
-                                setTreeData(prev => prev.map(g => g.id === group.id ? {
-                                  ...g,
-                                  projects: g.projects.map(p => p.id === project.id ? { ...p, isOpen: !p.isOpen } : p)
-                                } : g))
-                              }}
-                              className="flex items-center space-x-1.5 font-medium text-[12.5px] text-left flex-1 min-w-0 cursor-pointer"
-                            >
-                              {project.isOpen ? <ChevronDown className="w-3 h-3 text-[#a8a29e] flex-shrink-0" /> : <ChevronRight className="w-3 h-3 text-[#a8a29e] flex-shrink-0" />}
-                              <Box className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" />
-                              <span className="truncate">{project.name}</span>
-                            </button>
-
-                            {/* Quick Add Button on Project Header (Hidden by default, shows on hover of this project only, aligned) */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleQuickCreateInProject(group.name, project.name)
-                              }}
-                              className="w-5.5 h-5.5 rounded-md hover:bg-[#e4e2da] text-[#78716c] hover:text-[#c86a28] flex items-center justify-center opacity-0 group-hover/proj:opacity-100 transition-all cursor-pointer flex-shrink-0"
-                              title={`在项目「${project.name}」新建会话`}
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-
-                          {/* Project Conversations */}
-                          {project.isOpen && (
-                            <div className="pl-3 space-y-0.5 mt-0.5">
-                              {project.conversations.map((item) => (
-                                <div 
-                                  key={item}
-                                  onClick={() => handleSelectConversationItem(item, group.name, project)}
-                                  className={`cursor-pointer flex items-center space-x-2 px-2.5 py-1.5 rounded-xl text-[12px] transition-all ${
-                                    selectedConversation === item
-                                      ? 'bg-[#f7efe5] text-[#8b5229] font-semibold shadow-2xs'
-                                      : 'text-[#57534e] hover:bg-[#f3f2eb]'
-                                  }`}
-                                >
-                                  <MessageSquare className={`w-3.5 h-3.5 flex-shrink-0 ${selectedConversation === item ? 'text-[#c86a28]' : 'text-[#a8a29e]'}`} />
-                                  <span className="truncate">{item}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <div className="text-[12.5px] text-[#78716c] font-medium">未找到匹配的会话、项目或分组</div>
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="text-[11.5px] text-[#c86a28] hover:underline font-medium cursor-pointer"
+                  >
+                    清除搜索条件
+                  </button>
                 </div>
-              ))}
+              ) : (
+                filteredTreeData.map((group) => (
+                  <div key={group.id} className="space-y-0.5 text-[13px]">
+                    {/* Group Header Row */}
+                    <div className="flex items-center justify-between pl-2 pr-1 py-1 rounded-md hover:bg-[#f3f2eb] text-[#292524] transition-colors group/group">
+                      <button 
+                        onClick={() => {
+                          setTreeData(prev => prev.map(g => g.id === group.id ? { ...g, isOpen: !g.isOpen } : g))
+                        }}
+                        className="flex items-center space-x-1.5 font-semibold text-left flex-1 min-w-0 cursor-pointer"
+                      >
+                        {(group.isOpen || !!searchQuery.trim()) ? <ChevronDown className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" /> : <ChevronRight className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />}
+                        <Folder className="w-4 h-4 text-[#c86a28] flex-shrink-0" />
+                        <span className="truncate">{renderHighlightedText(group.name, searchQuery)}</span>
+                      </button>
+
+                      {/* Quick Add Button on Group Header (Hidden by default, shows on hover of this group only, aligned) */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleQuickCreateInGroup(group.name)
+                        }}
+                        className="w-5.5 h-5.5 rounded-md hover:bg-[#e4e2da] text-[#78716c] hover:text-[#c86a28] flex items-center justify-center opacity-0 group-hover/group:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                        title={`在「${group.name}」快速新建会话`}
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Group Projects */}
+                    {(group.isOpen || !!searchQuery.trim()) && (
+                      <div className="pl-3.5 space-y-1 border-l-2 border-[#f0eee6] ml-3.5">
+                        {group.projects.map((project) => (
+                          <div key={project.id}>
+                            {/* Project Header Row */}
+                            <div className="flex items-center justify-between pl-1.5 pr-1 py-1 rounded-md hover:bg-[#f3f2eb] text-[#44403c] transition-colors group/proj">
+                              <button 
+                                onClick={() => {
+                                  setTreeData(prev => prev.map(g => g.id === group.id ? {
+                                    ...g,
+                                    projects: g.projects.map(p => p.id === project.id ? { ...p, isOpen: !p.isOpen } : p)
+                                  } : g))
+                                }}
+                                className="flex items-center space-x-1.5 font-medium text-[12.5px] text-left flex-1 min-w-0 cursor-pointer"
+                              >
+                                {(project.isOpen || !!searchQuery.trim()) ? <ChevronDown className="w-3 h-3 text-[#a8a29e] flex-shrink-0" /> : <ChevronRight className="w-3 h-3 text-[#a8a29e] flex-shrink-0" />}
+                                <Box className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" />
+                                <span className="truncate">{renderHighlightedText(project.name, searchQuery)}</span>
+                              </button>
+
+                              {/* Quick Add Button on Project Header (Hidden by default, shows on hover of this project only, aligned) */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleQuickCreateInProject(group.name, project.name)
+                                }}
+                                className="w-5.5 h-5.5 rounded-md hover:bg-[#e4e2da] text-[#78716c] hover:text-[#c86a28] flex items-center justify-center opacity-0 group-hover/proj:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                                title={`在项目「${project.name}」新建会话`}
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+
+                            {/* Project Conversations */}
+                            {(project.isOpen || !!searchQuery.trim()) && (
+                              <div className="pl-3 space-y-0.5 mt-0.5">
+                                {project.conversations.map((item) => (
+                                  <div 
+                                    key={item}
+                                    onClick={() => handleSelectConversationItem(item, group.name, project)}
+                                    className={`cursor-pointer flex items-center space-x-2 px-2.5 py-1.5 rounded-xl text-[12px] transition-all ${
+                                      selectedConversation === item
+                                        ? 'bg-[#f7efe5] text-[#8b5229] font-semibold shadow-2xs'
+                                        : 'text-[#57534e] hover:bg-[#f3f2eb]'
+                                    }`}
+                                  >
+                                    <MessageSquare className={`w-3.5 h-3.5 flex-shrink-0 ${selectedConversation === item ? 'text-[#c86a28]' : 'text-[#a8a29e]'}`} />
+                                    <span className="truncate">{renderHighlightedText(item, searchQuery)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
             </div>
 
