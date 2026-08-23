@@ -77,37 +77,75 @@ function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: (v: b
   )
 }
 
+// Window Controls Component (Minimize, Maximize/Restore, Close)
+function WindowControls({ isMaximized, onToggleMaximize }: { isMaximized?: boolean; onToggleMaximize?: () => void }) {
+  return (
+    <div className="flex items-center space-x-0.5 text-[#78716c]">
+      <button 
+        type="button"
+        title="最小化" 
+        className="w-7 h-7 flex items-center justify-center hover:bg-[#e7e5e4] rounded-md text-[#57534e] transition-colors cursor-pointer"
+      >
+        <Minus className="w-3.5 h-3.5" />
+      </button>
+      <button 
+        type="button"
+        onClick={onToggleMaximize}
+        title={isMaximized ? "向下还原" : "最大化"} 
+        className="w-7 h-7 flex items-center justify-center hover:bg-[#e7e5e4] rounded-md text-[#57534e] transition-colors cursor-pointer"
+      >
+        <Square className="w-3 h-3" />
+      </button>
+      <button 
+        type="button"
+        title="关闭" 
+        className="w-7 h-7 flex items-center justify-center hover:bg-[#ef4444] hover:text-white rounded-md text-[#57534e] transition-colors cursor-pointer"
+      >
+        <X className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  )
+}
+
 export default function App() {
   // Navigation & Toggle states
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true)
   const [rightPanelOpen, setRightPanelOpen] = useState(true)
+  const [isMaximized, setIsMaximized] = useState(false)
 
   // Resizable Panel Widths & Dragging States
   const [leftSidebarWidth, setLeftSidebarWidth] = useState(240)
+  const [mainWidth, setMainWidth] = useState(780)
   const [rightPanelWidth, setRightPanelWidth] = useState(440)
   const [isDraggingLeft, setIsDraggingLeft] = useState(false)
   const [isDraggingRight, setIsDraggingRight] = useState(false)
+  const [isDraggingMainRight, setIsDraggingMainRight] = useState(false)
 
   // Mouse drag handler for sidebar resizers
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (isDraggingLeft) {
-        const newWidth = Math.min(Math.max(e.clientX, 180), 420)
+        const newWidth = Math.min(Math.max(e.clientX, 180), 400)
         setLeftSidebarWidth(newWidth)
       } else if (isDraggingRight) {
         const newWidth = Math.min(Math.max(window.innerWidth - e.clientX, 320), 720)
         setRightPanelWidth(newWidth)
+      } else if (isDraggingMainRight) {
+        const leftOffset = leftSidebarOpen ? leftSidebarWidth + 6 : 0
+        const newWidth = Math.min(Math.max(e.clientX - leftOffset, 500), 1200)
+        setMainWidth(newWidth)
       }
     }
 
     const handleMouseUp = () => {
       setIsDraggingLeft(false)
       setIsDraggingRight(false)
+      setIsDraggingMainRight(false)
       document.body.style.cursor = 'default'
       document.body.style.userSelect = 'auto'
     }
 
-    if (isDraggingLeft || isDraggingRight) {
+    if (isDraggingLeft || isDraggingRight || isDraggingMainRight) {
       document.body.style.cursor = 'col-resize'
       document.body.style.userSelect = 'none'
       window.addEventListener('mousemove', handleMouseMove)
@@ -118,7 +156,7 @@ export default function App() {
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [isDraggingLeft, isDraggingRight])
+  }, [isDraggingLeft, isDraggingRight, isDraggingMainRight, leftSidebarOpen, leftSidebarWidth])
 
   const [activeTab, setActiveTab] = useState<'code' | 'preview'>('code')
   
@@ -244,14 +282,9 @@ export default function App() {
 
   // Textarea Auto Height Ref & Handler
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const mainRef = useRef<HTMLElement>(null)
-  const [savedMainWidth, setSavedMainWidth] = useState(780)
 
   const handleToggleRightPanel = () => {
-    if (rightPanelOpen && mainRef.current) {
-      setSavedMainWidth(mainRef.current.offsetWidth)
-    }
-    setRightPanelOpen(!rightPanelOpen)
+    setRightPanelOpen((prev) => !prev)
   }
 
   const handleTextareaInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -441,10 +474,24 @@ export default function App() {
     { id: 'account', label: '账户', icon: User },
   ] as const
 
+  const totalWindowWidth =
+    (leftSidebarOpen ? leftSidebarWidth + 6 : 0) +
+    mainWidth +
+    (rightPanelOpen ? rightPanelWidth + 6 : 6)
+
   return (
-    <div className="w-screen h-screen flex flex-col bg-[#f5f5f4] text-[#1c1917] select-none overflow-hidden font-sans">
-      {/* App Main Layout Grid */}
-      <div className="flex-1 flex overflow-hidden relative">
+    <div className="w-screen h-screen bg-[#eceae5] flex items-center justify-start overflow-x-auto overflow-y-hidden select-none font-sans">
+      {/* Tokmon Agent Desktop Window */}
+      <div 
+        style={{
+          width: isMaximized ? '100vw' : `${totalWindowWidth}px`,
+        }}
+        className={`h-full flex flex-col bg-[#fafaf9] text-[#1c1917] overflow-hidden relative transition-[width] duration-150 ease-out ${
+          isMaximized ? 'w-screen rounded-none' : 'border-r border-[#d4d1c8] shadow-2xl'
+        }`}
+      >
+        {/* App Main Layout Grid */}
+        <div className="flex-1 flex overflow-hidden relative">
 
         {/* ========================================================= */}
         {/* COLUMN 1: LEFT SIDEBAR */}
@@ -707,11 +754,8 @@ export default function App() {
         {/* COLUMN 2: MAIN CHAT & WORKFLOW EXECUTION */}
         {/* ========================================================= */}
         <main 
-          ref={mainRef}
-          style={{
-            width: rightPanelOpen ? undefined : `${savedMainWidth}px`
-          }}
-          className={`${rightPanelOpen ? 'flex-1 min-w-[400px]' : 'flex-shrink-0'} flex flex-col bg-[#fafaf9] border-r border-[#e7e5e4] overflow-hidden relative`}
+          style={{ width: isMaximized && !rightPanelOpen ? undefined : `${mainWidth}px` }}
+          className={`${isMaximized && !rightPanelOpen ? 'flex-1' : 'flex-shrink-0'} flex flex-col bg-[#fafaf9] overflow-hidden relative`}
         >
           
           {/* Middle Chat Header Bar */}
@@ -763,12 +807,12 @@ export default function App() {
               )}
             </div>
 
-            {/* Right Panel Toggle Button */}
-            <div className="flex items-center">
+            {/* Right Controls in Main Header */}
+            <div className="flex items-center space-x-2">
               <button
                 onClick={handleToggleRightPanel}
                 title={rightPanelOpen ? '折叠代码审阅' : '展开代码审阅'}
-                className="p-1.5 hover:bg-[#e7e5e4] rounded-lg text-[#57534e] hover:text-[#1c1917] transition-colors cursor-pointer flex items-center justify-center"
+                className="p-1.5 hover:bg-[#e7e5e4] rounded-lg text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer flex items-center justify-center"
               >
                 {rightPanelOpen ? (
                   <PanelRightClose className="w-4 h-4 text-[#78716c]" />
@@ -776,6 +820,17 @@ export default function App() {
                   <PanelRightOpen className="w-4 h-4 text-[#d97706]" />
                 )}
               </button>
+
+              {/* When right panel is closed, show titlebar window controls here */}
+              {!rightPanelOpen && (
+                <>
+                  <div className="h-4 w-[1px] bg-[#e7e5e4]" />
+                  <WindowControls 
+                    isMaximized={isMaximized} 
+                    onToggleMaximize={() => setIsMaximized(!isMaximized)} 
+                  />
+                </>
+              )}
             </div>
           </header>
 
@@ -1546,6 +1601,14 @@ export default function App() {
                   文件预览
                 </button>
               </div>
+
+              {/* Right panel window controls */}
+              <div className="flex items-center">
+                <WindowControls 
+                  isMaximized={isMaximized} 
+                  onToggleMaximize={() => setIsMaximized(!isMaximized)} 
+                />
+              </div>
             </div>
 
             {/* Sub Header File Selector */}
@@ -1686,6 +1749,17 @@ export default function App() {
 
           </section>
         ) : null}
+
+        {/* WINDOW RIGHT BORDER RESIZER (when right panel closed) */}
+        {!rightPanelOpen && (
+          <div
+            onMouseDown={() => setIsDraggingMainRight(true)}
+            title="按住拖拽调整工作区宽度"
+            className="w-1.5 h-full cursor-col-resize z-30 flex-shrink-0 relative group flex justify-center items-center select-none"
+          >
+            <div className={`w-[2px] h-full transition-colors ${isDraggingMainRight ? 'bg-[#f5a623]' : 'bg-transparent group-hover:bg-[#f5a623]'}`} />
+          </div>
+        )}
 
       </div>
 
@@ -2300,17 +2374,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Floating System Window Titlebar Controls (Top Right Overlay) */}
-      <div className="absolute top-2 right-3 z-50 flex items-center space-x-2 text-[#78716c]">
-        <button className="p-1 hover:bg-[#e7e5e4] rounded text-[#57534e] transition-colors">
-          <Minus className="w-3.5 h-3.5" />
-        </button>
-        <button className="p-1 hover:bg-[#e7e5e4] rounded text-[#57534e] transition-colors">
-          <Square className="w-3 h-3" />
-        </button>
-        <button className="p-1 hover:bg-[#ef4444] hover:text-white rounded text-[#57534e] transition-colors">
-          <X className="w-3.5 h-3.5" />
-        </button>
       </div>
     </div>
   )
