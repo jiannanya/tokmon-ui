@@ -251,7 +251,7 @@ export default function App() {
 
   // Active Workspace & Project Space State (Agent Desktop Working Directory)
   const [activeWorkspace, setActiveWorkspace] = useState({
-    group: '内容生产',
+    group: '默认',
     name: 'subtitle-agent',
     path: 'C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent',
     shortPath: '~/Projects/subtitle-agent',
@@ -319,8 +319,8 @@ export default function App() {
   // Dynamic 3-Level Conversation Tree Data (分组 Group -> 项目 Project -> 会话 Conversation)
   const [treeData, setTreeData] = useState([
     {
-      id: 'group-1',
-      name: '内容生产',
+      id: 'group-default',
+      name: '默认',
       isOpen: true,
       projects: [
         {
@@ -330,7 +330,14 @@ export default function App() {
           shortPath: '~/Projects/subtitle-agent',
           isOpen: true,
           conversations: ['生成音频时间轴字幕', '字幕校对优化', '批量字幕质检优化']
-        },
+        }
+      ]
+    },
+    {
+      id: 'group-1',
+      name: '内容生产',
+      isOpen: true,
+      projects: [
         {
           id: 'proj-1-2',
           name: 'audio-slice',
@@ -376,7 +383,7 @@ export default function App() {
   // New Conversation Modal State
   const [showNewConvModal, setShowNewConvModal] = useState(false)
   const [newConvTitle, setNewConvTitle] = useState('')
-  const [newConvGroup, setNewConvGroup] = useState('内容生产')
+  const [newConvGroup, setNewConvGroup] = useState('默认')
   const [newConvPath, setNewConvPath] = useState('C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent')
 
   // Helper to extract directory name from physical path
@@ -504,7 +511,7 @@ export default function App() {
   const handleOpenNewConvModal = () => {
     const defaultName = `新会话 ${Date.now().toString().slice(-4)}`
     setNewConvTitle(defaultName)
-    setNewConvGroup('内容生产')
+    setNewConvGroup('默认')
     setNewConvPath(activeWorkspace.path || 'C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent')
     setShowNewConvModal(true)
   }
@@ -515,7 +522,7 @@ export default function App() {
     const path = newConvPath.trim() || 'C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent'
     const projName = getProjectNameFromPath(path)
     const shortPath = path.replace('C:\\Users\\User\\Tokmon', '~').replace(/\\/g, '/')
-    const targetGroup = newConvGroup.trim() || '内容生产'
+    const targetGroup = newConvGroup.trim() || '默认'
 
     setTreeData(prev => {
       const groupExists = prev.some(g => g.name === targetGroup)
