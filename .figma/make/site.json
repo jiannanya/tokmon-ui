@@ -1,0 +1,10 @@
+{
+  "description": "Delivers an exact pixel-perfect HTML and CSS replica of a UI design, enabling designers and developers to visualize and implement precise layouts efficiently.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
