@@ -40,12 +40,15 @@ import {
   ArrowUp,
   ShieldAlert,
   Brain,
-  CircleDashed,
   FolderOpen,
   GitBranch,
   ExternalLink,
   HardDrive,
-  RefreshCw
+  RefreshCw,
+  ChevronUp,
+  FolderPlus,
+  Monitor,
+  CircleDashed
 } from 'lucide-react'
 
 // Tokmon Brand Logo Image in Warm Terracotta/Sand (#c86a28)
@@ -249,7 +252,7 @@ export default function App() {
   // Active Workspace & Project Space State (Agent Desktop Working Directory)
   const [activeWorkspace, setActiveWorkspace] = useState({
     group: '内容生产',
-    name: '🎬 字幕制作空间',
+    name: 'subtitle-agent',
     path: 'C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent',
     shortPath: '~/Projects/subtitle-agent',
     branch: 'main',
@@ -313,16 +316,142 @@ export default function App() {
   const [subtitleSearch, setSubtitleSearch] = useState('')
   const [copiedNotification, setCopiedNotification] = useState(false)
 
-  // 3-Level Tree Collapsible States (分组 Group -> 项目 Project -> 会话 Conversation)
-  const [group1Open, setGroup1Open] = useState(true)
-  const [project1_1Open, setProject1_1Open] = useState(true)
-  const [project1_2Open, setProject1_2Open] = useState(false)
+  // Dynamic 3-Level Conversation Tree Data (分组 Group -> 项目 Project -> 会话 Conversation)
+  const [treeData, setTreeData] = useState([
+    {
+      id: 'group-1',
+      name: '内容生产',
+      isOpen: true,
+      projects: [
+        {
+          id: 'proj-1-1',
+          name: 'subtitle-agent',
+          workspacePath: 'C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent',
+          shortPath: '~/Projects/subtitle-agent',
+          isOpen: true,
+          conversations: ['生成音频时间轴字幕', '字幕校对优化', '批量字幕质检优化']
+        },
+        {
+          id: 'proj-1-2',
+          name: 'audio-slice',
+          workspacePath: 'C:\\Users\\User\\Tokmon\\Projects\\audio-slice',
+          shortPath: '~/Projects/audio-slice',
+          isOpen: false,
+          conversations: ['自动长音频降噪']
+        }
+      ]
+    },
+    {
+      id: 'group-2',
+      name: '演示助手',
+      isOpen: true,
+      projects: [
+        {
+          id: 'proj-2-1',
+          name: 'ppt-generator',
+          workspacePath: 'C:\\Users\\User\\Tokmon\\Projects\\ppt-generator',
+          shortPath: '~/Projects/ppt-generator',
+          isOpen: true,
+          conversations: ['PPT 大纲生成', '演讲稿润色']
+        }
+      ]
+    },
+    {
+      id: 'group-3',
+      name: '旅行计划',
+      isOpen: false,
+      projects: [
+        {
+          id: 'proj-3-1',
+          name: 'travel-planner',
+          workspacePath: 'C:\\Users\\User\\Tokmon\\Projects\\travel-planner',
+          shortPath: '~/Projects/travel-planner',
+          isOpen: true,
+          conversations: ['行程规划助手']
+        }
+      ]
+    }
+  ])
 
-  const [group2Open, setGroup2Open] = useState(true)
-  const [project2_1Open, setProject2_1Open] = useState(true)
+  // New Conversation Modal State
+  const [showNewConvModal, setShowNewConvModal] = useState(false)
+  const [newConvTitle, setNewConvTitle] = useState('')
+  const [newConvGroup, setNewConvGroup] = useState('内容生产')
+  const [newConvPath, setNewConvPath] = useState('C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent')
 
-  const [group3Open, setGroup3Open] = useState(false)
-  const [project3_1Open, setProject3_1Open] = useState(true)
+  // Helper to extract directory name from physical path
+  const getProjectNameFromPath = (pathStr: string) => {
+    const clean = pathStr.trim().replace(/[/\\]+$/, '')
+    const parts = clean.split(/[/\\]/)
+    return parts.pop() || 'new-project'
+  }
+
+  // Change Workspace Path Modal State (for pre-dialogue customization)
+  const [showChangeWorkspaceModal, setShowChangeWorkspaceModal] = useState(false)
+  const [changeWorkspacePathInput, setChangeWorkspacePathInput] = useState('')
+
+  // Native OS Directory Picker State & Handler
+  const [folderPickerTarget, setFolderPickerTarget] = useState<'newConv' | 'changeWorkspace'>('newConv')
+  const nativeFolderInputRef = useRef<HTMLInputElement>(null)
+
+  // Direct Native Directory Picker Handler (Calls OS File System Dialog directly)
+  const handleBrowseNativeDirectory = async (target: 'newConv' | 'changeWorkspace') => {
+    setFolderPickerTarget(target)
+
+    // 1. Try modern native File System Access API (window.showDirectoryPicker)
+    if (typeof window !== 'undefined' && 'showDirectoryPicker' in window) {
+      try {
+        const dirHandle = await (window as any).showDirectoryPicker()
+        const folderName = dirHandle.name
+        const fullPath = `C:\\Users\\User\\Tokmon\\Projects\\${folderName}`
+        
+        if (target === 'newConv') {
+          setNewConvPath(fullPath)
+          // Also check if this project already exists in a group and auto-align group
+          for (const g of treeData) {
+            if (g.projects.some(p => p.workspacePath.toLowerCase() === fullPath.toLowerCase() || p.name.toLowerCase() === folderName.toLowerCase())) {
+              setNewConvGroup(g.name)
+              break
+            }
+          }
+        } else {
+          setChangeWorkspacePathInput(fullPath)
+        }
+        return
+      } catch (err: any) {
+        if (err.name === 'AbortError') {
+          return // User cancelled the native folder selection dialog
+        }
+        console.warn('showDirectoryPicker error, falling back to input:', err)
+      }
+    }
+
+    // 2. Fallback: Trigger native file input with webkitdirectory
+    if (nativeFolderInputRef.current) {
+      nativeFolderInputRef.current.value = ''
+      nativeFolderInputRef.current.click()
+    }
+  }
+
+  // Handle native folder picker change from HTML input
+  const handleNativeFolderInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const firstFile = e.target.files[0]
+      const folderName = firstFile.webkitRelativePath?.split('/')[0] || firstFile.name || 'custom-workspace'
+      const fullPath = `C:\\Users\\User\\Tokmon\\Projects\\${folderName}`
+      if (folderPickerTarget === 'newConv') {
+        setNewConvPath(fullPath)
+        for (const g of treeData) {
+          if (g.projects.some(p => p.workspacePath.toLowerCase() === fullPath.toLowerCase() || p.name.toLowerCase() === folderName.toLowerCase())) {
+            setNewConvGroup(g.name)
+            break
+          }
+        }
+      } else {
+        setChangeWorkspacePathInput(fullPath)
+      }
+    }
+  }
 
   // Search keyword state in sidebar
   const [searchQuery, setSearchQuery] = useState('')
@@ -371,50 +500,222 @@ export default function App() {
     }, 700)
   }
 
-  // Handle switching conversation
-  const handleSelectConversation = (name: string) => {
-    setSelectedConversation(name)
-    setConversationTitle(name)
-    if (name.includes('字幕')) {
-      setActiveWorkspace({
-        group: '内容生产',
-        name: '🎬 字幕制作空间',
-        path: 'C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent',
-        shortPath: '~/Projects/subtitle-agent',
-        branch: 'main',
-        indexedFiles: 142,
-        totalTokens: '84.2k'
-      })
-    } else if (name.includes('音频') || name.includes('降噪')) {
-      setActiveWorkspace({
-        group: '内容生产',
-        name: '🎧 音频切片处理',
-        path: 'C:\\Users\\User\\Tokmon\\Projects\\audio-slice',
-        shortPath: '~/Projects/audio-slice',
-        branch: 'feature/vad',
-        indexedFiles: 68,
-        totalTokens: '36.1k'
-      })
-    } else if (name.includes('知识库')) {
-      setActiveWorkspace({
-        group: '核心系统',
-        name: '📚 知识库管理',
-        path: 'C:\\Users\\User\\Tokmon\\Projects\\knowledge-base',
-        shortPath: '~/Projects/knowledge-base',
-        branch: 'main',
-        indexedFiles: 184,
-        totalTokens: '128.5k'
-      })
-    } else if (name.includes('行程') || name.includes('助手')) {
-      setActiveWorkspace({
-        group: '日常助手',
-        name: '🧭 智能助手空间',
-        path: 'C:\\Users\\User\\Tokmon\\Projects\\assistant-space',
-        shortPath: '~/Projects/assistant-space',
-        branch: 'main',
-        indexedFiles: 52,
-        totalTokens: '29.4k'
-      })
+  // Open New Conversation Settings Modal
+  const handleOpenNewConvModal = () => {
+    const defaultName = `新会话 ${Date.now().toString().slice(-4)}`
+    setNewConvTitle(defaultName)
+    setNewConvGroup('内容生产')
+    setNewConvPath(activeWorkspace.path || 'C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent')
+    setShowNewConvModal(true)
+  }
+
+  // Confirm Creating New Conversation from Modal (Auto-identify or create project)
+  const handleConfirmCreateNewConv = () => {
+    const title = newConvTitle.trim() || `新会话 ${Date.now().toString().slice(-4)}`
+    const path = newConvPath.trim() || 'C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent'
+    const projName = getProjectNameFromPath(path)
+    const shortPath = path.replace('C:\\Users\\User\\Tokmon', '~').replace(/\\/g, '/')
+    const targetGroup = newConvGroup.trim() || '内容生产'
+
+    setTreeData(prev => {
+      const groupExists = prev.some(g => g.name === targetGroup)
+
+      if (groupExists) {
+        return prev.map(g => {
+          if (g.name === targetGroup) {
+            // Check if project with same path or name exists in this group
+            const projectExists = g.projects.some(
+              p => p.workspacePath.toLowerCase() === path.toLowerCase() || p.name.toLowerCase() === projName.toLowerCase()
+            )
+
+            if (projectExists) {
+              // Add conversation to existing project
+              return {
+                ...g,
+                isOpen: true,
+                projects: g.projects.map(p => {
+                  if (p.workspacePath.toLowerCase() === path.toLowerCase() || p.name.toLowerCase() === projName.toLowerCase()) {
+                    return {
+                      ...p,
+                      isOpen: true,
+                      conversations: [title, ...p.conversations]
+                    }
+                  }
+                  return p
+                })
+              }
+            } else {
+              // Create new project under this group
+              const newProject = {
+                id: `proj-${Date.now()}`,
+                name: projName,
+                workspacePath: path,
+                shortPath: shortPath,
+                isOpen: true,
+                conversations: [title]
+              }
+              return {
+                ...g,
+                isOpen: true,
+                projects: [newProject, ...g.projects]
+              }
+            }
+          }
+          return g
+        })
+      } else {
+        // Create new group and new project
+        const newProject = {
+          id: `proj-${Date.now()}`,
+          name: projName,
+          workspacePath: path,
+          shortPath: shortPath,
+          isOpen: true,
+          conversations: [title]
+        }
+        const newGroup = {
+          id: `group-${Date.now()}`,
+          name: targetGroup,
+          isOpen: true,
+          projects: [newProject]
+        }
+        return [...prev, newGroup]
+      }
+    })
+
+    setSelectedConversation(title)
+    setConversationTitle(title)
+    setMessages([])
+    setActiveWorkspace({
+      group: targetGroup,
+      name: projName,
+      path: path,
+      shortPath: shortPath,
+      branch: 'main',
+      indexedFiles: 142,
+      totalTokens: '0'
+    })
+    setShowNewConvModal(false)
+  }
+
+  // Quick Create in Group
+  const handleQuickCreateInGroup = (groupName: string) => {
+    const group = treeData.find(g => g.name === groupName)
+    if (!group || group.projects.length === 0) return
+    const defaultProj = group.projects[0]
+    const title = `新会话 ${Date.now().toString().slice(-4)}`
+
+    setTreeData(prev => prev.map(g => {
+      if (g.name === groupName) {
+        return {
+          ...g,
+          isOpen: true,
+          projects: g.projects.map((p, idx) => {
+            if (idx === 0) {
+              return {
+                ...p,
+                isOpen: true,
+                conversations: [title, ...p.conversations]
+              }
+            }
+            return p
+          })
+        }
+      }
+      return g
+    }))
+
+    setSelectedConversation(title)
+    setConversationTitle(title)
+    setMessages([])
+    setActiveWorkspace({
+      group: groupName,
+      name: defaultProj.name,
+      path: defaultProj.workspacePath,
+      shortPath: defaultProj.shortPath,
+      branch: 'main',
+      indexedFiles: 142,
+      totalTokens: '0'
+    })
+  }
+
+  // Quick Create in Project
+  const handleQuickCreateInProject = (groupName: string, projectName: string) => {
+    const group = treeData.find(g => g.name === groupName)
+    const project = group?.projects.find(p => p.name === projectName)
+    if (!project) return
+    const title = `新会话 ${Date.now().toString().slice(-4)}`
+
+    setTreeData(prev => prev.map(g => {
+      if (g.name === groupName) {
+        return {
+          ...g,
+          isOpen: true,
+          projects: g.projects.map(p => {
+            if (p.name === projectName) {
+              return {
+                ...p,
+                isOpen: true,
+                conversations: [title, ...p.conversations]
+              }
+            }
+            return p
+          })
+        }
+      }
+      return g
+    }))
+
+    setSelectedConversation(title)
+    setConversationTitle(title)
+    setMessages([])
+    setActiveWorkspace({
+      group: groupName,
+      name: projectName,
+      path: project.workspacePath,
+      shortPath: project.shortPath,
+      branch: 'main',
+      indexedFiles: 142,
+      totalTokens: '0'
+    })
+  }
+
+  // Handle selecting a conversation
+  const handleSelectConversationItem = (convName: string, groupName: string, project: any) => {
+    setSelectedConversation(convName)
+    setConversationTitle(convName)
+    setActiveWorkspace({
+      group: groupName,
+      name: project.name,
+      path: project.workspacePath,
+      shortPath: project.shortPath,
+      branch: 'main',
+      indexedFiles: 142,
+      totalTokens: '84.2k'
+    })
+
+    if (convName === '生成音频时间轴字幕') {
+      setMessages([
+        {
+          id: 1,
+          sender: 'user',
+          time: '10:20',
+          text: '使用 faster-whisper 模型对音频文件进行转录，输出带时间戳的字幕 (Segmentation 模式)。',
+          details: {
+            modelPath: 'C:\\Models\\faster-whisper-large-v3-turbo',
+            audioFile: 'C:\\Data\\audio.mp3',
+            outputFile: 'UTF-8 编码的 .srt'
+          }
+        },
+        {
+          id: 2,
+          sender: 'bot',
+          time: '10:20',
+          text: '已理解你的需求，我将使用 faster-whisper 进行音频转录，并输出带时间戳的字幕文件。\n我会分步骤完成任务并实时向你汇报进度。'
+        }
+      ])
+    } else {
+      setMessages([])
     }
   }
 
@@ -608,210 +909,119 @@ export default function App() {
             
             {/* New Conversation Button */}
             <button 
-                onClick={() => {
-                  const newName = `新会话 ${Date.now().toString().slice(-4)}`
-                  setSelectedConversation(newName)
-                  setConversationTitle(newName)
-                }}
-                className="flex items-center justify-center space-x-1.5 w-full py-2.5 px-4 rounded-xl bg-[#f7efe5] border border-[#ebdcd0] text-[#8b5229] font-medium text-[13.5px] hover:bg-[#f3e4d5] active:scale-98 transition-all shadow-2xs cursor-pointer"
-              >
-                <Plus className="w-4 h-4 text-[#8b5229]" strokeWidth={2.5} />
-                <span>新建会话</span>
-              </button>
+              onClick={handleOpenNewConvModal}
+              className="flex items-center justify-center space-x-1.5 w-full py-2.5 px-4 rounded-xl bg-[#f7efe5] border border-[#ebdcd0] text-[#8b5229] font-medium text-[13.5px] hover:bg-[#f3e4d5] active:scale-98 transition-all shadow-2xs cursor-pointer"
+            >
+              <Plus className="w-4 h-4 text-[#8b5229]" strokeWidth={2.5} />
+              <span>新建会话</span>
+            </button>
 
-              {/* Search Input Box */}
-              <div className="relative">
-                <Search className="w-4 h-4 text-[#a8a29e] absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="搜索项目或会话..."
-                  className="w-full bg-[#f0eee8] border border-transparent rounded-xl pl-9 pr-3 py-1.5 text-[12.5px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:bg-white focus:border-[#f5e4ab] transition-all"
-                />
+            {/* Search Input Box */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-[#a8a29e] absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="搜索项目或会话..."
+                className="w-full bg-[#f0eee8] border border-transparent rounded-xl pl-9 pr-3 py-1.5 text-[12.5px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:bg-white focus:border-[#f5e4ab] transition-all"
+              />
+            </div>
+
+            {/* 3-Level Dynamic Tree Navigation (分组 Group -> 项目 Project -> 会话 Conversation) */}
+            <div className="pt-1 space-y-1">
+              <div className="flex items-center justify-between px-2 py-1 text-[11.5px] text-[#78716c] font-medium tracking-wider">
+                <span>分组 / 项目 / 会话</span>
               </div>
 
-              {/* 3-Level Tree Navigation (分组 Group -> 项目 Project -> 会话 Conversation) */}
-              <div className="pt-1">
-                <div className="flex items-center justify-between px-2 py-1 text-[11.5px] text-[#78716c] font-medium tracking-wider">
-                  <span>分组 / 项目 / 会话</span>
-                  <button 
-                    onClick={() => setGroup1Open(true)}
-                    className="p-0.5 hover:bg-[#e7e5e4] rounded text-[#78716c]"
-                    title="展开分组"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+              {treeData.map((group) => (
+                <div key={group.id} className="space-y-0.5 text-[13px]">
+                  {/* Group Header Row */}
+                  <div className="flex items-center justify-between pl-2 pr-1 py-1 rounded-md hover:bg-[#f3f2eb] text-[#292524] transition-colors group/group">
+                    <button 
+                      onClick={() => {
+                        setTreeData(prev => prev.map(g => g.id === group.id ? { ...g, isOpen: !g.isOpen } : g))
+                      }}
+                      className="flex items-center space-x-1.5 font-semibold text-left flex-1 min-w-0 cursor-pointer"
+                    >
+                      {group.isOpen ? <ChevronDown className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" /> : <ChevronRight className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />}
+                      <Folder className="w-4 h-4 text-[#c86a28] flex-shrink-0" />
+                      <span className="truncate">{group.name}</span>
+                    </button>
 
-                {/* Level 1: 分组 1 - 内容生产 */}
-                <div className="mt-1 space-y-0.5 text-[13px]">
-                  <button 
-                    onClick={() => setGroup1Open(!group1Open)}
-                    className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-md hover:bg-[#f3f2eb] text-[#292524] text-left font-semibold transition-colors cursor-pointer"
-                  >
-                    {group1Open ? <ChevronDown className="w-3.5 h-3.5 text-[#78716c]" /> : <ChevronRight className="w-3.5 h-3.5 text-[#78716c]" />}
-                    <Folder className="w-4 h-4 text-[#c86a28]" />
-                    <span className="truncate">内容生产</span>
-                  </button>
+                    {/* Quick Add Button on Group Header (Hidden by default, shows on hover of this group only, aligned) */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleQuickCreateInGroup(group.name)
+                      }}
+                      className="w-5.5 h-5.5 rounded-md hover:bg-[#e4e2da] text-[#78716c] hover:text-[#c86a28] flex items-center justify-center opacity-0 group-hover/group:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                      title={`在「${group.name}」快速新建会话`}
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
 
-                  {group1Open && (
+                  {/* Group Projects */}
+                  {group.isOpen && (
                     <div className="pl-3.5 space-y-1 border-l-2 border-[#f0eee6] ml-3.5">
-                      
-                      {/* Level 2: 项目 1.1 - 字幕制作空间 */}
-                      <div>
-                        <button 
-                          onClick={() => setProject1_1Open(!project1_1Open)}
-                          className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-md hover:bg-[#f3f2eb] text-[#44403c] text-left font-medium text-[12.5px] transition-colors cursor-pointer"
-                        >
-                          {project1_1Open ? <ChevronDown className="w-3 h-3 text-[#a8a29e]" /> : <ChevronRight className="w-3 h-3 text-[#a8a29e]" />}
-                          <Box className="w-3.5 h-3.5 text-[#a8a29e]" />
-                          <span className="truncate">字幕制作空间</span>
-                        </button>
-
-                        {/* Level 3: 会话列表 */}
-                        {project1_1Open && (
-                          <div className="pl-3 space-y-0.5 mt-0.5">
-                            {['生成音频时间轴字幕', '字幕校对优化', '批量字幕质检优化'].map((item) => (
-                              <div 
-                                key={item}
-                                onClick={() => handleSelectConversation(item)}
-                                className={`cursor-pointer flex items-center space-x-2 px-2.5 py-1.5 rounded-xl text-[12px] transition-all ${
-                                  selectedConversation === item
-                                    ? 'bg-[#f7efe5] text-[#8b5229] font-semibold shadow-2xs'
-                                    : 'text-[#57534e] hover:bg-[#f3f2eb]'
-                                }`}
-                              >
-                                <MessageSquare className={`w-3.5 h-3.5 flex-shrink-0 ${selectedConversation === item ? 'text-[#c86a28]' : 'text-[#a8a29e]'}`} />
-                                <span className="truncate">{item}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Level 2: 项目 1.2 - 音频切片项目 */}
-                      <div>
-                        <button 
-                          onClick={() => setProject1_2Open(!project1_2Open)}
-                          className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-md hover:bg-[#f0eee6] text-[#44403c] text-left font-medium text-[12.5px] transition-colors"
-                        >
-                          {project1_2Open ? <ChevronDown className="w-3 h-3 text-[#a8a29e]" /> : <ChevronRight className="w-3 h-3 text-[#a8a29e]" />}
-                          <Box className="w-3.5 h-3.5 text-[#a8a29e]" />
-                          <span className="truncate">音频切片处理</span>
-                        </button>
-
-                        {project1_2Open && (
-                          <div className="pl-3 space-y-0.5 mt-0.5">
-                            <div 
-                              onClick={() => handleSelectConversation('自动长音频降噪')}
-                              className={`cursor-pointer flex items-center space-x-2 px-2.5 py-1.5 rounded-xl text-[12px] transition-all ${
-                                selectedConversation === '自动长音频降噪'
-                                  ? 'bg-[#f7efe5] text-[#8b5229] font-semibold'
-                                  : 'text-[#57534e] hover:bg-[#f3f2eb]'
-                              }`}
+                      {group.projects.map((project) => (
+                        <div key={project.id}>
+                          {/* Project Header Row */}
+                          <div className="flex items-center justify-between pl-1.5 pr-1 py-1 rounded-md hover:bg-[#f3f2eb] text-[#44403c] transition-colors group/proj">
+                            <button 
+                              onClick={() => {
+                                setTreeData(prev => prev.map(g => g.id === group.id ? {
+                                  ...g,
+                                  projects: g.projects.map(p => p.id === project.id ? { ...p, isOpen: !p.isOpen } : p)
+                                } : g))
+                              }}
+                              className="flex items-center space-x-1.5 font-medium text-[12.5px] text-left flex-1 min-w-0 cursor-pointer"
                             >
-                              <MessageSquare className="w-3.5 h-3.5 text-[#a8a29e]" />
-                              <span className="truncate">自动长音频降噪</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                              {project.isOpen ? <ChevronDown className="w-3 h-3 text-[#a8a29e] flex-shrink-0" /> : <ChevronRight className="w-3 h-3 text-[#a8a29e] flex-shrink-0" />}
+                              <Box className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" />
+                              <span className="truncate">{project.name}</span>
+                            </button>
 
-                    </div>
-                  )}
-                </div>
-
-                {/* Level 1: 分组 2 - 演示助手 */}
-                <div className="mt-1.5 space-y-0.5 text-[13px]">
-                  <button 
-                    onClick={() => setGroup2Open(!group2Open)}
-                    className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-md hover:bg-[#f3f2eb] text-[#292524] text-left font-semibold transition-colors cursor-pointer"
-                  >
-                    {group2Open ? <ChevronDown className="w-3.5 h-3.5 text-[#78716c]" /> : <ChevronRight className="w-3.5 h-3.5 text-[#78716c]" />}
-                    <Folder className="w-4 h-4 text-[#c86a28]" />
-                    <span className="truncate">演示助手</span>
-                  </button>
-
-                  {group2Open && (
-                    <div className="pl-3.5 space-y-1 border-l-2 border-[#f0eee6] ml-3.5">
-                      <div>
-                        <button 
-                          onClick={() => setProject2_1Open(!project2_1Open)}
-                          className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-md hover:bg-[#f3f2eb] text-[#44403c] text-left font-medium text-[12.5px] transition-colors cursor-pointer"
-                        >
-                          {project2_1Open ? <ChevronDown className="w-3 h-3 text-[#a8a29e]" /> : <ChevronRight className="w-3 h-3 text-[#a8a29e]" />}
-                          <Box className="w-3.5 h-3.5 text-[#a8a29e]" />
-                          <span className="truncate">PPT 智绘项目</span>
-                        </button>
-
-                        {project2_1Open && (
-                          <div className="pl-3 space-y-0.5 mt-0.5">
-                            {['PPT 大纲生成', '演讲稿润色'].map((item) => (
-                              <div 
-                                key={item}
-                                onClick={() => handleSelectConversation(item)}
-                                className={`cursor-pointer flex items-center space-x-2 px-2.5 py-1.5 rounded-xl text-[12px] transition-all ${
-                                  selectedConversation === item
-                                    ? 'bg-[#f7efe5] text-[#8b5229] font-semibold'
-                                    : 'text-[#57534e] hover:bg-[#f3f2eb]'
-                                }`}
-                              >
-                                <MessageSquare className="w-3.5 h-3.5 text-[#a8a29e]" />
-                                <span className="truncate">{item}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Level 1: 分组 3 - 旅行计划 */}
-                <div className="mt-1.5 space-y-0.5 text-[13px]">
-                  <button 
-                    onClick={() => setGroup3Open(!group3Open)}
-                    className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-md hover:bg-[#f3f2eb] text-[#292524] text-left font-semibold transition-colors cursor-pointer"
-                  >
-                    {group3Open ? <ChevronDown className="w-3.5 h-3.5 text-[#78716c]" /> : <ChevronRight className="w-3.5 h-3.5 text-[#78716c]" />}
-                    <Folder className="w-4 h-4 text-[#c86a28]" />
-                    <span className="truncate">旅行计划</span>
-                  </button>
-
-                  {group3Open && (
-                    <div className="pl-3.5 space-y-1 border-l-2 border-[#f0eee6] ml-3.5">
-                      <div>
-                        <button 
-                          onClick={() => setProject3_1Open(!project3_1Open)}
-                          className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-md hover:bg-[#f3f2eb] text-[#44403c] text-left font-medium text-[12.5px] transition-colors cursor-pointer"
-                        >
-                          {project3_1Open ? <ChevronDown className="w-3 h-3 text-[#a8a29e]" /> : <ChevronRight className="w-3 h-3 text-[#a8a29e]" />}
-                          <Box className="w-3.5 h-3.5 text-[#a8a29e]" />
-                          <span className="truncate">度假规划</span>
-                        </button>
-
-                        {project3_1Open && (
-                          <div className="pl-3 space-y-0.5 mt-0.5">
-                            <div 
-                              onClick={() => handleSelectConversation('行程规划助手')}
-                              className={`cursor-pointer flex items-center space-x-2 px-2.5 py-1.5 rounded-xl text-[12px] transition-all ${
-                                selectedConversation === '行程规划助手'
-                                  ? 'bg-[#f7efe5] text-[#8b5229] font-semibold'
-                                  : 'text-[#57534e] hover:bg-[#f3f2eb]'
-                              }`}
+                            {/* Quick Add Button on Project Header (Hidden by default, shows on hover of this project only, aligned) */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleQuickCreateInProject(group.name, project.name)
+                              }}
+                              className="w-5.5 h-5.5 rounded-md hover:bg-[#e4e2da] text-[#78716c] hover:text-[#c86a28] flex items-center justify-center opacity-0 group-hover/proj:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                              title={`在项目「${project.name}」新建会话`}
                             >
-                              <MessageSquare className="w-3.5 h-3.5 text-[#a8a29e]" />
-                              <span className="truncate">行程规划助手</span>
-                            </div>
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
                           </div>
-                        )}
-                      </div>
+
+                          {/* Project Conversations */}
+                          {project.isOpen && (
+                            <div className="pl-3 space-y-0.5 mt-0.5">
+                              {project.conversations.map((item) => (
+                                <div 
+                                  key={item}
+                                  onClick={() => handleSelectConversationItem(item, group.name, project)}
+                                  className={`cursor-pointer flex items-center space-x-2 px-2.5 py-1.5 rounded-xl text-[12px] transition-all ${
+                                    selectedConversation === item
+                                      ? 'bg-[#f7efe5] text-[#8b5229] font-semibold shadow-2xs'
+                                      : 'text-[#57534e] hover:bg-[#f3f2eb]'
+                                  }`}
+                                >
+                                  <MessageSquare className={`w-3.5 h-3.5 flex-shrink-0 ${selectedConversation === item ? 'text-[#c86a28]' : 'text-[#a8a29e]'}`} />
+                                  <span className="truncate">{item}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
-
-              </div>
+              ))}
+            </div>
             </div>
 
             {/* Settings at Bottom (Pinned at bottom) */}
@@ -966,13 +1176,29 @@ export default function App() {
           </div>
 
           {mainViewMode === 'chat' ? (
-            /* Chat Messages & Execution Scroll Panel */
-            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6 custom-scrollbar pb-36">
-              
-              {/* Timestamp tag */}
-              <div className="text-center">
-                <span className="text-[11.5px] text-[#a8a29e] font-medium">10:20</span>
+            messages.length === 0 ? (
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4 select-none pb-36 animate-in fade-in duration-200">
+                <div className="w-14 h-14 rounded-2xl bg-[#fef8f4] border border-[#f5d9c3] flex items-center justify-center shadow-xs">
+                  <Sparkles className="w-7 h-7 text-[#c86a28]" />
+                </div>
+                <div className="space-y-1.5">
+                  <h3 className="text-[17px] font-bold text-[#1c1917] tracking-tight">{conversationTitle}</h3>
+                  <p className="text-[13px] text-[#78716c] max-w-[460px] leading-relaxed">
+                    当前为新会话。工作空间已关联至 <span className="font-mono text-[#c86a28] font-medium bg-[#fef8f4] px-1.5 py-0.5 rounded border border-[#f5d9c3]">{activeWorkspace.shortPath}</span>。
+                  </p>
+                  <p className="text-[11.5px] text-[#a8a29e]">
+                    您可在下方工作空间栏点击「更换目录」调整路径。发送第一条指令后工作空间将永久锁定。
+                  </p>
+                </div>
               </div>
+            ) : (
+              /* Chat Messages & Execution Scroll Panel */
+              <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6 custom-scrollbar pb-36">
+                
+                {/* Timestamp tag */}
+                <div className="text-center">
+                  <span className="text-[11.5px] text-[#a8a29e] font-medium">10:20</span>
+                </div>
 
               {/* Render Chat Messages */}
               {messages.map((msg) => (
@@ -1170,7 +1396,7 @@ export default function App() {
               </div>
 
             </div>
-          ) : (
+          )) : (
             /* HIGH FIDELITY TRAJECTORY TRACE VIEW */
             <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar bg-[#fafaf9]">
               
@@ -1444,12 +1670,13 @@ export default function App() {
               {/* WORKSPACE DIRECTORY BAR (Distinct compact status bar directly above input dialog box) */}
               <div className="relative">
                 <div 
-                  onClick={() => setShowWorkspaceMenu(!showWorkspaceMenu)}
-                  className="flex items-center justify-between px-3 py-1 bg-[#ffffff]/95 hover:bg-white backdrop-blur-md border border-[#e7e5e4] hover:border-[#d6d3d1] rounded-xl text-[11px] text-[#57534e] shadow-2xs transition-all cursor-pointer group select-none"
+                  className="flex items-center justify-between px-3 py-1 bg-[#ffffff]/95 hover:bg-white backdrop-blur-md border border-[#e7e5e4] hover:border-[#d6d3d1] rounded-xl text-[11px] text-[#57534e] shadow-2xs transition-all select-none"
                 >
                   {/* Left: Folder Icon + Workspace & Project Name + Path + Branch */}
                   <div className="flex items-center space-x-1.5 min-w-0 flex-1 mr-2">
-                    <FolderOpen className="w-3 h-3 text-[#c86a28] flex-shrink-0" />
+                    <div className="w-4.5 h-4.5 rounded bg-[#fef8f4] border border-[#f5d9c3] flex items-center justify-center flex-shrink-0">
+                      <FolderOpen className="w-3 h-3 text-[#c86a28]" />
+                    </div>
 
                     {/* Group & Project Space Name */}
                     <div className="flex items-center space-x-1 flex-shrink-0">
@@ -1461,7 +1688,7 @@ export default function App() {
                     {/* Path Badge */}
                     <span 
                       title={`工作空间物理路径: ${activeWorkspace.path}`}
-                      className="hidden sm:inline-flex items-center font-mono text-[10px] text-[#78716c] bg-[#ffffff] hover:bg-[#eceae5] px-1.5 py-0.2 rounded border border-[#e7e5e4] truncate max-w-[210px] transition-colors"
+                      className="hidden sm:inline-flex items-center font-mono text-[10px] text-[#78716c] bg-[#f5f5f4] hover:bg-[#eceae5] px-1.5 py-0.2 rounded border border-[#e7e5e4] truncate max-w-[210px] transition-colors"
                     >
                       {activeWorkspace.shortPath}
                     </span>
@@ -1473,146 +1700,37 @@ export default function App() {
                     </span>
                   </div>
 
-                  {/* Right: Index Status & Switch action */}
+                  {/* Right: Index Status & Change Folder Button (Available only before first message) */}
                   <div className="flex items-center space-x-2 flex-shrink-0">
-                    <div className="flex items-center space-x-1 text-[10px] text-[#78716c]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a]" />
-                      <span>{activeWorkspace.indexedFiles} 文件</span>
+                    <div className="flex items-center space-x-1 text-[10px] text-[#78716c] bg-[#f5f5f4] px-1.5 py-0.2 rounded border border-[#e7e5e4]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse" />
+                      <span>{activeWorkspace.indexedFiles} 文件就绪</span>
                     </div>
 
-                    <div className="flex items-center space-x-0.5 text-[#78716c] group-hover:text-[#1c1917] text-[10.5px] pl-1 font-medium transition-colors">
-                      <span>空间</span>
-                      <ChevronDown className={`w-3 h-3 transition-transform duration-150 ${showWorkspaceMenu ? 'rotate-180' : ''}`} />
-                    </div>
+                    {/* Folder Button: Change workspace only before first message; Locked once conversation starts */}
+                    {messages.length === 0 ? (
+                      <button
+                        onClick={() => {
+                          setChangeWorkspacePathInput(activeWorkspace.path)
+                          setShowChangeWorkspaceModal(true)
+                        }}
+                        className="flex items-center space-x-1 px-2 py-0.5 rounded-md bg-[#fef8f4] hover:bg-[#fcf2ea] border border-[#f5d9c3] text-[#c86a28] hover:text-[#b45309] text-[10.5px] font-medium transition-colors cursor-pointer"
+                        title="更改当前会话工作空间目录（未发送指令前可修改）"
+                      >
+                        <FolderOpen className="w-3 h-3 text-[#c86a28]" />
+                        <span>更换目录</span>
+                      </button>
+                    ) : (
+                      <div 
+                        className="flex items-center space-x-1 px-1.5 py-0.5 rounded-md bg-[#f5f5f4] text-[#a8a29e] text-[10px] font-medium select-none"
+                        title="会话已开始执行，工作空间已锁定不可修改"
+                      >
+                        <Lock className="w-2.5 h-2.5 text-[#a8a29e]" />
+                        <span>目录已锁定</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                {/* Workspace Switcher & Directory Action Popover Card */}
-                {showWorkspaceMenu && (
-                  <div className="absolute left-0 bottom-full mb-1.5 w-full bg-white border border-[#e7e5e4] rounded-2xl shadow-2xl p-3 text-[12px] z-50 text-[#1c1917] space-y-2.5 animate-in fade-in zoom-in-95 duration-150">
-                    {/* Header */}
-                    <div className="flex items-center justify-between pb-2 border-b border-[#f5f5f4]">
-                      <div className="flex items-center space-x-1.5">
-                        <FolderOpen className="w-3.5 h-3.5 text-[#c86a28]" />
-                        <span className="font-bold text-[12.5px] text-[#1c1917]">当前 Agent 工作空间与项目目录</span>
-                      </div>
-                      <span className="text-[10.5px] font-mono text-[#a8a29e] bg-[#fafaf9] px-1.5 py-0.5 rounded border border-[#e7e5e4]">
-                        {activeWorkspace.indexedFiles} 文件 · {activeWorkspace.totalTokens} Tokens
-                      </span>
-                    </div>
-
-                    {/* Current Full Path & Quick Actions */}
-                    <div className="bg-[#fafaf9] border border-[#e7e5e4] rounded-xl p-2.5 space-y-1.5">
-                      <div className="flex items-center justify-between text-[11px] text-[#78716c]">
-                        <span className="font-medium">工作空间物理路径</span>
-                        {copiedPathToast && (
-                          <span className="text-[#16a34a] font-medium flex items-center space-x-1">
-                            <Check className="w-3 h-3" />
-                            <span>已复制到剪贴板</span>
-                          </span>
-                        )}
-                      </div>
-                      <div className="font-mono text-[11px] text-[#1c1917] bg-white border border-[#e7e5e4] px-2 py-1 rounded-lg select-all break-all">
-                        {activeWorkspace.path}
-                      </div>
-                      <div className="flex items-center space-x-2 pt-0.5">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            navigator.clipboard.writeText(activeWorkspace.path)
-                            setCopiedPathToast(true)
-                            setTimeout(() => setCopiedPathToast(false), 2000)
-                          }}
-                          className="flex items-center space-x-1 px-2 py-0.8 rounded-md bg-white border border-[#e7e5e4] hover:border-[#c86a28] hover:text-[#c86a28] text-[11px] font-medium text-[#44403c] transition-colors cursor-pointer"
-                        >
-                          <Copy className="w-3 h-3" />
-                          <span>复制路径</span>
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            alert(`已在系统文件管理器中定位工作空间:\n${activeWorkspace.path}`)
-                          }}
-                          className="flex items-center space-x-1 px-2 py-0.8 rounded-md bg-white border border-[#e7e5e4] hover:border-[#c86a28] hover:text-[#c86a28] text-[11px] font-medium text-[#44403c] transition-colors cursor-pointer"
-                        >
-                          <ExternalLink className="w-3 h-3" />
-                          <span>在资源管理器中打开</span>
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setActiveWorkspace(prev => ({ ...prev, indexedFiles: prev.indexedFiles + 1 }))
-                          }}
-                          className="flex items-center space-x-1 px-2 py-0.8 rounded-md bg-white border border-[#e7e5e4] hover:border-[#c86a28] hover:text-[#c86a28] text-[11px] font-medium text-[#44403c] transition-colors cursor-pointer"
-                        >
-                          <RefreshCw className="w-3 h-3" />
-                          <span>重新扫描索引</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Quick Switch Workspaces */}
-                    <div className="space-y-1">
-                      <div className="text-[10.5px] font-medium text-[#78716c] px-1">快速切换项目空间</div>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {[
-                          { group: '内容生产', name: '🎬 字幕制作空间', path: 'C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent', short: '~/Projects/subtitle-agent', branch: 'main', files: 142, tokens: '84.2k' },
-                          { group: '内容生产', name: '🎧 音频切片处理', path: 'C:\\Users\\User\\Tokmon\\Projects\\audio-slice', short: '~/Projects/audio-slice', branch: 'feature/vad', files: 68, tokens: '36.1k' },
-                          { group: '核心系统', name: '🚀 Agent 任务中心', path: 'C:\\Users\\User\\Tokmon\\Projects\\agent-runner', short: '~/Projects/agent-runner', branch: 'main', files: 215, tokens: '142.8k' },
-                          { group: '核心系统', name: '⚙️ Tokmon Core', path: 'C:\\Users\\User\\Tokmon\\Projects\\tokmon-core', short: '~/Projects/tokmon-core', branch: 'dev', files: 310, tokens: '290.4k' },
-                        ].map((ws) => (
-                          <div
-                            key={ws.name}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setActiveWorkspace({
-                                group: ws.group,
-                                name: ws.name,
-                                path: ws.path,
-                                shortPath: ws.short,
-                                branch: ws.branch,
-                                indexedFiles: ws.files,
-                                totalTokens: ws.tokens
-                              })
-                              setShowWorkspaceMenu(false)
-                            }}
-                            className={`p-1.5 rounded-lg border transition-all cursor-pointer flex items-start justify-between ${
-                              activeWorkspace.name === ws.name
-                                ? 'bg-[#fef8f4] border-[#c86a28] shadow-2xs'
-                                : 'bg-[#fafaf9] border-[#e7e5e4] hover:border-[#d6d3d1] hover:bg-white'
-                            }`}
-                          >
-                            <div className="space-y-0.5 min-w-0">
-                              <div className="font-semibold text-[11.5px] text-[#1c1917] truncate">{ws.name}</div>
-                              <div className="font-mono text-[10px] text-[#78716c] truncate">{ws.short}</div>
-                            </div>
-                            {activeWorkspace.name === ws.name && (
-                              <Check className="w-3 h-3 text-[#c86a28] flex-shrink-0 mt-0.5 ml-1" />
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Bottom Choose New Directory Button */}
-                    <div className="pt-1 border-t border-[#f5f5f4] flex justify-between items-center text-[11px]">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setShowSettingsModal(true)
-                          setActiveSettingsTab('workspace')
-                          setShowWorkspaceMenu(false)
-                        }}
-                        className="text-[#c86a28] hover:text-[#b45309] font-medium flex items-center space-x-1 cursor-pointer"
-                      >
-                        <HardDrive className="w-3 h-3" />
-                        <span>在设置中配置工作空间...</span>
-                      </button>
-                      <span className="text-[#a8a29e] text-[10.5px]">Tokmon Agent Desktop</span>
-                    </div>
-
-                  </div>
-                )}
               </div>
 
               {/* Main Input Dialog Box Card (Independent 4-rounded-corner card) */}
@@ -2105,6 +2223,267 @@ export default function App() {
         )}
 
       </div>
+
+      {/* ========================================================= */}
+      {/* NEW CONVERSATION SETTINGS MODAL */}
+      {/* ========================================================= */}
+      {showNewConvModal && (
+        <div className="fixed inset-0 bg-black/35 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="w-[520px] max-w-[94vw] bg-white border border-[#e7e5e4] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="h-[52px] border-b border-[#f0eee8] flex items-center justify-between px-6 flex-shrink-0 bg-[#faf9f6]">
+              <div className="flex items-center space-x-2">
+                <div className="w-6 h-6 rounded-lg bg-[#fef8f4] border border-[#f5d9c3] flex items-center justify-center">
+                  <Sparkles className="w-3.5 h-3.5 text-[#c86a28]" />
+                </div>
+                <h3 className="text-[15px] font-bold text-[#1c1917]">新建会话设置</h3>
+              </div>
+              <button 
+                onClick={() => setShowNewConvModal(false)}
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-[#78716c] hover:bg-[#eae8e1] transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Form Content */}
+            <div className="p-6 space-y-4 text-[13px]">
+              {/* 会话名称 */}
+              <div className="space-y-1.5">
+                <label className="block text-[12px] font-medium text-[#44403c]">会话名称</label>
+                <input
+                  type="text"
+                  value={newConvTitle}
+                  onChange={(e) => setNewConvTitle(e.target.value)}
+                  placeholder="请输入会话名称..."
+                  className="w-full bg-[#f9f9f8] border border-[#e7e5e4] focus:border-[#c86a28] focus:bg-white rounded-xl px-3.5 py-2 text-[13px] text-[#1c1917] outline-none transition-all"
+                />
+              </div>
+
+              {/* 所属分组 */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-[12px] font-medium text-[#44403c]">所属分组</label>
+                  <span className="text-[11px] text-[#a8a29e]">会话归类分组</span>
+                </div>
+                <select
+                  value={newConvGroup}
+                  onChange={(e) => setNewConvGroup(e.target.value)}
+                  className="w-full bg-[#f9f9f8] border border-[#e7e5e4] focus:border-[#c86a28] focus:bg-white rounded-xl px-3.5 py-2 text-[12.5px] text-[#1c1917] outline-none transition-all cursor-pointer"
+                >
+                  {treeData.map(g => (
+                    <option key={g.name} value={g.name}>{g.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 项目工作目录（项目空间） */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-[12px] font-medium text-[#44403c]">项目工作目录（项目空间）</label>
+                  <span className="text-[11px] text-[#a8a29e]">目录末尾即项目名称</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={newConvPath}
+                    onChange={(e) => setNewConvPath(e.target.value)}
+                    placeholder="请输入或浏览选择物理目录..."
+                    className="flex-1 font-mono bg-[#f9f9f8] border border-[#e7e5e4] focus:border-[#c86a28] focus:bg-white rounded-xl px-3.5 py-2 text-[12px] text-[#1c1917] outline-none transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleBrowseNativeDirectory('newConv')}
+                    className="px-3.5 py-2 bg-[#f5f5f4] hover:bg-[#eae8e1] border border-[#e7e5e4] text-[#44403c] rounded-xl text-[12px] font-medium transition-colors cursor-pointer flex-shrink-0 flex items-center space-x-1"
+                    title="调用系统资源管理器选择工作空间目录"
+                  >
+                    <FolderOpen className="w-3.5 h-3.5 text-[#c86a28]" />
+                    <span>浏览...</span>
+                  </button>
+                </div>
+
+                {/* Project Identification & Status Info */}
+                {(() => {
+                  const currentProjName = getProjectNameFromPath(newConvPath)
+                  const groupObj = treeData.find(g => g.name === newConvGroup)
+                  const existsInGroup = groupObj?.projects.some(
+                    p => p.workspacePath.toLowerCase() === newConvPath.trim().toLowerCase() || p.name.toLowerCase() === currentProjName.toLowerCase()
+                  )
+                  return (
+                    <div className="flex items-center justify-between pt-0.5 text-[11.5px]">
+                      <div className="flex items-center space-x-1 text-[#78716c]">
+                        <span>识别项目:</span>
+                        <span className="font-mono font-semibold text-[#1c1917] bg-[#f5f5f4] px-1.5 py-0.2 rounded border border-[#e7e5e4]">
+                          {currentProjName}
+                        </span>
+                      </div>
+                      {existsInGroup ? (
+                        <span className="text-[#16a34a] font-medium flex items-center space-x-1">
+                          <Check className="w-3 h-3" />
+                          <span>已归属于「{newConvGroup}」下的已有项目</span>
+                        </span>
+                      ) : (
+                        <span className="text-[#c86a28] font-medium flex items-center space-x-1">
+                          <Plus className="w-3 h-3" />
+                          <span>将在「{newConvGroup}」下自动新建该项目</span>
+                        </span>
+                      )}
+                    </div>
+                  )
+                })()}
+
+                {/* 常用项目空间快捷标签 */}
+                <div className="pt-2 space-y-1">
+                  <span className="text-[11px] text-[#a8a29e]">常用项目空间快捷选择:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { name: 'subtitle-agent', path: 'C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent', group: '内容生产' },
+                      { name: 'audio-slice', path: 'C:\\Users\\User\\Tokmon\\Projects\\audio-slice', group: '内容生产' },
+                      { name: 'ppt-generator', path: 'C:\\Users\\User\\Tokmon\\Projects\\ppt-generator', group: '演示助手' },
+                      { name: 'travel-planner', path: 'C:\\Users\\User\\Tokmon\\Projects\\travel-planner', group: '旅行计划' }
+                    ].map(preset => (
+                      <button
+                        key={preset.name}
+                        type="button"
+                        onClick={() => {
+                          setNewConvPath(preset.path)
+                          setNewConvGroup(preset.group)
+                        }}
+                        className={`px-2 py-0.8 rounded-lg text-[11px] font-mono border transition-all cursor-pointer ${
+                          newConvPath.trim().toLowerCase() === preset.path.toLowerCase()
+                            ? 'bg-[#fef8f4] border-[#c86a28] text-[#c86a28] font-semibold'
+                            : 'bg-[#fafaf9] border-[#e7e5e4] hover:border-[#d6d3d1] text-[#57534e]'
+                        }`}
+                      >
+                        {preset.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="h-[60px] border-t border-[#f0eee8] bg-[#faf9f6] flex items-center justify-end px-6 space-x-3 flex-shrink-0">
+              <button
+                onClick={() => setShowNewConvModal(false)}
+                className="px-4 py-2 rounded-xl border border-[#e7e5e4] hover:bg-[#eae8e1] text-[#57534e] text-[13px] font-medium transition-colors cursor-pointer"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleConfirmCreateNewConv}
+                className="px-5 py-2 rounded-xl bg-[#c86a28] hover:bg-[#b45309] active:scale-98 text-white text-[13px] font-semibold transition-all shadow-xs cursor-pointer"
+              >
+                创建并进入会话
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* CHANGE WORKSPACE PATH MODAL */}
+      {/* ========================================================= */}
+      {showChangeWorkspaceModal && (
+        <div className="fixed inset-0 bg-black/35 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="w-[480px] max-w-[94vw] bg-white border border-[#e7e5e4] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-150">
+            <div className="h-[52px] border-b border-[#f0eee8] flex items-center justify-between px-6 flex-shrink-0 bg-[#faf9f6]">
+              <div className="flex items-center space-x-2">
+                <FolderOpen className="w-4 h-4 text-[#c86a28]" />
+                <h3 className="text-[14.5px] font-bold text-[#1c1917]">更换当前会话工作空间目录</h3>
+              </div>
+              <button 
+                onClick={() => setShowChangeWorkspaceModal(false)}
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-[#78716c] hover:bg-[#eae8e1] transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-3.5 text-[13px]">
+              <p className="text-[12px] text-[#78716c]">
+                当前会话尚未开始，您可以自定义工作空间路径。会话开始执行后，工作空间目录将永久锁定。
+              </p>
+
+              <div className="space-y-1.5">
+                <label className="block text-[12px] font-medium text-[#44403c]">工作空间物理路径</label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={changeWorkspacePathInput}
+                    onChange={(e) => setChangeWorkspacePathInput(e.target.value)}
+                    className="flex-1 font-mono bg-[#f9f9f8] border border-[#e7e5e4] focus:border-[#c86a28] focus:bg-white rounded-xl px-3.5 py-2 text-[12px] text-[#1c1917] outline-none transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleBrowseNativeDirectory('changeWorkspace')}
+                    className="px-3 py-2 bg-[#f5f5f4] hover:bg-[#eae8e1] border border-[#e7e5e4] text-[#44403c] rounded-xl text-[12px] font-medium transition-colors cursor-pointer flex-shrink-0"
+                    title="调用系统资源管理器选择工作空间目录"
+                  >
+                    浏览...
+                  </button>
+                </div>
+              </div>
+
+              {/* 预设推荐路径 */}
+              <div className="space-y-1 pt-1">
+                <span className="text-[11.5px] text-[#78716c]">常用项目空间:</span>
+                <div className="space-y-1">
+                  {[
+                    { name: 'subtitle-agent', path: 'C:\\Users\\User\\Tokmon\\Projects\\subtitle-agent' },
+                    { name: 'audio-slice', path: 'C:\\Users\\User\\Tokmon\\Projects\\audio-slice' },
+                    { name: 'ppt-generator', path: 'C:\\Users\\User\\Tokmon\\Projects\\ppt-generator' },
+                    { name: 'travel-planner', path: 'C:\\Users\\User\\Tokmon\\Projects\\travel-planner' }
+                  ].map((preset) => (
+                    <button
+                      key={preset.name}
+                      type="button"
+                      onClick={() => setChangeWorkspacePathInput(preset.path)}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg border border-[#e7e5e4] hover:border-[#c86a28] hover:bg-[#fef8f4] transition-colors flex items-center justify-between text-[11.5px] cursor-pointer"
+                    >
+                      <span className="font-medium text-[#1c1917]">{preset.name}</span>
+                      <span className="font-mono text-[10.5px] text-[#78716c]">{preset.path}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="h-[56px] border-t border-[#f0eee8] bg-[#faf9f6] flex items-center justify-end px-6 space-x-3 flex-shrink-0">
+              <button
+                onClick={() => setShowChangeWorkspaceModal(false)}
+                className="px-4 py-1.5 rounded-xl border border-[#e7e5e4] hover:bg-[#eae8e1] text-[#57534e] text-[12.5px] font-medium transition-colors cursor-pointer"
+              >
+                取消
+              </button>
+              <button
+                onClick={() => {
+                  const path = changeWorkspacePathInput.trim() || activeWorkspace.path
+                  setActiveWorkspace(prev => ({
+                    ...prev,
+                    path,
+                    shortPath: path.replace('C:\\Users\\User\\Tokmon', '~').replace(/\\/g, '/')
+                  }))
+                  setShowChangeWorkspaceModal(false)
+                }}
+                className="px-4 py-1.5 rounded-xl bg-[#c86a28] hover:bg-[#b45309] text-white text-[12.5px] font-semibold transition-all shadow-xs cursor-pointer"
+              >
+                确认更换
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Hidden native input for OS directory picker fallback */}
+      <input
+        type="file"
+        ref={nativeFolderInputRef}
+        onChange={handleNativeFolderInputChange}
+        {...({ webkitdirectory: '', directory: '' } as any)}
+        className="hidden"
+      />
 
       {/* ========================================================= */}
       {/* HIGH FIDELITY SETTINGS FLOATING MODAL UI (PIXEL PERFECT) */}
