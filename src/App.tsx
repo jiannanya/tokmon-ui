@@ -1325,20 +1325,37 @@ export default function App() {
                     setEnvDropdown('none')
                   }}
                   title="环境信息 (点击展开)"
-                  className="w-11 h-11 rounded-full bg-white/95 hover:bg-white active:scale-95 text-[#44403c] backdrop-blur-xl border border-[#e5e2da] hover:border-[#c86a28]/60 shadow-[0_8px_25px_rgba(0,0,0,0.09),0_2px_8px_rgba(0,0,0,0.04)] flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110"
+                  className="w-12 h-12 rounded-[18px] bg-gradient-to-b from-white/95 via-white/90 to-[#f6f5f0]/90 hover:from-white hover:to-[#fcfbfa] active:scale-95 text-[#292524] backdrop-blur-2xl border border-white/90 shadow-[0_12px_28px_-4px_rgba(0,0,0,0.1),0_4px_12px_-2px_rgba(0,0,0,0.05),inset_0_1px_1px_rgba(255,255,255,1)] flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 ring-1 ring-[#e5e2da]/70 select-none"
                 >
-                  {/* Apple AssistiveTouch Concentric Ring Design (Light Theme) */}
-                  <div className="w-6.5 h-6.5 rounded-full border-2 border-[#a8a29e]/50 group-hover:border-[#c86a28] bg-[#f7f6f3] flex items-center justify-center transition-all shadow-inner">
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#78716c] group-hover:bg-[#c86a28] shadow-xs group-hover:scale-115 transition-transform" />
-                  </div>
+                  {/* Authentic Apple AssistiveTouch Geometric Vector Glyph */}
+                  <svg 
+                    className="w-7.5 h-7.5 text-[#383533] group-hover:text-[#c86a28] transition-colors duration-200" 
+                    viewBox="0 0 32 32" 
+                    fill="none" 
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    {/* Outer soft diffuse field */}
+                    <circle cx="16" cy="16" r="14.2" fill="currentColor" fillOpacity="0.05" />
+                    {/* Outermost concentric ring */}
+                    <circle cx="16" cy="16" r="13.2" stroke="currentColor" strokeOpacity="0.22" strokeWidth="1.4" />
+                    {/* Middle concentric ring */}
+                    <circle cx="16" cy="16" r="8" stroke="currentColor" strokeOpacity="0.65" strokeWidth="2.2" />
+                    {/* Center solid core dot */}
+                    <circle cx="16" cy="16" r="3.5" fill="currentColor" fillOpacity="0.9" />
+                  </svg>
 
-                  {/* Pulsing Status Dot */}
-                  <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white shadow-xs animate-pulse" />
+                  {/* Pulsing Status Dot with Ping Effect */}
+                  <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 ring-2 ring-white shadow-xs"></span>
+                  </span>
                 </button>
 
                 {/* Tooltip on Hover */}
-                <div className="absolute right-0 top-12 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap bg-white text-[#292524] text-[11px] font-medium px-2.5 py-1 rounded-md shadow-lg border border-[#e7e5e4] z-50">
-                  环境信息 · {activeWorkspace.name} ({activeWorkspace.branch})
+                <div className="absolute right-0 top-14 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0 whitespace-nowrap bg-[#1c1917]/90 text-white text-[11px] font-medium px-2.5 py-1 rounded-xl shadow-xl backdrop-blur-md border border-white/10 z-50 flex items-center space-x-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>环境信息 · {activeWorkspace.name}</span>
+                  <span className="text-[#a8a29e] font-mono">({activeWorkspace.branch})</span>
                 </div>
               </div>
             ) : (
@@ -1425,12 +1442,13 @@ export default function App() {
                         setEnvDropdown('none')
                       }}
                       title="收起为 AssistiveTouch 悬浮按钮"
-                      className="w-6 h-6 rounded-md flex items-center justify-center text-[#78716c] hover:text-[#1c1917] hover:bg-[#f5f5f4] transition-colors cursor-pointer group/min"
+                      className="w-6 h-6 rounded-lg flex items-center justify-center text-[#78716c] hover:text-[#c86a28] hover:bg-[#fef8f4] transition-colors cursor-pointer group/min"
                     >
-                      {/* AssistiveTouch micro emblem */}
-                      <div className="w-3.5 h-3.5 rounded-full border-[1.5px] border-[#78716c] group-hover/min:border-[#1c1917] flex items-center justify-center">
-                        <div className="w-1 h-1 rounded-full bg-[#78716c] group-hover/min:bg-[#1c1917]" />
-                      </div>
+                      <svg className="w-4 h-4 text-[#78716c] group-hover/min:text-[#c86a28] transition-colors" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="8" cy="8" r="6.8" stroke="currentColor" strokeOpacity="0.25" strokeWidth="1" />
+                        <circle cx="8" cy="8" r="4.2" stroke="currentColor" strokeOpacity="0.65" strokeWidth="1.2" />
+                        <circle cx="8" cy="8" r="1.8" fill="currentColor" fillOpacity="0.9" />
+                      </svg>
                     </button>
                   </div>
                 </div>
