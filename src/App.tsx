@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import tokmonBrandImg from './imports/tokmon-brand-2048.png'
 import {
   ChevronDown,
   ChevronRight,
@@ -53,10 +54,10 @@ import {
 } from 'lucide-react'
 
 // Tokmon Brand Logo Image in Warm Terracotta/Sand (#c86a28)
-function TokmonLogo() {
+function TokmonLogo({ size = 24 }: { size?: number }) {
   return (
-    <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
-      <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <div style={{ width: size, height: size }} className="flex items-center justify-center flex-shrink-0">
+      <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M9 7V25" stroke="#c86a28" strokeWidth="3.5" strokeLinecap="round" />
         <path d="M9 16H20" stroke="#c86a28" strokeWidth="3.5" strokeLinecap="round" />
         <circle cx="9" cy="7" r="4" fill="#c86a28" />
@@ -1764,19 +1765,146 @@ export default function App() {
 
           {mainViewMode === 'chat' ? (
             messages.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4 select-none pb-36 animate-in fade-in duration-200">
-                <div className="w-14 h-14 rounded-2xl bg-[#fef8f4] border border-[#f5d9c3] flex items-center justify-center shadow-xs">
-                  <Sparkles className="w-7 h-7 text-[#c86a28]" />
+              <div className="flex-1 flex flex-col items-center justify-center p-6 text-center select-none pb-40 animate-in fade-in duration-300 max-w-[900px] mx-auto w-full">
+                
+                {/* 1. Tokmon Brand SVG Logo (matching top-left logo) */}
+                <div className="relative mb-5 group cursor-pointer">
+                  <div className="w-16 h-16 rounded-3xl bg-gradient-to-b from-[#fef8f4] to-[#fbf1e7] border border-[#f5d9c3] shadow-xs flex items-center justify-center group-hover:scale-105 group-hover:shadow-md transition-all duration-300">
+                    <TokmonLogo size={36} />
+                  </div>
+                  {/* Subtle breathing ring */}
+                  <div className="absolute -inset-1 bg-[#c86a28]/10 rounded-[26px] -z-10 blur-xs group-hover:bg-[#c86a28]/20 transition-colors" />
                 </div>
-                <div className="space-y-1.5">
-                  <h3 className="text-[17px] font-bold text-[#1c1917] tracking-tight">{conversationTitle}</h3>
-                  <p className="text-[13px] text-[#78716c] max-w-[460px] leading-relaxed">
-                    当前为新会话。工作空间已关联至 <span className="font-mono text-[#c86a28] font-medium bg-[#fef8f4] px-1.5 py-0.5 rounded border border-[#f5d9c3]">{activeWorkspace.shortPath}</span>。
-                  </p>
-                  <p className="text-[11.5px] text-[#a8a29e]">
-                    您可在右上角「环境信息」悬浮面板中点击「更换目录」调整路径。发送第一条指令后工作空间将永久锁定。
+
+                {/* 2. Main Question Heading */}
+                <div className="space-y-2 mb-8 max-w-[680px]">
+                  <h2 className="text-[23px] sm:text-[25px] font-semibold text-[#1c1917] tracking-tight leading-snug">
+                    你想让我们在{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setChangeWorkspacePathInput(activeWorkspace.path)
+                        setShowChangeWorkspaceModal(true)
+                      }}
+                      title="点击切换或更换工作空间目录"
+                      className="inline-flex items-center font-semibold text-[#1c1917] hover:text-[#c86a28] border-b-2 border-dashed border-[#a8a29e] hover:border-[#c86a28] pb-0.5 transition-colors cursor-pointer"
+                    >
+                      <span>{activeWorkspace.name}</span>
+                    </button>{' '}
+                    中构建什么？
+                  </h2>
+                  <p className="text-[13px] text-[#78716c]">
+                    智能体已就绪，当前关联工作空间 <span className="font-mono text-[#c86a28] font-medium bg-[#fef8f4] px-1.5 py-0.5 rounded border border-[#f5d9c3]">{activeWorkspace.shortPath}</span>
                   </p>
                 </div>
+
+                {/* 3. Four Action / Quick Starter Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 w-full max-w-[840px] px-2 text-left">
+                  {/* Card 1: 探索并理解代码 */}
+                  <div
+                    onClick={() => {
+                      setInputMessage(`请全面分析并梳理当前工作空间（${activeWorkspace.name}）的代码架构、模块依赖与核心实现逻辑。`)
+                      if (textareaRef.current) {
+                        textareaRef.current.focus()
+                      }
+                    }}
+                    className="bg-white hover:bg-[#fefcfb] border border-[#e8e6df] hover:border-[#38bdf8]/60 shadow-2xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-500 group-hover:scale-110 group-hover:bg-sky-100 transition-all">
+                      {/* Custom Telescope / Code Explorer SVG */}
+                      <svg className="w-4.5 h-4.5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16.5 3.5L11 9M11 9L8 6L13.5 0.5L16.5 3.5ZM11 9L6.5 13.5M6.5 13.5L3.5 10.5L8 6L11 9ZM6.5 13.5L2 18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                        <circle cx="2" cy="18" r="1" fill="currentColor"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-sky-600 transition-colors leading-snug">
+                        探索并理解代码
+                      </h4>
+                      <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">梳理架构、依赖与核心逻辑</p>
+                    </div>
+                  </div>
+
+                  {/* Card 2: 构建新功能、应用或工具 */}
+                  <div
+                    onClick={() => {
+                      setInputMessage(`我想为当前工作空间（${activeWorkspace.name}）构建一个新功能，请帮我规划设计方案并编写实现代码。`)
+                      if (textareaRef.current) {
+                        textareaRef.current.focus()
+                      }
+                    }}
+                    className="bg-white hover:bg-[#fefcfb] border border-[#e8e6df] hover:border-[#a855f7]/60 shadow-2xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-500 group-hover:scale-110 group-hover:bg-purple-100 transition-all">
+                      {/* Custom Builder / Hammer SVG */}
+                      <svg className="w-4.5 h-4.5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2L18 6L15 9L11 5L14 2Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M11 5L4 12L2 18L8 16L15 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M7 13L10 10" stroke="currentColor" strokeWidth="1.6"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-purple-600 transition-colors leading-snug">
+                        构建新功能、应用或工具
+                      </h4>
+                      <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">设计方案并编写实现代码</p>
+                    </div>
+                  </div>
+
+                  {/* Card 3: 审查代码并提出修改建议 */}
+                  <div
+                    onClick={() => {
+                      setInputMessage(`请对当前项目代码进行全面审查，指出潜在质量风险、规范问题并提出优化重构建议。`)
+                      if (textareaRef.current) {
+                        textareaRef.current.focus()
+                      }
+                    }}
+                    className="bg-white hover:bg-[#fefcfb] border border-[#e8e6df] hover:border-[#10b981]/60 shadow-2xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-500 group-hover:scale-110 group-hover:bg-emerald-100 transition-all">
+                      {/* Custom Code Audit / Checkmark Refresh SVG */}
+                      <svg className="w-4.5 h-4.5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10C17 13.866 13.866 17 10 17" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+                        <path d="M3 6V10H7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M8 10.5L10 12.5L14.5 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-emerald-600 transition-colors leading-snug">
+                        审查代码并提出修改建议
+                      </h4>
+                      <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">排查隐患与提升代码规范</p>
+                    </div>
+                  </div>
+
+                  {/* Card 4: 修复问题和失败 */}
+                  <div
+                    onClick={() => {
+                      setInputMessage(`请帮我诊断当前工作空间中的报错和运行异常，定位原因并提供修复补丁。`)
+                      if (textareaRef.current) {
+                        textareaRef.current.focus()
+                      }
+                    }}
+                    className="bg-white hover:bg-[#fefcfb] border border-[#e8e6df] hover:border-[#f97316]/60 shadow-2xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-[#c86a28] group-hover:scale-110 group-hover:bg-orange-100 transition-all">
+                      {/* Custom Bug / Diagnostic SVG */}
+                      <svg className="w-4.5 h-4.5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="10" cy="11" r="5" stroke="currentColor" strokeWidth="1.6"/>
+                        <path d="M10 6V4M10 6C11.5 6 12 4.5 12 4.5M10 6C8.5 6 8 4.5 8 4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                        <path d="M5 11H2M18 11H15M5.5 8L3 6.5M14.5 8L17 6.5M5.5 14L3 15.5M14.5 14L17 15.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        <path d="M10 9V13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-[#c86a28] transition-colors leading-snug">
+                        修复问题和失败
+                      </h4>
+                      <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">诊断报错堆栈并修复异常</p>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             ) : (
               /* Chat Messages & Execution Scroll Panel */
@@ -2254,8 +2382,37 @@ export default function App() {
           <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#fafaf9] via-[#fafaf9]/90 to-transparent pointer-events-none">
             <div className="max-w-[760px] mx-auto pointer-events-auto">
 
-              {/* Main Input Dialog Box Card (Independent 4-rounded-corner card) */}
-              <div className="bg-[#ffffff] border border-[#e7e5e4] rounded-2xl shadow-lg p-3 pointer-events-auto transition-all focus-within:border-[#f59e0b] space-y-2">
+              {/* Embedded Context Tab attached to the top-left of the input dialog box */}
+              <div className="relative z-10 -mb-[1px]">
+                <div className="inline-flex items-center space-x-2 px-3 py-1 bg-[#f4f3ef] hover:bg-[#edebe4] rounded-t-xl border-t border-l border-r border-[#e7e5e4] text-[11.5px] text-[#57534e] select-none shadow-2xs transition-colors">
+                  <div 
+                    onClick={() => {
+                      if (messages.length === 0) {
+                        setChangeWorkspacePathInput(activeWorkspace.path)
+                        setShowChangeWorkspaceModal(true)
+                      }
+                    }}
+                    className={`flex items-center space-x-1.5 ${messages.length === 0 ? 'hover:text-[#c86a28] cursor-pointer' : 'cursor-default'} transition-colors`}
+                    title={messages.length === 0 ? `工作空间: ${activeWorkspace.path} (点击更换)` : `工作空间: ${activeWorkspace.path}`}
+                  >
+                    <FolderOpen className="w-3.5 h-3.5 text-[#c86a28]" />
+                    <span className="font-semibold text-[#1c1917]">{activeWorkspace.name}</span>
+                  </div>
+                  <span className="text-[#a8a29e]">·</span>
+                  <div className="flex items-center space-x-1">
+                    <Laptop className="w-3.5 h-3.5 text-[#57534e]" />
+                    <span>本地</span>
+                  </div>
+                  <span className="text-[#a8a29e]">·</span>
+                  <div className="flex items-center space-x-1 font-mono text-[#c86a28]">
+                    <GitBranch className="w-3.5 h-3.5 text-[#c86a28]" />
+                    <span className="font-medium">{activeWorkspace.branch}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Main Input Dialog Box Card (Clean static card without focus border) */}
+              <div className="bg-[#ffffff] border border-[#e7e5e4] rounded-2xl rounded-tl-none shadow-lg p-3 pointer-events-auto space-y-2 relative">
               <textarea
                 ref={textareaRef}
                 value={inputMessage}
@@ -2266,7 +2423,7 @@ export default function App() {
                     handleSendMessage()
                   }
                 }}
-                placeholder="提出后续修改要求"
+                placeholder={messages.length === 0 ? "随心输入需求，或点击上方卡片快速开始..." : "提出后续修改要求"}
                 rows={1}
                 style={{ minHeight: '38px' }}
                 className="w-full bg-transparent border-0 resize-none overflow-hidden text-[13.5px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none px-1 py-0.5 leading-relaxed transition-all"
