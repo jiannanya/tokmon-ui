@@ -53,7 +53,75 @@ import {
   Monitor,
   CircleDashed,
   Laptop,
+  Globe,
+  Maximize2,
+  Minimize2,
 } from "lucide-react"
+
+// Custom Precise Icons matching Review & Git Toolbar (Screenshots 1, 2, 3)
+function ReviewIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      className={className}
+    >
+      <rect x="2" y="2" width="12" height="12" rx="2.5" strokeWidth="1.35" />
+      <path
+        d="M5 5.5h6M8 2.5v6M5 11h6"
+        strokeWidth="1.35"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+function CommitPushIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      className={className}
+    >
+      <circle cx="8" cy="8" r="2.5" strokeWidth="1.35" />
+      <path d="M1.5 8h4M10.5 8h4" strokeWidth="1.35" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function DiffSplitIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      className={className}
+    >
+      <path
+        d="M2.5 5h8.5M8 2.5l3 2.5-3 2.5M13.5 11H5M8 8.5L5 11l3 2.5"
+        strokeWidth="1.35"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function PanesIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      className={className}
+    >
+      <rect x="2" y="2.5" width="12" height="11" rx="2" strokeWidth="1.35" />
+      <path d="M10 2.5v11" strokeWidth="1.35" />
+    </svg>
+  )
+}
 
 // Tokmon Brand Logo Image in Warm Terracotta/Sand (#c86a28)
 
@@ -503,6 +571,101 @@ export default function App() {
       window.removeEventListener("mouseup", handleMouseUp)
     }
   }, [isDraggingLeft, isDraggingRight, isDraggingMainRight])
+
+  // RIGHT PANEL: Review (Diff), Workspace Tree & Launcher States
+  const [rightPanelTab, setRightPanelTab] =
+    useState<"launcher" | "review" | "openFile">("launcher")
+  const [openTabs, setOpenTabs] = useState<Array<{
+    id: "review" | "openFile"
+    title: string
+  }>>([])
+
+  // Review (Diff) States
+  const [selectedReviewFileId, setSelectedReviewFileId] =
+    useState<string>("slint-session")
+  const [reviewFileSearch, setReviewFileSearch] = useState("")
+  const [diffViewMode, setDiffViewMode] = useState<"unified" | "split">(
+    "unified",
+  )
+  const [showRightFileSidebar, setShowRightFileSidebar] = useState(true)
+  const [currentBranch, setCurrentBranch] = useState("main")
+  const [showBranchDropdown, setShowBranchDropdown] = useState(false)
+  const [showMoreGitMenu, setShowMoreGitMenu] = useState(false)
+  const [showCommitModal, setShowCommitModal] = useState(false)
+  const [commitMessage, setCommitMessage] = useState("")
+  const [pushImmediately, setPushImmediately] = useState(true)
+  const [expandedBanners, setExpandedBanners] =
+    useState<Record<string, boolean>>({})
+
+  // Workspace Tree / Open File States
+  const [workspaceTreeSearch, setWorkspaceTreeSearch] = useState("")
+  const [selectedWorkspaceFile, setSelectedWorkspaceFile] =
+    useState<string | null>(null)
+  const [expandedFolders, setExpandedFolders] =
+    useState<Record<string, boolean>>({
+      apps: true,
+      nyxia: true,
+    })
+
+  // Global Toast Feedback
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg)
+    setTimeout(() => setToastMessage(null), 2500)
+  }
+
+  const openReviewTab = () => {
+    setOpenTabs((prev) => {
+      if (prev.find((t) => t.id === "review")) return prev
+      return [...prev, { id: "review", title: "审查" }]
+    })
+    setRightPanelTab("review")
+  }
+
+  const openWorkspaceFileTab = (fileName?: string) => {
+    setOpenTabs((prev) => {
+      if (prev.find((t) => t.id === "openFile")) return prev
+      return [...prev, { id: "openFile", title: "打开文件" }]
+    })
+    setRightPanelTab("openFile")
+    if (fileName) setSelectedWorkspaceFile(fileName)
+  }
+
+  const closeTab = (id: "review" | "openFile") => {
+    const nextTabs = openTabs.filter((t) => t.id !== id)
+    setOpenTabs(nextTabs)
+    if (nextTabs.length === 0) {
+      setRightPanelTab("launcher")
+    } else if (rightPanelTab === id) {
+      setRightPanelTab(nextTabs[nextTabs.length - 1].id)
+    }
+  }
+
+  // Keyboard shortcut listener (Ctrl+Shift+G for Review, Ctrl+P for File)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        e.shiftKey &&
+        (e.key === "G" || e.key === "g")
+      ) {
+        e.preventDefault()
+        if (!rightPanelOpen) setRightPanelOpen(true)
+        openReviewTab()
+      } else if (
+        (e.ctrlKey || e.metaKey) &&
+        (e.key === "p" || e.key === "P") &&
+        !e.shiftKey
+      ) {
+        e.preventDefault()
+        if (!rightPanelOpen) setRightPanelOpen(true)
+        openWorkspaceFileTab()
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [openTabs, rightPanelOpen])
 
   const [activeTab, setActiveTab] = useState<"code" | "preview">("code")
 
@@ -1771,6 +1934,371 @@ export default function App() {
   const filteredSubtitles = subtitleItems.filter((item) =>
     item.text.toLowerCase().includes(subtitleSearch.toLowerCase()),
   )
+
+  // REVIEW (GIT DIFF) FILES DATA MATCHING SCREENSHOT 1
+  const reviewFiles = [
+    {
+      id: "slint-session",
+      path: "apps/tokmon-desktop/ui/tokmon-session-initial.slint",
+      folder: "apps/tokmon-desktop/ui",
+      displayFolder: "ap.../tokmon-desk.../...",
+      name: "tokmon-session-initial.slint",
+      displayName: "tokmon-session...slint",
+      status: "modified" as const,
+      additions: 2,
+      deletions: 2,
+      diffLines: [
+        {
+          type: "banner" as const,
+          bannerText: "91 unmodified lines",
+          id: "b1",
+        },
+        {
+          type: "context" as const,
+          oldNum: 92,
+          newNum: 92,
+          text: "        alignment: center;",
+        },
+        {
+          type: "context" as const,
+          oldNum: 93,
+          newNum: 93,
+          text: "        spacing: 6px;",
+        },
+        {
+          type: "context" as const,
+          oldNum: 94,
+          newNum: 94,
+          text: "        Text {",
+        },
+        {
+          type: "delete" as const,
+          oldNum: 95,
+          text: '            text: "你想让我们在";',
+        },
+        {
+          type: "add" as const,
+          newNum: 95,
+          text: '            text: "你想在";',
+        },
+        {
+          type: "context" as const,
+          oldNum: 96,
+          newNum: 96,
+          text: "        font-size: 23px;",
+        },
+        {
+          type: "context" as const,
+          oldNum: 97,
+          newNum: 97,
+          text: "        font-weight: 650;",
+        },
+        {
+          type: "context" as const,
+          oldNum: 98,
+          newNum: 98,
+          text: "        letter-spacing: -0.35px;",
+        },
+        {
+          type: "banner" as const,
+          bannerText: "11 unmodified lines",
+          id: "b2",
+        },
+        {
+          type: "context" as const,
+          oldNum: 110,
+          newNum: 110,
+          text: "        overflow: elide;",
+        },
+        {
+          type: "context" as const,
+          oldNum: 111,
+          newNum: 111,
+          text: "    }",
+        },
+        {
+          type: "context" as const,
+          oldNum: 112,
+          newNum: 112,
+          text: "    Text {",
+        },
+        {
+          type: "delete" as const,
+          oldNum: 113,
+          text: '            text: "中构建什么？";',
+        },
+        {
+          type: "add" as const,
+          newNum: 113,
+          text: '            text: "中创造什么？";',
+        },
+        {
+          type: "context" as const,
+          oldNum: 114,
+          newNum: 114,
+          text: "        font-size: 23px;",
+        },
+        {
+          type: "context" as const,
+          oldNum: 115,
+          newNum: 115,
+          text: "        font-weight: 650;",
+        },
+        {
+          type: "context" as const,
+          oldNum: 116,
+          newNum: 116,
+          text: "        letter-spacing: -0.35px;",
+        },
+      ],
+    },
+    {
+      id: "app-tsx",
+      path: "src/App.tsx",
+      folder: "src",
+      displayFolder: "src",
+      name: "App.tsx",
+      displayName: "App.tsx",
+      status: "modified" as const,
+      additions: 18,
+      deletions: 6,
+      diffLines: [
+        {
+          type: "banner" as const,
+          bannerText: "155 unmodified lines",
+          id: "b3",
+        },
+        {
+          type: "context" as const,
+          oldNum: 156,
+          newNum: 156,
+          text: "function ThoughtProcessCard({ content }: { content: string }) {",
+        },
+        {
+          type: "delete" as const,
+          oldNum: 157,
+          text: "  const [isExpanded, setIsExpanded] = useState(false)",
+        },
+        {
+          type: "add" as const,
+          newNum: 157,
+          text: "  const [isExpanded, setIsExpanded] = useState(true)",
+        },
+        {
+          type: "context" as const,
+          oldNum: 158,
+          newNum: 158,
+          text: '  const firstLine = content.split("\\n")[0]',
+        },
+        {
+          type: "delete" as const,
+          oldNum: 159,
+          text: '  return <div className="bg-white border ...">',
+        },
+        {
+          type: "add" as const,
+          newNum: 159,
+          text: '  return <div className="bg-[#f4f4f4] border border-[#e5e5e5] rounded-xl ...">',
+        },
+        {
+          type: "context" as const,
+          oldNum: 160,
+          newNum: 160,
+          text: "    {!isExpanded ? (",
+        },
+      ],
+    },
+    {
+      id: "transcribe-py",
+      path: "scripts/transcribe.py",
+      folder: "scripts",
+      displayFolder: "scripts",
+      name: "transcribe.py",
+      displayName: "transcribe.py",
+      status: "modified" as const,
+      additions: 14,
+      deletions: 2,
+      diffLines: [
+        {
+          type: "banner" as const,
+          bannerText: "32 unmodified lines",
+          id: "b4",
+        },
+        {
+          type: "context" as const,
+          oldNum: 33,
+          newNum: 33,
+          text: 'def run_transcription(audio_path, model_size="large-v3-turbo"):',
+        },
+        {
+          type: "delete" as const,
+          oldNum: 34,
+          text: '    model = WhisperModel("base", device="cpu")',
+        },
+        {
+          type: "add" as const,
+          newNum: 34,
+          text: '    model = WhisperModel(model_size, device="cuda", compute_type="float16")',
+        },
+        {
+          type: "delete" as const,
+          oldNum: 35,
+          text: "    segments, info = model.transcribe(audio_path, beam_size=1)",
+        },
+        {
+          type: "add" as const,
+          newNum: 35,
+          text: "    segments, info = model.transcribe(audio_path, beam_size=5, vad_filter=True)",
+        },
+        {
+          type: "context" as const,
+          oldNum: 36,
+          newNum: 36,
+          text: "    return generate_srt_subtitles(segments)",
+        },
+      ],
+    },
+    {
+      id: "config-yaml",
+      path: "config.yaml",
+      folder: "root",
+      displayFolder: "config",
+      name: "config.yaml",
+      displayName: "config.yaml",
+      status: "modified" as const,
+      additions: 4,
+      deletions: 1,
+      diffLines: [
+        {
+          type: "banner" as const,
+          bannerText: "12 unmodified lines",
+          id: "b5",
+        },
+        {
+          type: "context" as const,
+          oldNum: 13,
+          newNum: 13,
+          text: "model_config:",
+        },
+        {
+          type: "delete" as const,
+          oldNum: 14,
+          text: '  engine: "base"',
+        },
+        {
+          type: "add" as const,
+          newNum: 14,
+          text: '  engine: "large-v3-turbo"',
+        },
+        {
+          type: "add" as const,
+          newNum: 15,
+          text: '  language: "zh"',
+        },
+        {
+          type: "add" as const,
+          newNum: 16,
+          text: '  timestamp_mode: "sentence_segmented"',
+        },
+        {
+          type: "context" as const,
+          oldNum: 17,
+          newNum: 17,
+          text: '  output_format: "srt"',
+        },
+      ],
+    },
+    {
+      id: "output-srt",
+      path: "output.srt",
+      folder: "root",
+      displayFolder: "dist",
+      name: "output.srt",
+      displayName: "output.srt",
+      status: "added" as const,
+      additions: 96,
+      deletions: 0,
+      diffLines: [
+        { type: "add" as const, newNum: 1, text: "1" },
+        {
+          type: "add" as const,
+          newNum: 2,
+          text: "00:00:01,200 --> 00:00:04,500",
+        },
+        {
+          type: "add" as const,
+          newNum: 3,
+          text: "欢迎使用 Tokmon 桌面端音频字幕生成器。",
+        },
+        { type: "add" as const, newNum: 4, text: "" },
+        { type: "add" as const, newNum: 5, text: "2" },
+        {
+          type: "add" as const,
+          newNum: 6,
+          text: "00:00:04,800 --> 00:00:08,200",
+        },
+        {
+          type: "add" as const,
+          newNum: 7,
+          text: "正在通过 faster-whisper 大模型进行高精度语音转写。",
+        },
+      ],
+    },
+  ]
+
+  // WORKSPACE FILE TREE DATA MATCHING SCREENSHOT 2
+  const workspaceTreeItems = [
+    { name: ".deps", type: "folder", items: ["slint-cpp.lib", "whisper.dll"] },
+    { name: ".git", type: "folder", items: ["config", "HEAD", "refs"] },
+    {
+      name: "apps",
+      type: "folder",
+      items: ["tokmon-desktop", "tokmon-cli", "tokmon-web"],
+    },
+    {
+      name: "build",
+      type: "folder",
+      items: ["CMakeCache.txt", "ninja.build"],
+    },
+    {
+      name: "cmake",
+      type: "folder",
+      items: ["FindSlint.cmake", "Utils.cmake"],
+    },
+    { name: "config", type: "folder", items: ["app.conf", "model.json"] },
+    { name: "docs", type: "folder", items: ["README.md", "ARCHITECTURE.md"] },
+    { name: "lenses", type: "folder", items: ["audio.lens", "subtitle.lens"] },
+    { name: "nyxia", type: "folder", items: ["core.rs", "engine.rs"] },
+    {
+      name: "protocol",
+      type: "folder",
+      items: ["message.proto", "stream.proto"],
+    },
+    { name: "sdk", type: "folder", items: ["client.ts", "types.d.ts"] },
+    {
+      name: "tests",
+      type: "folder",
+      items: ["test_transcribe.py", "test_parser.py"],
+    },
+    {
+      name: ".gitignore",
+      type: "file",
+      ext: "gitignore",
+      content: `# Dependencies & Build\nnode_modules/\nbuild/\nbin/\n.deps/\n*.pyc\n*.log\n.DS_Store\ndist/\n`,
+    },
+    {
+      name: "CMakeLists.txt",
+      type: "file",
+      ext: "cmake",
+      content: `cmake_minimum_required(VERSION 3.20)\nproject(TokmonDesktop LANGUAGES CXX C)\n\nset(CMAKE_CXX_STANDARD 20)\nset(CMAKE_CXX_STANDARD_REQUIRED ON)\n\nfind_package(Slint REQUIRED)\n\nadd_subdirectory(apps)\nadd_subdirectory(nyxia)\n`,
+    },
+    {
+      name: "CMakePresets.json",
+      type: "file",
+      ext: "json",
+      content: `{\n  "version": 3,\n  "configurePresets": [\n    {\n      "name": "default",\n      "displayName": "Default Ninja Build",\n      "generator": "Ninja",\n      "binaryDir": "\${sourceDir}/build",\n      "cacheVariables": {\n        "CMAKE_BUILD_TYPE": "RelWithDebInfo"\n      }\n    }\n  ]\n}`,
+    },
+  ]
 
   // Render syntax highlighting for Python lines
 
@@ -3063,7 +3591,7 @@ export default function App() {
 
             {mainViewMode === "chat" ? (
               messages.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center p-6 text-center select-none pb-40 animate-in fade-in duration-300 max-w-[900px] mx-auto w-full">
+                <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-center justify-center p-6 text-center select-none animate-in fade-in duration-300 max-w-[900px] mx-auto w-full">
                   {/* 1. Tokmon Brand SVG Logo (matching top-left logo) */}
                   <div className="relative mb-5 group cursor-pointer">
                     <div className="w-16 h-16 rounded-3xl bg-gradient-to-b from-[#fef8f4] to-[#fbf1e7] border border-[#f5d9c3] shadow-xs flex items-center justify-center group-hover:scale-105 group-hover:shadow-md transition-all duration-300">
@@ -3309,7 +3837,7 @@ export default function App() {
               ) : (
                 /* Chat Messages & Execution Scroll Panel */
 
-                <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6 custom-scrollbar pb-36">
+                <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-6 custom-scrollbar pb-6">
                   {/* Timestamp tag */}
                   <div className="text-center">
                     <span className="text-[11.5px] text-[#a8a29e] font-medium">
@@ -3431,9 +3959,10 @@ export default function App() {
                         </button>
 
                         {/* Timeline Items on unified light gray background */}
-                        <div className="space-y-3 text-[12.5px] pl-1 relative pt-1 animate-in fade-in duration-200">
+                        <div className="space-y-2.5 text-[12.5px] pl-1 relative pt-1 animate-in fade-in duration-200">
                           <div className="absolute left-[7px] top-[14px] bottom-[14px] w-[1px] bg-[#dfdeda]" />
 
+                          {/* Step 1: Start */}
                           <div className="flex items-start space-x-2.5 relative z-10">
                             <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
                               <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
@@ -3441,15 +3970,16 @@ export default function App() {
                             <span className="text-[#a8a29e] font-mono text-[11.5px]">
                               10:21
                             </span>
-                            <span className="text-[#1c1917] font-medium">
+                            <span className="text-[#1c1917]">
                               开始任务: 使用{" "}
-                              <span className="font-mono text-[#8b5229]">
+                              <span className="font-mono text-[#8b5229] font-medium">
                                 faster-whisper
                               </span>{" "}
                               转录音频并生成带时间戳字幕
                             </span>
                           </div>
 
+                          {/* Step 2: Explore */}
                           <div className="flex items-start space-x-2.5 relative z-10">
                             <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
                               <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
@@ -3457,15 +3987,16 @@ export default function App() {
                             <span className="text-[#a8a29e] font-mono text-[11.5px]">
                               10:21
                             </span>
-                            <div className="flex items-center space-x-1 text-[#292524]">
+                            <div className="flex items-center space-x-1.5 text-[#292524]">
                               <Folder className="w-3.5 h-3.5 text-[#78716c]" />
                               <span>探索文件夹</span>
-                              <span className="font-mono bg-[#ebe9e4] text-[#44403c] px-1.5 py-0.2 rounded text-[11.5px] border border-[#e0ded8]">
+                              <span className="font-mono text-[#57534e]">
                                 C:\Projects\subtitle\
                               </span>
                             </div>
                           </div>
 
+                          {/* Step 3: Read config */}
                           <div className="flex items-start space-x-2.5 relative z-10">
                             <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
                               <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
@@ -3473,15 +4004,16 @@ export default function App() {
                             <span className="text-[#a8a29e] font-mono text-[11.5px]">
                               10:21
                             </span>
-                            <div className="flex items-center space-x-1 text-[#292524]">
+                            <div className="flex items-center space-x-1.5 text-[#292524]">
                               <FileText className="w-3.5 h-3.5 text-[#78716c]" />
                               <span>读取文件</span>
-                              <span className="font-mono text-[#1c1917]">
+                              <span className="font-mono text-[#1c1917] font-medium">
                                 config.yaml
                               </span>
                             </div>
                           </div>
 
+                          {/* Step 4: Python command */}
                           <div className="flex items-start space-x-2.5 relative z-10">
                             <div className="w-3.5 h-3.5 rounded-full bg-[#22c55e]/20 border border-[#22c55e] flex items-center justify-center flex-shrink-0 mt-0.5">
                               <Check className="w-2.5 h-2.5 text-[#16a34a]" />
@@ -3489,51 +4021,49 @@ export default function App() {
                             <span className="text-[#a8a29e] font-mono text-[11.5px]">
                               10:22
                             </span>
-                            <div className="space-y-1">
-                              <div className="flex items-center space-x-1 text-[#292524]">
-                                <span className="text-[#22c55e]">✓</span>
+                            <div className="space-y-0.5">
+                              <div className="flex items-center space-x-1.5 text-[#292524]">
                                 <span>运行命令</span>
                                 <span className="font-mono text-[#0284c7]">
                                   python -V
                                 </span>
                               </div>
-                              <div className="bg-[#ebe9e4] text-[#57534e] font-mono text-[11.5px] px-2 py-1 rounded border border-[#e0ded8]">
-                                Python 3.10.11
+                              <div className="text-[11.5px] font-mono text-[#78716c] pl-3">
+                                ↳ Python 3.10.11
                               </div>
                             </div>
                           </div>
 
+                          {/* Step 5: pip command */}
                           <div className="flex items-start space-x-2.5 relative z-10">
-                            <div className="w-3.5 h-3.5 rounded-full bg-[#fef3d6] border border-[#f59e0b] flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#d97706]" />
+                            <div className="w-3.5 h-3.5 rounded-full bg-[#22c55e]/20 border border-[#22c55e] flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <Check className="w-2.5 h-2.5 text-[#16a34a]" />
                             </div>
                             <span className="text-[#a8a29e] font-mono text-[11.5px]">
                               10:22
                             </span>
-                            <div className="space-y-1">
-                              <div className="flex items-center space-x-1 text-[#292524]">
-                                <span className="font-mono text-[#78716c]">
-                                  &gt;_
-                                </span>
+                            <div className="space-y-0.5">
+                              <div className="flex items-center space-x-1.5 text-[#292524]">
                                 <span>运行命令</span>
                                 <span className="font-mono text-[#0284c7]">
                                   pip show faster-whisper
                                 </span>
                               </div>
-                              <div className="bg-[#ebe9e4] text-[#57534e] font-mono text-[11.5px] px-2 py-1 rounded border border-[#e0ded8]">
-                                faster-whisper 1.1.1
+                              <div className="text-[11.5px] font-mono text-[#78716c] pl-3">
+                                ↳ faster-whisper 1.1.1
                               </div>
                             </div>
                           </div>
 
+                          {/* Step 6: Script running */}
                           <div className="flex items-start space-x-2.5 relative z-10">
-                            <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <div className="w-3.5 h-3.5 rounded-full bg-[#f7efe5] border border-[#ebdcd0] flex items-center justify-center flex-shrink-0 mt-0.5">
                               <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
                             </div>
                             <span className="text-[#a8a29e] font-mono text-[11.5px]">
                               10:23
                             </span>
-                            <div className="flex-1 space-y-2">
+                            <div className="flex-1 space-y-1">
                               <div className="flex items-center space-x-1.5 text-[#292524]">
                                 <FileCode className="w-3.5 h-3.5 text-[#c86a28]" />
                                 <span>运行脚本</span>
@@ -3545,35 +4075,30 @@ export default function App() {
                                   C:\Data\audio.mp3
                                 </span>
                               </div>
-
-                              <div className="bg-[#ebe9e4] border border-[#dfded8] rounded-lg p-3 space-y-2">
-                                <div className="flex justify-between items-center text-[12px] text-[#44403c]">
-                                  <span>正在转录音频 (分段模式) ...</span>
-                                  <span className="font-mono font-semibold text-[#8b5229]">
-                                    进度 42 %
-                                  </span>
+                              <div className="text-[11.5px] text-[#78716c] pl-5 flex items-center space-x-2">
+                                <span>↳ 正在转录音频 (分段模式)</span>
+                                <span className="font-mono text-[#8b5229] font-semibold">
+                                  42%
+                                </span>
+                                <div className="w-24 h-1.5 bg-[#dfded8] rounded-full overflow-hidden inline-block">
+                                  <div className="h-full bg-[#c86a28] rounded-full w-[42%]" />
                                 </div>
-                                <div className="w-full h-2 bg-[#dfded8] rounded-full overflow-hidden">
-                                  <div className="h-full bg-gradient-to-r from-[#e08a7e] to-[#c86a28] rounded-full w-[42%]" />
-                                </div>
-                                <div className="text-[11px] text-[#78716c]">
-                                  预计剩余:{" "}
-                                  <span className="font-mono text-[#44403c]">
-                                    00:01:32
-                                  </span>
-                                </div>
+                                <span className="text-[11px] text-[#a8a29e] font-mono">
+                                  (剩余 00:01:32)
+                                </span>
                               </div>
                             </div>
                           </div>
 
+                          {/* Step 7: Output file */}
                           <div className="flex items-start space-x-2.5 relative z-10">
-                            <div className="w-3.5 h-3.5 rounded-full border border-dashed border-[#a8a29e] flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <RotateCw className="w-2 h-2 text-[#a8a29e] animate-spin" />
+                            <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
                             </div>
                             <span className="text-[#a8a29e] font-mono text-[11.5px]">
                               10:24
                             </span>
-                            <div className="flex items-center space-x-1 text-[#292524]">
+                            <div className="flex items-center space-x-1.5 text-[#292524]">
                               <FileText className="w-3.5 h-3.5 text-[#78716c]" />
                               <span>生成文件</span>
                               <span className="font-mono text-[#1c1917] font-medium">
@@ -3582,21 +4107,25 @@ export default function App() {
                             </div>
                           </div>
 
-                          <div className="pt-2">
-                            <div className="flex items-start space-x-2.5 p-2.5 bg-[#eaf7ee] border border-[#c3ebcd] rounded-lg text-[12.5px] text-[#15803d]">
-                              <CheckCircle2 className="w-4 h-4 text-[#16a34a] flex-shrink-0 mt-0.5" />
-                              <div>
-                                <p className="font-semibold text-[#166534]">
-                                  任务已完成
-                                </p>
-                                <p className="text-[12px] text-[#15803d]">
-                                  字幕文件已生成:{" "}
-                                  <span className="font-mono">output.srt</span>
-                                </p>
-                                <p className="text-[11.5px] text-[#166534]/80 mt-0.5">
-                                  共生成 96 条字幕
-                                </p>
-                              </div>
+                          {/* Step 8: Done */}
+                          <div className="flex items-start space-x-2.5 relative z-10">
+                            <div className="w-3.5 h-3.5 rounded-full bg-[#22c55e]/20 border border-[#22c55e] flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-[#16a34a]" />
+                            </div>
+                            <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                              10:24
+                            </span>
+                            <div className="text-[12.5px]">
+                              <span className="font-semibold text-[#166534]">
+                                任务已完成
+                              </span>
+                              <span className="text-[#57534e] ml-2">
+                                字幕文件已生成:{" "}
+                                <span className="font-mono text-[#166534] font-medium">
+                                  output.srt
+                                </span>{" "}
+                                (共 96 条字幕)
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -4063,9 +4592,9 @@ export default function App() {
               </div>
             )}
 
-            {/* Bottom Floating Input Box Area (Reconstructed from Reference Image 1 & 2) */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#fafaf9] via-[#fafaf9]/90 to-transparent pointer-events-none">
-              <div className="max-w-[760px] mx-auto pointer-events-auto">
+            {/* Bottom Input Box Area - Pinned on top with solid background */}
+            <div className="flex-shrink-0 px-4 pb-4 pt-2 bg-[#fafaf9] border-t border-[#e7e5e4]/60 z-30 shadow-xs">
+              <div className="max-w-[760px] mx-auto">
                 {/* Embedded Context Tab attached to the top-left of the input dialog box */}
                 <div className="relative z-10 -mb-[1px]">
                   <div className="inline-flex items-center space-x-2 px-3 py-1 bg-[#f4f3ef] hover:bg-[#edebe4] rounded-t-xl border-t border-l border-r border-[#e7e5e4] text-[11.5px] text-[#57534e] select-none shadow-2xs transition-colors">
@@ -4484,213 +5013,796 @@ export default function App() {
           )}
 
           {/* ========================================================= */}
-          {/* COLUMN 3: RIGHT CODE INSPECTOR / FILE PREVIEW */}
+          {/* COLUMN 3: RIGHT PANEL (REVIEW / WORKSPACE / LAUNCHER)     */}
           {/* ========================================================= */}
           {rightPanelOpen ? (
             <section
               style={{ width: `${rightPanelWidth}px` }}
-              className={`flex-shrink-0 bg-[#ffffff] flex flex-col border-l border-[#e7e5e4] ${
+              className={`flex-shrink-0 bg-[#fafaf9] flex flex-col border-l border-[#e7e5e4] ${
                 isDragging
                   ? "transition-none"
                   : "transition-[width] duration-150 ease-out"
-              }`}
+              } relative select-text`}
             >
-              {/* Top Tabs */}
-              <div className="h-[46px] flex-shrink-0 border-b border-[#e7e5e4] flex items-center justify-between px-4 text-[13.5px] font-medium text-[#78716c]">
-                <div className="flex items-center space-x-6 h-full">
+              {/* TOAST FEEDBACK NOTIFICATION */}
+              {toastMessage && (
+                <div className="absolute top-12 left-1/2 -translate-x-1/2 z-50 px-3.5 py-1.5 bg-[#1c1917] text-white text-[12px] rounded-lg shadow-lg flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 duration-150 pointer-events-none">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#22c55e]" />
+                  <span>{toastMessage}</span>
+                </div>
+              )}
+
+              {/* TOP TABS BAR (MATCHES SCREENSHOTS 1 & 2) */}
+              <div className="h-[40px] flex-shrink-0 border-b border-[#e7e5e4] bg-[#fafaf9] flex items-center justify-between px-2 text-[12.5px] select-none">
+                <div className="flex items-center space-x-1 h-full overflow-x-auto no-scrollbar">
+                  {openTabs.map((tab) => {
+                    const isActive = rightPanelTab === tab.id
+                    return (
+                      <div
+                        key={tab.id}
+                        onClick={() => setRightPanelTab(tab.id)}
+                        className={`h-[30px] px-2.5 rounded-lg flex items-center space-x-1.5 cursor-pointer transition-all ${
+                          isActive
+                            ? "bg-white text-[#1c1917] font-medium shadow-2xs border border-[#e5e5e5]"
+                            : "text-[#78716c] hover:bg-[#f0f0ef] hover:text-[#1c1917]"
+                        }`}
+                      >
+                        {tab.id === "review" ? (
+                          <ReviewIcon className="w-3.5 h-3.5 text-[#78716c]" />
+                        ) : (
+                          <FileText className="w-3.5 h-3.5 text-[#78716c]" />
+                        )}
+                        <span>{tab.title}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            closeTab(tab.id)
+                          }}
+                          className="p-0.5 hover:bg-[#e7e5e4] rounded text-[#a8a29e] hover:text-[#1c1917] transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    )
+                  })}
+
+                  {/* Open new tab button (+) */}
                   <button
-                    onClick={() => setActiveTab("code")}
-                    className={`h-full border-b-2 flex items-center transition-colors cursor-pointer ${
-                      activeTab === "code"
-                        ? "border-[#d97706] text-[#b45309] font-semibold"
-                        : "border-transparent hover:text-[#1c1917]"
-                    }`}
+                    onClick={() => {
+                      if (!openTabs.find((t) => t.id === "review")) {
+                        openReviewTab()
+                      } else if (!openTabs.find((t) => t.id === "openFile")) {
+                        openWorkspaceFileTab()
+                      } else {
+                        showToast("已打开全部标签页")
+                      }
+                    }}
+                    title="添加标签页"
+                    className="w-6 h-6 flex items-center justify-center hover:bg-[#e7e5e4] rounded-md text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer ml-0.5"
                   >
-                    代码审阅
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("preview")}
-                    className={`h-full border-b-2 flex items-center transition-colors cursor-pointer ${
-                      activeTab === "preview"
-                        ? "border-[#d97706] text-[#b45309] font-semibold"
-                        : "border-transparent hover:text-[#1c1917]"
-                    }`}
-                  >
-                    文件预览
+                    <Plus className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
                 {/* Right panel window controls */}
-                <div className="flex items-center">
-                  <WindowControls
-                    isMaximized={isMaximized}
-                    onToggleMaximize={() => setIsMaximized(!isMaximized)}
-                  />
-                </div>
-              </div>
-
-              {/* Sub Header File Selector */}
-              <div className="h-[38px] flex-shrink-0 bg-[#fafaf9] border-b border-[#e7e5e4] flex items-center justify-between px-3 text-[12.5px] relative">
-                <div className="relative">
+                <div className="flex items-center space-x-1 text-[#78716c]">
                   <button
-                    onClick={() => setShowFileDropdown(!showFileDropdown)}
-                    className="flex items-center space-x-1.5 font-medium text-[#1c1917] hover:bg-[#e7e5e4] px-2 py-1 rounded-md transition-colors"
+                    onClick={() => setIsMaximized(!isMaximized)}
+                    title={isMaximized ? "还原面板" : "最大化面板"}
+                    className="w-6 h-6 flex items-center justify-center hover:bg-[#e7e5e4] rounded-md text-[#78716c] transition-colors cursor-pointer"
                   >
-                    <span className="text-sm">
-                      {selectedFile === "transcribe.py"
-                        ? "🐍"
-                        : selectedFile === "config.yaml"
-                          ? "⚙️"
-                          : "🎬"}
-                    </span>
-                    <span className="font-mono">{selectedFile}</span>
-                    <ChevronDown className="w-3.5 h-3.5 text-[#a8a29e]" />
+                    <Maximize2 className="w-3.5 h-3.5" />
                   </button>
-
-                  {/* File Selector Dropdown Menu */}
-                  {showFileDropdown && (
-                    <div className="absolute left-0 mt-1 w-44 bg-white border border-[#e7e5e4] rounded-xl shadow-lg py-1 z-50 text-[12px] font-mono">
-                      {([
-                        "transcribe.py",
-                        "config.yaml",
-                        "output.srt",
-                      ] as const).map((file) => (
-                        <button
-                          key={file}
-                          onClick={() => {
-                            setSelectedFile(file)
-
-                            setShowFileDropdown(false)
-                          }}
-                          className={`w-full text-left px-3 py-1.5 hover:bg-[#fef3d6] flex items-center justify-between ${
-                            selectedFile === file
-                              ? "text-[#d97706] font-bold"
-                              : "text-[#44403c]"
-                          }`}
-                        >
-                          <span>{file}</span>
-                          {selectedFile === file && (
-                            <Check className="w-3.5 h-3.5 text-[#d97706]" />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <span className="font-mono text-[11.5px] font-semibold tracking-wide">
-                    <span className="text-[#16a34a]">+42</span>{" "}
-                    <span className="text-[#dc2626] ml-0.5">-0</span>
-                  </span>
-                  <button className="p-0.5 hover:bg-[#e7e5e4] rounded text-[#78716c]">
-                    <MoreVertical className="w-3.5 h-3.5" />
+                  <button
+                    onClick={() => setRightPanelOpen(false)}
+                    title="关闭面板"
+                    className="w-6 h-6 flex items-center justify-center hover:bg-[#ef4444] hover:text-white rounded-md text-[#78716c] transition-colors cursor-pointer"
+                  >
+                    <PanelRightClose className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
 
-              {/* Main Code Viewer / File Preview Body */}
-              <div className="flex-1 overflow-y-auto overflow-x-auto bg-[#ffffff] font-mono text-[12px] leading-[20px] custom-scrollbar p-2">
-                {activeTab === "code" ? (
-                  <table className="w-full border-collapse">
-                    <tbody>
-                      {(
-                        fileContents[selectedFile] ||
-                        fileContents["transcribe.py"]
-                      ).map((line) => (
-                        <tr key={line.num} className="hover:bg-[#fafaf9]">
-                          <td className="w-10 select-none text-right pr-3 text-[#d6d3d1] text-[11px] align-top">
-                            {line.num}
-                          </td>
-                          <td className="pl-2 whitespace-pre text-[#1c1917] align-top font-mono">
-                            {renderCodeLine(line)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <div className="p-3 space-y-3 font-sans text-[12.5px]">
-                    {/* Notification banner when copied */}
-                    {copiedNotification && (
-                      <div className="p-2 bg-[#f0fdf4] border border-[#bbf7d0] text-[#166534] rounded-lg text-[12px] flex items-center justify-between">
-                        <span>✓ 已成功复制全条字幕内容！</span>
-                        <X
-                          className="w-3.5 h-3.5 cursor-pointer"
-                          onClick={() => setCopiedNotification(false)}
-                        />
+              {/* ========================================================================= */}
+              {/* VIEW 1: INITIAL LAUNCHER SCREEN (SCREENSHOT 3)                           */}
+              {/* ========================================================================= */}
+              {rightPanelTab === "launcher" ? (
+                <div className="flex-1 flex flex-col items-center justify-center select-none bg-[#fafaf9] p-6 animate-in fade-in duration-150">
+                  <div className="w-full max-w-[260px] space-y-2">
+                    <button
+                      onClick={() => openReviewTab()}
+                      className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-[#f0f0ef] text-[#292524] transition-all group cursor-pointer border border-transparent hover:border-[#e5e5e5]"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <ReviewIcon className="w-4 h-4 text-[#78716c] group-hover:text-[#c86a28] transition-colors" />
+                        <span className="text-[13.5px] font-medium">审查</span>
                       </div>
-                    )}
+                      <kbd className="px-2 py-0.5 text-[11px] font-mono text-[#a8a29e] bg-white group-hover:bg-white rounded-md border border-[#e5e5e5] shadow-2xs">
+                        Ctrl+Shift+G
+                      </kbd>
+                    </button>
 
-                    {/* Header & Controls in Preview Mode */}
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-[#1c1917]">
-                        字幕预览 (output.srt)
-                      </span>
-                      <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => openWorkspaceFileTab()}
+                      className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-[#f0f0ef] text-[#292524] transition-all group cursor-pointer border border-transparent hover:border-[#e5e5e5]"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Folder className="w-4 h-4 text-[#78716c] group-hover:text-[#c86a28] transition-colors" />
+                        <span className="text-[13.5px] font-medium">文件</span>
+                      </div>
+                      <kbd className="px-2 py-0.5 text-[11px] font-mono text-[#a8a29e] bg-white group-hover:bg-white rounded-md border border-[#e5e5e5] shadow-2xs">
+                        Ctrl+P
+                      </kbd>
+                    </button>
+                  </div>
+                </div>
+              ) : rightPanelTab === "review" ? (
+                /* ========================================================================= */
+                /* VIEW 2: CODE REVIEW (DIFF) PANEL (SCREENSHOT 1)                           */
+                /* ========================================================================= */
+                <div className="flex-1 flex flex-col min-h-0 bg-[#fafaf9] animate-in fade-in duration-150">
+                  {/* GIT BRANCH & ACTIONS TOOLBAR */}
+                  <div className="h-[44px] flex-shrink-0 border-b border-[#e7e5e4] px-3 flex items-center justify-between bg-[#fafaf9] text-[12.5px] relative">
+                    {/* Left: Branch selector, Stats badge, Tracking branch */}
+                    <div className="flex items-center space-x-2.5">
+                      <div className="relative">
                         <button
-                          onClick={handleCopySubtitles}
-                          className="flex items-center space-x-1 px-2 py-1 bg-[#f5f5f4] hover:bg-[#e7e5e4] border border-[#e7e5e4] rounded-lg text-[11.5px] text-[#44403c] transition-colors"
+                          onClick={() =>
+                            setShowBranchDropdown(!showBranchDropdown)
+                          }
+                          className="flex items-center space-x-1 font-medium text-[#1c1917] hover:bg-[#f5f5f4] px-2 py-1 rounded-md transition-colors cursor-pointer"
                         >
-                          <Copy className="w-3 h-3" />
-                          <span>复制字幕</span>
+                          <span>分支</span>
+                          <ChevronDown className="w-3.5 h-3.5 text-[#78716c]" />
                         </button>
+
+                        {/* Branch Dropdown */}
+                        {showBranchDropdown && (
+                          <div className="absolute left-0 top-8 w-48 bg-white border border-[#e7e5e4] rounded-xl shadow-xl py-1 z-50 text-[12px]">
+                            <div className="px-3 py-1 text-[11px] text-[#a8a29e] font-semibold border-b border-[#f5f5f4]">
+                              切换 Git 分支
+                            </div>
+                            {[
+                              "main",
+                              "dev",
+                              "feat/subtitle-v2",
+                              "release/v1.0",
+                            ].map((branch) => (
+                              <button
+                                key={branch}
+                                onClick={() => {
+                                  setCurrentBranch(branch)
+                                  setShowBranchDropdown(false)
+                                  showToast(`已切换至分支: ${branch}`)
+                                }}
+                                className={`w-full text-left px-3 py-1.5 hover:bg-[#fef3d6] flex items-center justify-between cursor-pointer ${
+                                  currentBranch === branch
+                                    ? "text-[#c86a28] font-semibold bg-[#faf5ef]"
+                                    : "text-[#44403c]"
+                                }`}
+                              >
+                                <span className="font-mono">{branch}</span>
+                                {currentBranch === branch && (
+                                  <Check className="w-3.5 h-3.5 text-[#c86a28]" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Total Additions / Deletions Badge */}
+                      <span className="font-mono text-[12px] font-semibold">
+                        <span className="text-[#16a34a]">+2</span>{" "}
+                        <span className="text-[#dc2626] ml-0.5">-2</span>
+                      </span>
+
+                      {/* Remote Tracking */}
+                      <div className="hidden sm:flex items-center space-x-1 text-[#78716c] text-[11.5px] hover:text-[#1c1917] cursor-pointer">
+                        <span className="font-mono">
+                          {currentBranch} → origin/{currentBranch}
+                        </span>
+                        <ChevronDown className="w-3 h-3 text-[#a8a29e]" />
                       </div>
                     </div>
 
-                    {/* Search Subtitles Bar */}
-                    <div className="relative">
-                      <Search className="w-3.5 h-3.5 text-[#a8a29e] absolute left-2.5 top-1/2 -translate-y-1/2" />
-                      <input
-                        type="text"
-                        value={subtitleSearch}
-                        onChange={(e) => setSubtitleSearch(e.target.value)}
-                        placeholder="在字幕中搜索..."
-                        className="w-full bg-[#f9f9f8] border border-[#e7e5e4] rounded-lg pl-8 pr-3 py-1 text-[12px] text-[#1c1917] focus:outline-none focus:border-[#f5a623]"
-                      />
-                    </div>
-
-                    {/* Subtitle Items List */}
-                    <div className="space-y-2 mt-2">
-                      {filteredSubtitles.map((sub) => (
-                        <div
-                          key={sub.id}
-                          className="p-2.5 bg-[#fafaf9] border border-[#e7e5e4] rounded-xl hover:border-[#f5a623] transition-colors space-y-1"
+                    {/* Right: Actions (More, Diff View Mode, Sidebar Toggle, Explorer, Commit & Push) */}
+                    <div className="flex items-center space-x-1.5">
+                      {/* More Menu */}
+                      <div className="relative">
+                        <button
+                          onClick={() => setShowMoreGitMenu(!showMoreGitMenu)}
+                          title="更多操作"
+                          className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-[#f5f5f4] text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer"
                         >
-                          <div className="flex items-center justify-between text-[11px] font-mono text-[#d97706]">
-                            <span>#{sub.id}</span>
-                            <span>
-                              {sub.start} ➔ {sub.end}
+                          <MoreVertical className="w-3.5 h-3.5" />
+                        </button>
+                        {showMoreGitMenu && (
+                          <div className="absolute right-0 top-8 w-44 bg-white border border-[#e7e5e4] rounded-xl shadow-xl py-1 z-50 text-[12px]">
+                            <button
+                              onClick={() => {
+                                setShowMoreGitMenu(false)
+                                showToast("已暂存全部更改")
+                              }}
+                              className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f4] text-[#44403c] cursor-pointer"
+                            >
+                              暂存全部更改
+                            </button>
+                            <button
+                              onClick={() => {
+                                setShowMoreGitMenu(false)
+                                showToast("已刷新 Git 状态")
+                              }}
+                              className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f4] text-[#44403c] cursor-pointer"
+                            >
+                              刷新审查状态
+                            </button>
+                            <button
+                              onClick={() => {
+                                setShowMoreGitMenu(false)
+                                showToast("已放弃未暂存更改")
+                              }}
+                              className="w-full text-left px-3 py-1.5 hover:bg-[#fee2e2] text-[#dc2626] cursor-pointer"
+                            >
+                              放弃未暂存更改
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Diff View Mode Toggle (Unified vs Split) */}
+                      <button
+                        onClick={() =>
+                          setDiffViewMode(
+                            diffViewMode === "unified" ? "split" : "unified",
+                          )
+                        }
+                        title={`当前: ${
+                          diffViewMode === "unified"
+                            ? "内联对比 (点击切换为双列)"
+                            : "双列对比 (点击切换为内联)"
+                        }`}
+                        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors cursor-pointer ${
+                          diffViewMode === "split"
+                            ? "bg-[#faf5ef] text-[#c86a28]"
+                            : "hover:bg-[#f5f5f4] text-[#78716c] hover:text-[#1c1917]"
+                        }`}
+                      >
+                        <DiffSplitIcon className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* Toggle Changed Files List */}
+                      <button
+                        onClick={() =>
+                          setShowRightFileSidebar(!showRightFileSidebar)
+                        }
+                        title={
+                          showRightFileSidebar
+                            ? "隐藏变更文件列表"
+                            : "显示变更文件列表"
+                        }
+                        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors cursor-pointer ${
+                          showRightFileSidebar
+                            ? "bg-[#faf5ef] text-[#c86a28]"
+                            : "hover:bg-[#f5f5f4] text-[#78716c] hover:text-[#1c1917]"
+                        }`}
+                      >
+                        <PanesIcon className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* Open Project Folder */}
+                      <button
+                        onClick={() => showToast("已在工作区中定位该文件")}
+                        title="在资源管理器中打开"
+                        className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-[#f5f5f4] text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer"
+                      >
+                        <Folder className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* Commit & Push Primary Button */}
+                      <div className="relative">
+                        <button
+                          onClick={() => setShowCommitModal(!showCommitModal)}
+                          className="flex items-center space-x-1.5 px-2.5 py-1 bg-white hover:bg-[#faf5ef] border border-[#e5e5e5] hover:border-[#c86a28] rounded-lg text-[12px] font-medium text-[#292524] transition-all cursor-pointer shadow-2xs"
+                        >
+                          <CommitPushIcon className="w-3.5 h-3.5 text-[#c86a28]" />
+                          <span>提交或推送</span>
+                          <ChevronDown className="w-3 h-3 text-[#78716c]" />
+                        </button>
+
+                        {/* Commit & Push Popover Modal */}
+                        {showCommitModal && (
+                          <div className="absolute right-0 top-9 w-72 bg-white border border-[#e7e5e4] rounded-2xl shadow-2xl p-3.5 z-50 text-[12px] animate-in fade-in slide-in-from-top-2 duration-150">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-[#1c1917]">
+                                提交更改到 {currentBranch}
+                              </span>
+                              <button
+                                onClick={() => setShowCommitModal(false)}
+                                className="text-[#a8a29e] hover:text-[#1c1917]"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+
+                            <p className="text-[11.5px] text-[#78716c] mb-2.5">
+                              已暂存 5 个文件 (+134 -11)
+                            </p>
+
+                            <textarea
+                              value={commitMessage}
+                              onChange={(e) => setCommitMessage(e.target.value)}
+                              placeholder="输入提交信息 (例如: feat: 更新字幕文本)..."
+                              rows={3}
+                              className="w-full bg-[#f9f9f8] border border-[#e5e5e5] rounded-xl p-2.5 text-[12px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:border-[#c86a28] resize-none mb-2.5"
+                            />
+
+                            <label className="flex items-center space-x-2 text-[11.5px] text-[#57534e] mb-3 cursor-pointer select-none">
+                              <input
+                                type="checkbox"
+                                checked={pushImmediately}
+                                onChange={(e) =>
+                                  setPushImmediately(e.target.checked)
+                                }
+                                className="rounded text-[#c86a28] focus:ring-0"
+                              />
+                              <span>
+                                提交后立即推送到远程 origin/{currentBranch}
+                              </span>
+                            </label>
+
+                            <div className="flex items-center justify-end space-x-2">
+                              <button
+                                onClick={() => setShowCommitModal(false)}
+                                className="px-2.5 py-1 rounded-lg border border-[#e5e5e5] hover:bg-[#f5f5f4] text-[#78716c] transition-colors cursor-pointer"
+                              >
+                                取消
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setShowCommitModal(false)
+                                  setCommitMessage("")
+                                  showToast(
+                                    pushImmediately
+                                      ? `✓ 已成功提交并推送到 origin/${currentBranch}!`
+                                      : "✓ 已成功提交到本地仓库！",
+                                  )
+                                }}
+                                className="px-3 py-1 rounded-lg bg-[#c86a28] hover:bg-[#b05c22] text-white font-medium transition-colors cursor-pointer shadow-2xs"
+                              >
+                                {pushImmediately ? "提交并推送" : "仅提交"}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* BODY AREA: DIFF VIEWER (LEFT) + CHANGED FILES SIDEBAR (RIGHT) */}
+                  <div className="flex-1 flex min-h-0 overflow-hidden">
+                    {/* LEFT COLUMN: DIFF CODE VIEWER */}
+                    {(() => {
+                      const currentFile =
+                        reviewFiles.find(
+                          (f) => f.id === selectedReviewFileId,
+                        ) || reviewFiles[0]
+
+                      return (
+                        <div className="flex-1 flex flex-col min-w-0 bg-[#fafaf9] overflow-hidden">
+                          {/* File Path Header Bar matching Screenshot 1 */}
+                          <div className="h-[34px] flex-shrink-0 bg-[#fafaf9] border-b border-[#e7e5e4] px-3 flex items-center justify-between text-[12px] font-mono select-text">
+                            <div className="flex items-center space-x-1.5 min-w-0 truncate">
+                              <FileText className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
+                              <span className="text-[#1c1917] truncate font-medium">
+                                {currentFile.path}
+                              </span>
+                            </div>
+                            <span className="font-mono text-[11.5px] font-semibold flex-shrink-0 ml-2">
+                              <span className="text-[#16a34a]">
+                                +{currentFile.additions}
+                              </span>{" "}
+                              <span className="text-[#dc2626] ml-0.5">
+                                -{currentFile.deletions}
+                              </span>
                             </span>
                           </div>
-                          <p className="text-[12.5px] text-[#1c1917] leading-relaxed font-sans">
-                            {sub.text}
-                          </p>
+
+                          {/* Diff Lines Table */}
+                          <div className="flex-1 overflow-y-auto overflow-x-auto font-mono text-[12px] leading-[20px] custom-scrollbar p-2 bg-[#fafaf9] select-text">
+                            {diffViewMode === "unified" ? (
+                              /* UNIFIED (INLINE) VIEW */
+                              <table className="w-full border-collapse">
+                                <tbody>
+                                  {currentFile.diffLines.map((line, idx) => {
+                                    if (line.type === "banner") {
+                                      const isExpanded =
+                                        expandedBanners[
+                                          `${currentFile.id}-${idx}`
+                                        ]
+                                      return (
+                                        <tr key={idx}>
+                                          <td colSpan={2} className="py-1">
+                                            <div
+                                              onClick={() =>
+                                                setExpandedBanners((prev) => ({
+                                                  ...prev,
+                                                  [`${currentFile.id}-${idx}`]:
+                                                    !isExpanded,
+                                                }))
+                                              }
+                                              className="py-1 px-4 my-0.5 bg-[#f4f4f4] hover:bg-[#eaeaea] text-[#78716c] text-[11.5px] rounded-lg text-left select-none cursor-pointer flex items-center justify-between transition-colors border border-[#e5e5e5]"
+                                            >
+                                              <span>{line.bannerText}</span>
+                                              <span className="text-[10px] text-[#a8a29e]">
+                                                {isExpanded
+                                                  ? "点击折叠"
+                                                  : "点击展开上下文"}
+                                              </span>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                      )
+                                    }
+
+                                    if (line.type === "delete") {
+                                      return (
+                                        <tr
+                                          key={idx}
+                                          className="bg-[#fee2e2]/40 hover:bg-[#fee2e2]/60 transition-colors"
+                                        >
+                                          <td className="w-12 select-none text-right pr-3 text-[#dc2626] text-[11px] align-top font-mono bg-[#fecaca]/40 border-r border-[#fca5a5]/40 font-medium">
+                                            {line.oldNum}
+                                          </td>
+                                          <td className="pl-3 whitespace-pre text-[#991b1b] align-top font-mono leading-[20px]">
+                                            {line.text}
+                                          </td>
+                                        </tr>
+                                      )
+                                    }
+
+                                    if (line.type === "add") {
+                                      return (
+                                        <tr
+                                          key={idx}
+                                          className="bg-[#dcfce7]/40 hover:bg-[#dcfce7]/60 transition-colors"
+                                        >
+                                          <td className="w-12 select-none text-right pr-3 text-[#16a34a] text-[11px] align-top font-mono bg-[#bbf7d0]/40 border-r border-[#86efac]/40 font-medium">
+                                            {line.newNum}
+                                          </td>
+                                          <td className="pl-3 whitespace-pre text-[#166534] align-top font-mono leading-[20px]">
+                                            {line.text}
+                                          </td>
+                                        </tr>
+                                      )
+                                    }
+
+                                    return (
+                                      <tr
+                                        key={idx}
+                                        className="hover:bg-[#fafaf9]"
+                                      >
+                                        <td className="w-12 select-none text-right pr-3 text-[#a8a29e] text-[11px] align-top font-mono">
+                                          {line.oldNum || line.newNum}
+                                        </td>
+                                        <td className="pl-3 whitespace-pre text-[#1c1917] align-top font-mono leading-[20px]">
+                                          {line.text}
+                                        </td>
+                                      </tr>
+                                    )
+                                  })}
+                                </tbody>
+                              </table>
+                            ) : (
+                              /* SPLIT (SIDE-BY-SIDE) VIEW */
+                              <table className="w-full border-collapse">
+                                <thead>
+                                  <tr className="border-b border-[#e7e5e4] text-[11px] text-[#78716c]">
+                                    <th className="w-1/2 text-left font-normal px-2 py-1 bg-[#fafafa]">
+                                      原版本 (Original)
+                                    </th>
+                                    <th className="w-1/2 text-left font-normal px-2 py-1 bg-[#fafafa] border-l border-[#e7e5e4]">
+                                      修改后 (Modified)
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {currentFile.diffLines.map((line, idx) => {
+                                    if (line.type === "banner") {
+                                      return (
+                                        <tr key={idx}>
+                                          <td colSpan={2} className="py-1">
+                                            <div className="py-1 px-4 my-0.5 bg-[#f4f4f4] text-[#78716c] text-[11.5px] rounded-lg text-center select-none border border-[#e5e5e5]">
+                                              {line.bannerText}
+                                            </div>
+                                          </td>
+                                        </tr>
+                                      )
+                                    }
+
+                                    if (line.type === "delete") {
+                                      return (
+                                        <tr key={idx}>
+                                          <td className="w-1/2 bg-[#fee2e2]/40 text-[#991b1b] px-2 py-0.5 whitespace-pre">
+                                            <span className="text-[#dc2626] font-mono mr-2 text-[11px]">
+                                              {line.oldNum}
+                                            </span>
+                                            {line.text}
+                                          </td>
+                                          <td className="w-1/2 bg-[#f5f5f4]/50 border-l border-[#e7e5e4] px-2 py-0.5" />
+                                        </tr>
+                                      )
+                                    }
+
+                                    if (line.type === "add") {
+                                      return (
+                                        <tr key={idx}>
+                                          <td className="w-1/2 bg-[#f5f5f4]/50 px-2 py-0.5" />
+                                          <td className="w-1/2 bg-[#dcfce7]/40 text-[#166534] px-2 py-0.5 whitespace-pre border-l border-[#e7e5e4]">
+                                            <span className="text-[#16a34a] font-mono mr-2 text-[11px]">
+                                              {line.newNum}
+                                            </span>
+                                            {line.text}
+                                          </td>
+                                        </tr>
+                                      )
+                                    }
+
+                                    return (
+                                      <tr
+                                        key={idx}
+                                        className="hover:bg-[#fafaf9]"
+                                      >
+                                        <td className="w-1/2 px-2 py-0.5 whitespace-pre text-[#1c1917]">
+                                          <span className="text-[#a8a29e] font-mono mr-2 text-[11px]">
+                                            {line.oldNum}
+                                          </span>
+                                          {line.text}
+                                        </td>
+                                        <td className="w-1/2 px-2 py-0.5 whitespace-pre text-[#1c1917] border-l border-[#e7e5e4]">
+                                          <span className="text-[#a8a29e] font-mono mr-2 text-[11px]">
+                                            {line.newNum}
+                                          </span>
+                                          {line.text}
+                                        </td>
+                                      </tr>
+                                    )
+                                  })}
+                                </tbody>
+                              </table>
+                            )}
+                          </div>
                         </div>
-                      ))}
+                      )
+                    })()}
+
+                    {/* RIGHT SUB-SIDEBAR: CHANGED FILES LIST (MATCHES SCREENSHOT 1) */}
+                    {showRightFileSidebar && (
+                      <div className="w-48 sm:w-56 flex-shrink-0 border-l border-[#e7e5e4] bg-[#fafaf9] flex flex-col min-h-0 select-none">
+                        {/* Search Input */}
+                        <div className="p-2 border-b border-[#e7e5e4] bg-[#fafaf9]">
+                          <div className="relative">
+                            <Search className="w-3.5 h-3.5 text-[#a8a29e] absolute left-2.5 top-1/2 -translate-y-1/2" />
+                            <input
+                              type="text"
+                              value={reviewFileSearch}
+                              onChange={(e) =>
+                                setReviewFileSearch(e.target.value)
+                              }
+                              placeholder="筛选文件..."
+                              className="w-full bg-white border border-[#e5e5e5] rounded-lg pl-7 pr-2 py-1 text-[11.5px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:border-[#c86a28]"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Files Tree List */}
+                        <div className="flex-1 overflow-y-auto p-1.5 space-y-1 custom-scrollbar text-[12px]">
+                          {reviewFiles
+                            .filter(
+                              (f) =>
+                                f.name
+                                  .toLowerCase()
+                                  .includes(reviewFileSearch.toLowerCase()) ||
+                                f.path
+                                  .toLowerCase()
+                                  .includes(reviewFileSearch.toLowerCase()),
+                            )
+                            .map((file) => {
+                              const isSelected =
+                                selectedReviewFileId === file.id
+                              return (
+                                <div key={file.id} className="space-y-0.5">
+                                  {/* Folder Header */}
+                                  <div className="flex items-center justify-between px-2 py-0.5 text-[11px] text-[#78716c] font-mono">
+                                    <div className="flex items-center space-x-1 min-w-0 truncate">
+                                      <ChevronDown className="w-3 h-3 flex-shrink-0" />
+                                      <span className="truncate">
+                                        {file.displayFolder}
+                                      </span>
+                                    </div>
+                                    <span
+                                      className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                                        file.status === "added"
+                                          ? "bg-[#16a34a]"
+                                          : "bg-[#c86a28]"
+                                      }`}
+                                    />
+                                  </div>
+
+                                  {/* File Item */}
+                                  <button
+                                    onClick={() =>
+                                      setSelectedReviewFileId(file.id)
+                                    }
+                                    className={`w-full text-left flex items-center justify-between px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                                      isSelected
+                                        ? "bg-white text-[#1c1917] font-medium border border-[#e5e5e5] shadow-2xs"
+                                        : "hover:bg-[#f0f0ef] text-[#44403c]"
+                                    }`}
+                                  >
+                                    <div className="flex items-center space-x-1.5 min-w-0 truncate">
+                                      <FileText className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
+                                      <span className="truncate text-[11.5px] font-mono">
+                                        {file.displayName}
+                                      </span>
+                                    </div>
+                                    <span
+                                      className={`text-[10px] font-bold font-mono px-1 py-0.2 rounded ${
+                                        file.status === "added"
+                                          ? "bg-[#dcfce7] text-[#166534]"
+                                          : "bg-[#fef3d6] text-[#b45309]"
+                                      }`}
+                                    >
+                                      {file.status === "added" ? "A" : "M"}
+                                    </span>
+                                  </button>
+                                </div>
+                              )
+                            })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                /* ========================================================================= */
+                /* VIEW 3: WORKSPACE OPEN FILE PANEL (SCREENSHOT 2)                          */
+                /* ========================================================================= */
+                <div className="flex-1 flex min-h-0 bg-[#fafaf9] animate-in fade-in duration-150">
+                  {/* LEFT / CENTER VIEW */}
+                  <div className="flex-1 flex flex-col min-w-0 bg-[#fafaf9]">
+                    {/* Header */}
+                    <div className="h-[36px] flex-shrink-0 bg-[#fafaf9] border-b border-[#e7e5e4] px-3 flex items-center justify-between text-[12px] font-mono text-[#57534e]">
+                      <span>C:</span>
+                      <Folder className="w-4 h-4 text-[#78716c]" />
+                    </div>
+
+                    {/* Main Workspace File Content / Empty State */}
+                    {selectedWorkspaceFile ? (
+                      <div className="flex-1 overflow-y-auto font-mono text-[12px] p-4 bg-[#fafaf9] select-text custom-scrollbar">
+                        <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#e7e5e4]">
+                          <span className="font-semibold text-[#1c1917]">
+                            {selectedWorkspaceFile}
+                          </span>
+                          <span className="text-[11px] text-[#78716c]">
+                            只读模式
+                          </span>
+                        </div>
+                        <pre className="text-[#292524] whitespace-pre-wrap leading-relaxed">
+                          {workspaceTreeItems.find(
+                            (item) => item.name === selectedWorkspaceFile,
+                          )?.content ||
+                            `// ${selectedWorkspaceFile}\n// Content loaded from workspace`}
+                        </pre>
+                      </div>
+                    ) : (
+                      <div className="flex-1 flex flex-col items-center justify-center text-center p-8 select-none">
+                        <div className="w-16 h-16 rounded-2xl bg-white border border-[#e7e5e4] flex items-center justify-center mb-4 text-[#78716c] shadow-2xs">
+                          <FolderOpen className="w-8 h-8 stroke-[1.5]" />
+                        </div>
+                        <h3 className="text-[15px] font-semibold text-[#1c1917] mb-1">
+                          打开文件
+                        </h3>
+                        <p className="text-[12.5px] text-[#78716c]">
+                          从工作区目录树中选择文件
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* RIGHT SUB-SIDEBAR: WORKSPACE DIRECTORY TREE (SCREENSHOT 2) */}
+                  <div className="w-56 sm:w-64 flex-shrink-0 border-l border-[#e7e5e4] bg-[#fafaf9] flex flex-col min-h-0 select-none">
+                    {/* Search Bar */}
+                    <div className="p-2.5 border-b border-[#e7e5e4] bg-[#fafaf9]">
+                      <div className="relative">
+                        <Search className="w-3.5 h-3.5 text-[#a8a29e] absolute left-2.5 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          value={workspaceTreeSearch}
+                          onChange={(e) =>
+                            setWorkspaceTreeSearch(e.target.value)
+                          }
+                          placeholder="筛选文件..."
+                          className="w-full bg-white border border-[#e5e5e5] rounded-xl pl-8 pr-2.5 py-1 text-[12px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:border-[#c86a28]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Workspace Directory Tree Items */}
+                    <div className="flex-1 overflow-y-auto p-2 space-y-0.5 custom-scrollbar text-[12.5px] font-mono">
+                      {workspaceTreeItems
+                        .filter((item) =>
+                          item.name
+                            .toLowerCase()
+                            .includes(workspaceTreeSearch.toLowerCase()),
+                        )
+                        .map((item) => {
+                          if (item.type === "folder") {
+                            const isExpanded = expandedFolders[item.name]
+                            return (
+                              <div key={item.name} className="space-y-0.5">
+                                <button
+                                  onClick={() =>
+                                    setExpandedFolders((prev) => ({
+                                      ...prev,
+                                      [item.name]: !isExpanded,
+                                    }))
+                                  }
+                                  className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-md hover:bg-[#f5f5f4] text-[#44403c] transition-colors cursor-pointer text-left"
+                                >
+                                  {isExpanded ? (
+                                    <ChevronDown className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
+                                  ) : (
+                                    <ChevronRight className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
+                                  )}
+                                  <span className="truncate">{item.name}</span>
+                                </button>
+
+                                {isExpanded && item.items && (
+                                  <div className="pl-5 space-y-0.5">
+                                    {item.items.map((subItem) => (
+                                      <button
+                                        key={subItem}
+                                        onClick={() =>
+                                          setSelectedWorkspaceFile(subItem)
+                                        }
+                                        className="w-full flex items-center space-x-1.5 px-2 py-0.5 rounded hover:bg-[#f5f5f4] text-[#78716c] hover:text-[#1c1917] text-[11.5px] transition-colors cursor-pointer text-left truncate"
+                                      >
+                                        <FileText className="w-3 h-3 text-[#a8a29e] flex-shrink-0" />
+                                        <span className="truncate">
+                                          {subItem}
+                                        </span>
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          }
+
+                          const isFileSelected =
+                            selectedWorkspaceFile === item.name
+                          return (
+                            <button
+                              key={item.name}
+                              onClick={() =>
+                                setSelectedWorkspaceFile(item.name)
+                              }
+                              className={`w-full flex items-center space-x-2 px-2 py-1 rounded-md transition-colors cursor-pointer text-left ${
+                                isFileSelected
+                                  ? "bg-[#faf5ef] text-[#c86a28] font-medium"
+                                  : "hover:bg-[#f5f5f4] text-[#44403c]"
+                              }`}
+                            >
+                              <FileText className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
+                              <span className="truncate">{item.name}</span>
+                            </button>
+                          )
+                        })}
                     </div>
                   </div>
-                )}
-              </div>
-
-              {/* Inspector Footer Status Bar */}
-              <footer className="h-[32px] flex-shrink-0 bg-[#fafaf9] border-t border-[#e7e5e4] flex items-center justify-between px-3 text-[11.5px] text-[#57534e]">
-                <div className="flex items-center space-x-1.5 text-[#16a34a] font-medium">
-                  <Check className="w-3.5 h-3.5" />
-                  <span>审阅完成</span>
                 </div>
-
-                <div className="flex items-center space-x-3 text-[#78716c]">
-                  <span>Python</span>
-                  <span>|</span>
-                  <span>UTF-8</span>
-                  <span>|</span>
-                  <div className="flex items-center space-x-1 hover:text-[#1c1917] cursor-pointer">
-                    <span>2 个问题</span>
-                    <ChevronDown className="w-3 h-3" />
-                  </div>
-                </div>
-              </footer>
+              )}
             </section>
           ) : null}
 
