@@ -23,6 +23,7 @@ import {
   Bot,
   User,
   RotateCw,
+  RotateCcw,
   Search,
   Sparkles,
   FileCode,
@@ -881,17 +882,16 @@ export default function App() {
     ? mainWidth
     : mainWidth + leftSidebarWidth + 6
 
-  // Only auto-expand when middle column has enough width to fit centered message stream (874px) + right panel (278px + 16px margin + gap) + equal left margin
-  // (W - 874) / 2 >= 278 + 16 + 16 = 310 => W >= 1494px (~1480px)
-  const isWideColumn =
-    effectiveMainWidth >= 1480 ||
-    (isMaximized && (!rightPanelOpen || effectiveMainWidth >= 1480))
+  // Automatically expand into compact side-by-side layout when middle column can fit message stream (max 874px) + gap (24px) + panel (278px) = 1176px
+  const isSideBySideWidth =
+    effectiveMainWidth >= 1180 ||
+    (isMaximized && (!rightPanelOpen || effectiveMainWidth >= 1140))
+
+  const isWideColumn = isSideBySideWidth
   const prevIsWideRef = useRef(isWideColumn)
   const [manualOpenState, setManualOpenState] = useState<
     "pinned" | "collapsed" | null
   >(null)
-  const [isHovered, setIsHovered] = useState(false)
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     if (prevIsWideRef.current !== isWideColumn) {
@@ -904,23 +904,10 @@ export default function App() {
     manualOpenState === "pinned"
       ? true
       : manualOpenState === "collapsed"
-      ? isHovered
-      : isWideColumn || isHovered
+      ? false
+      : isWideColumn
 
-  const handleEnvPanelMouseEnter = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current)
-      hoverTimeoutRef.current = null
-    }
-    setIsHovered(true)
-  }
-
-  const handleEnvPanelMouseLeave = () => {
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
-    hoverTimeoutRef.current = setTimeout(() => {
-      setIsHovered(false)
-    }, 220)
-  }
+  const isSideBySide = isEnvPanelOpen && isSideBySideWidth
 
   const [envSources] = useState([
     {
@@ -993,6 +980,72 @@ export default function App() {
   // Settings Modal & Active Tab State
 
   const [showSettingsModal, setShowSettingsModal] = useState(false)
+  const [settingsToast, setSettingsToast] = useState<string | null>(null)
+
+  const settingsTabNameMap: Record<string, string> = {
+    general: "通用设置",
+    agents: "智能体与模型",
+    security: "权限与安全",
+    workspace: "工作区设置",
+    notifications: "通知与提醒",
+    appearance: "外观与界面",
+    shortcuts: "快捷键",
+    account: "账户与同步",
+  }
+
+  const handleResetCurrentSettingsTabToDefault = () => {
+    switch (activeSettingsTab) {
+      case "general":
+        setSettingLanguage("简体中文")
+        setSettingStartupOption("首页")
+        setSettingAutoSave("5 分钟")
+        setSettingUpdateChannel("稳定版")
+        break
+      case "agents":
+        setSettingDefaultAgent("代码助手")
+        setSettingModelProvider("Tokmon 官方")
+        setSettingMainModel("faster-whisper-large-v3-turbo")
+        setSettingInferencePower("标准")
+        break
+      case "security":
+        setSettingFileAccess("受信路径")
+        setSettingCommandApproval("按需确认")
+        setSettingNetworkAccess(true)
+        setSettingHighRiskConfirmation(true)
+        break
+      case "workspace":
+        setSettingWorkspacePath("C:\\Users\\User\\Tokmon\\Projects")
+        setSettingIndexMode("标准")
+        setSettingAutoSync(true)
+        setSettingGitIntegration(true)
+        break
+      case "notifications":
+        setSettingEnableNotifications(true)
+        setSettingDesktopNotifications(true)
+        setSettingMessageReminders(true)
+        setSettingDoNotDisturb("22:00 - 08:00")
+        break
+      case "appearance":
+        setSettingThemeMode("浅色")
+        setSettingThemeAccentColor("gold")
+        setSettingDensity("舒适")
+        setSettingFontSize(100)
+        break
+      case "shortcuts":
+        // Reset shortcuts
+        break
+      case "account":
+        setSettingAccountName("Jiandong Chen")
+        setSettingAccountEmail("jiandong.chen@tokmon.ai")
+        setSettingAccountPlan("Pro")
+        setSettingAccountCloudSync(true)
+        break
+    }
+
+    const currentTabTitle = settingsTabNameMap[activeSettingsTab] || "当前页"
+    setSettingsToast(`已恢复「${currentTabTitle}」为默认配置`)
+    setTimeout(() => setSettingsToast(null), 2000)
+  }
 
   const [activeSettingsTab, setActiveSettingsTab] =
     useState<"general" | "agents" | "security" | "workspace" | "notifications" | "appearance" | "shortcuts" | "account">(
@@ -3715,13 +3768,11 @@ export default function App() {
             }`}
           >
             {/* ========================================================================= */}
-            {/* FLOATING ENVIRONMENT PANEL / APPLE ASSISTIVETOUCH (Anchored to right edge) */}
+            {/* FLOATING ENVIRONMENT PANEL / APPLE ASSISTIVETOUCH (Anchored to Top-Right) */}
             {/* ========================================================================= */}
             <div
               ref={envPanelRef}
-              onMouseEnter={handleEnvPanelMouseEnter}
-              onMouseLeave={handleEnvPanelMouseLeave}
-              className="absolute top-[48px] right-4 z-40 select-none"
+              className="absolute top-[48px] right-4 z-40 select-none pointer-events-auto"
             >
               {/* Collapsed State: Apple iPhone AssistiveTouch Floating Button */}
               <div
@@ -3738,7 +3789,7 @@ export default function App() {
                       setManualOpenState("pinned")
                       setEnvDropdown("none")
                     }}
-                    title="环境信息 (悬停预览，点击展开)"
+                    title="环境信息 (点击展开)"
                     className="w-12 h-12 rounded-[18px] bg-gradient-to-b from-white/95 via-white/90 to-[#f6f5f0]/90 hover:from-white hover:to-[#fcfbfa] active:scale-95 text-[#292524] backdrop-blur-2xl border border-white/90 shadow-[0_12px_28px_-4px_rgba(0,0,0,0.1),0_4px_12px_-2px_rgba(0,0,0,0.05),inset_0_1px_1px_rgba(255,255,255,1)] flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 ring-1 ring-[#e5e2da]/70 select-none"
                   >
                     {/* Authentic Apple AssistiveTouch Geometric Vector Glyph */}
@@ -3824,8 +3875,12 @@ export default function App() {
 
             {mainViewMode === "chat" ? (
               messages.length === 0 ? (
-                <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6 custom-scrollbar flex items-center justify-center">
-                  <div className="w-full max-w-[966px] mx-auto flex flex-col items-center justify-center text-center select-none animate-in fade-in duration-300">
+                <div
+                  className={`flex-1 min-h-0 overflow-y-auto px-6 py-6 custom-scrollbar flex items-center justify-center transition-all duration-150 ${
+                    isSideBySide ? "pr-[308px]" : ""
+                  }`}
+                >
+                  <div className="w-full max-w-[874px] mx-auto flex flex-col items-center justify-center text-center select-none animate-in fade-in duration-300">
                       {/* 1. Tokmon Brand SVG Logo (matching top-left logo) */}
                       <div className="relative mb-5 group cursor-pointer">
                         <div className="w-16 h-16 rounded-3xl bg-gradient-to-b from-[#fef8f4] to-[#fbf1e7] border border-[#f5d9c3] shadow-xs flex items-center justify-center group-hover:scale-105 group-hover:shadow-md transition-all duration-300">
@@ -4066,7 +4121,11 @@ export default function App() {
                   </div>
               ) : (
                 /* Chat Messages & Execution Scroll Panel */
-                <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-6 custom-scrollbar pb-6">
+                <div
+                  className={`flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-6 custom-scrollbar pb-6 transition-all duration-150 ${
+                    isSideBySide ? "pr-[308px]" : ""
+                  }`}
+                >
                   <div className="w-full max-w-[874px] mx-auto space-y-6">
                     {/* Timestamp tag */}
                     <div className="text-center">
@@ -4385,7 +4444,7 @@ export default function App() {
                       </div>
                     </div>
                   </div>
-              )
+                )
             ) : (
               /* HIGH FIDELITY TRAJECTORY TRACE VIEW */
 
@@ -4845,8 +4904,13 @@ export default function App() {
             )}
 
             {/* Bottom Input Box Area - Floating cleanly on background */}
-            <div className="flex-shrink-0 px-4 pb-4 pt-1 bg-[#fafaf9] z-30">
-              <div className="max-w-[874px] mx-auto">
+            {/* Bottom Input Box Area - Floating cleanly on background */}
+            <div
+              className={`flex-shrink-0 px-6 pb-4 pt-1 bg-[#fafaf9] z-30 transition-all duration-150 ${
+                isSideBySide ? "pr-[308px]" : ""
+              }`}
+            >
+              <div className="w-full max-w-[874px] mx-auto">
                 {/* Embedded Backing Workspace Tab (Seamlessly docked directly behind the top edge with zero gap) */}
                 <div className="flex items-center ml-5 relative z-0 -mb-[1px]">
                   <div className="inline-flex items-center space-x-2 px-3.5 pt-1.5 pb-1 bg-[#edebe4] hover:bg-[#e4e2da] rounded-t-xl border-t border-l border-r border-black/[0.07] text-[11.5px] text-[#57534e] select-none transition-colors shadow-2xs">
@@ -6518,7 +6582,15 @@ export default function App() {
         {/* ========================================================= */}
         {showSettingsModal && (
           <div className="fixed inset-0 bg-black/35 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="w-[1120px] max-w-[92vw] h-[720px] max-h-[86vh] bg-white border border-[#e7e5e4] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-150">
+            <div className="w-[960px] max-w-[94vw] h-[680px] max-h-[88vh] bg-white border border-[#e7e5e4] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-150">
+              {/* Settings Toast Notification */}
+              {settingsToast && (
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-[#1c1917]/95 text-white text-[12.5px] font-medium rounded-xl shadow-2xl border border-white/10 flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 duration-150 pointer-events-none backdrop-blur-md">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>{settingsToast}</span>
+                </div>
+              )}
+
               {/* Top Bar inside Settings Modal */}
               <div className="h-[56px] border-b border-[#f0eee8] flex items-center justify-between px-7 flex-shrink-0">
                 <h2 className="text-[22px] font-bold text-[#1c1917] tracking-tight">
@@ -7142,269 +7214,40 @@ export default function App() {
                     </div>
                   )}
                 </div>
-
-                {/* Settings Right Overview Box */}
-                <div className="w-[230px] border-l border-[#f0eee8] bg-[#fdfbf7] p-5 flex-shrink-0 flex flex-col justify-between text-[12.5px]">
-                  <div className="space-y-3">
-                    <h3 className="font-bold text-[#1c1917] text-[13px] border-b border-[#f3f1e9] pb-2">
-                      {activeSettingsTab === "general" && "通用概览"}
-                      {activeSettingsTab === "agents" && "模型概览"}
-                      {activeSettingsTab === "security" && "安全概览"}
-                      {activeSettingsTab === "workspace" && "工作区概览"}
-                      {activeSettingsTab === "notifications" && "通知概览"}
-                      {activeSettingsTab === "appearance" && "外观概览"}
-                      {activeSettingsTab === "shortcuts" && "快捷键概览"}
-                      {activeSettingsTab === "account" && "账户概览"}
-                    </h3>
-
-                    {activeSettingsTab === "general" && (
-                      <div className="space-y-2 text-[#57534e]">
-                        <p>
-                          <span className="text-[#a8a29e]">语言:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">
-                            {settingLanguage}
-                          </strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">启动:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">
-                            {settingStartupOption}
-                          </strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">更新通道:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">
-                            {settingUpdateChannel}
-                          </strong>
-                        </p>
-                      </div>
-                    )}
-
-                    {activeSettingsTab === "agents" && (
-                      <div className="space-y-2 text-[#57534e]">
-                        <p>
-                          <span className="text-[#a8a29e]">默认智能体:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">
-                            {settingDefaultAgent}
-                          </strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">模型提供方:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">
-                            {settingModelProvider}
-                          </strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">主模型:</span>
-                          <br />
-                          <strong className="text-[#1c1917] font-mono break-all text-[11px]">
-                            {settingMainModel}
-                          </strong>
-                        </p>
-                      </div>
-                    )}
-
-                    {activeSettingsTab === "security" && (
-                      <div className="space-y-2 text-[#57534e]">
-                        <p>
-                          <span className="text-[#a8a29e]">文件访问:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">
-                            {settingFileAccess}
-                          </strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">命令审批:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">
-                            {settingCommandApproval}
-                          </strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">确认状态:</span>
-                          <br />
-                          <strong className="text-[#16a34a]">
-                            {settingHighRiskConfirmation
-                              ? "已开启二次确认"
-                              : "未开启"}
-                          </strong>
-                        </p>
-                      </div>
-                    )}
-
-                    {activeSettingsTab === "workspace" && (
-                      <div className="space-y-2 text-[#57534e]">
-                        <p>
-                          <span className="text-[#a8a29e]">路径:</span>
-                          <br />
-                          <strong className="text-[#1c1917] font-mono break-all text-[11px]">
-                            {settingWorkspacePath}
-                          </strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">索引模式:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">
-                            {settingIndexMode}
-                          </strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">自动同步:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">
-                            {settingAutoSync ? "已开启" : "已关闭"}
-                          </strong>
-                        </p>
-                      </div>
-                    )}
-
-                    {activeSettingsTab === "notifications" && (
-                      <div className="space-y-2 text-[#57534e]">
-                        <p>
-                          <span className="text-[#a8a29e]">通知状态:</span>
-                          <br />
-                          <strong className="text-[#16a34a]">
-                            {settingEnableNotifications ? "已启用" : "已禁用"}
-                          </strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">桌面通知:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">
-                            {settingDesktopNotifications ? "已启用" : "已禁用"}
-                          </strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">免打扰时间:</span>
-                          <br />
-                          <strong className="text-[#1c1917] font-mono">
-                            {settingDoNotDisturb}
-                          </strong>
-                        </p>
-                      </div>
-                    )}
-
-                    {activeSettingsTab === "appearance" && (
-                      <div className="space-y-2 text-[#57534e]">
-                        <p>
-                          <span className="text-[#a8a29e]">主题:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">
-                            {settingThemeMode}
-                          </strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">强调色:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">浅金色</strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">密度:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">
-                            {settingDensity}
-                          </strong>
-                        </p>
-                      </div>
-                    )}
-
-                    {activeSettingsTab === "shortcuts" && (
-                      <div className="space-y-2 text-[#57534e]">
-                        <p>
-                          <span className="text-[#a8a29e]">预设方案:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">
-                            Tokmon 默认
-                          </strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">已修改:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">0 项</strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">冲突状态:</span>
-                          <br />
-                          <strong className="text-[#16a34a]">无冲突</strong>
-                        </p>
-                      </div>
-                    )}
-
-                    {activeSettingsTab === "account" && (
-                      <div className="space-y-2 text-[#57534e]">
-                        <p>
-                          <span className="text-[#a8a29e]">昵称:</span>
-                          <br />
-                          <strong className="text-[#1c1917]">
-                            {settingAccountName}
-                          </strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">方案:</span>
-                          <br />
-                          <strong className="text-[#d97706] font-semibold">
-                            {settingAccountPlan}
-                          </strong>
-                        </p>
-                        <p>
-                          <span className="text-[#a8a29e]">云同步:</span>
-                          <br />
-                          <strong className="text-[#16a34a]">
-                            {settingAccountCloudSync ? "● 已开启" : "○ 已关闭"}
-                          </strong>
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setSettingLanguage("简体中文")
-
-                      setSettingStartupOption("首页")
-
-                      setSettingDefaultAgent("代码助手")
-
-                      setSettingModelProvider("Tokmon 官方")
-
-                      setSettingMainModel("faster-whisper-large-v3-turbo")
-
-                      setSettingInferencePower("标准")
-
-                      setSettingFileAccess("受信路径")
-
-                      setSettingCommandApproval("按需确认")
-
-                      setSettingThemeMode("浅色")
-
-                      setSettingDensity("舒适")
-                    }}
-                    className="w-full py-1.5 px-2 bg-white border border-[#e7e5e4] hover:bg-[#fafaf9] rounded-xl text-[11.5px] text-[#57534e] transition-colors cursor-pointer"
-                  >
-                    恢复默认设置
-                  </button>
-                </div>
               </div>
 
               {/* Modal Bottom Actions */}
-              <div className="h-[56px] border-t border-[#f0eee8] bg-[#ffffff] flex items-center justify-end px-6 space-x-3 flex-shrink-0">
+              <div className="h-[56px] border-t border-[#f0eee8] bg-[#ffffff] flex items-center justify-between px-6 flex-shrink-0">
+                {/* Left: Restore Defaults for Current Tab Button */}
                 <button
-                  onClick={() => setShowSettingsModal(false)}
-                  className="px-5 py-2 rounded-xl bg-[#f5f5f4] hover:bg-[#e7e5e4] text-[13px] font-medium text-[#57534e] transition-colors cursor-pointer"
+                  type="button"
+                  onClick={handleResetCurrentSettingsTabToDefault}
+                  title={`将「${settingsTabNameMap[activeSettingsTab] || "当前页"}」重置为默认预设`}
+                  className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-xl text-[12.5px] font-medium text-[#78716c] hover:text-[#c86a28] hover:bg-[#fef8f4] border border-transparent hover:border-[#f5d9c3] transition-all cursor-pointer group active:scale-95"
                 >
-                  取消
+                  <RotateCcw className="w-3.5 h-3.5 text-[#a8a29e] group-hover:text-[#c86a28] group-hover:-rotate-90 transition-all duration-300" />
+                  <span>恢复本页默认设置</span>
                 </button>
-                <button
-                  onClick={() => setShowSettingsModal(false)}
-                  className="px-5 py-2 rounded-xl bg-[#f7efe5] hover:bg-[#f3e4d5] border border-[#ebdcd0] text-[13px] font-semibold text-[#8b5229] transition-colors shadow-2xs cursor-pointer"
-                >
-                  保存更改
-                </button>
+
+                {/* Right: Cancel & Save Buttons */}
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => setShowSettingsModal(false)}
+                    className="px-5 py-2 rounded-xl bg-[#f5f5f4] hover:bg-[#e7e5e4] text-[13px] font-medium text-[#57534e] transition-colors cursor-pointer"
+                  >
+                    取消
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowSettingsModal(false)
+                      setSettingsToast("设置更改已保存")
+                      setTimeout(() => setSettingsToast(null), 2000)
+                    }}
+                    className="px-5 py-2 rounded-xl bg-[#c86a28] hover:bg-[#b85e1f] active:scale-98 text-[13px] font-semibold text-white transition-all shadow-xs cursor-pointer"
+                  >
+                    保存更改
+                  </button>
+                </div>
               </div>
             </div>
           </div>
