@@ -1027,8 +1027,6 @@ export default function App() {
         break
       case "appearance":
         setSettingThemeMode("浅色")
-        setSettingThemeAccentColor("gold")
-        setSettingDensity("舒适")
         setSettingFontSize(100)
         break
       case "shortcuts":
@@ -1120,11 +1118,6 @@ export default function App() {
   const [settingThemeMode, setSettingThemeMode] = useState<"浅色" | "深色">(
     "浅色",
   )
-
-  const [settingAccentColor, setSettingThemeAccentColor] = useState("gold")
-
-  const [settingDensity, setSettingDensity] =
-    useState<"紧凑" | "舒适" | "宽松">("舒适")
 
   const [settingFontSize, setSettingFontSize] = useState(100)
 
@@ -3433,7 +3426,12 @@ export default function App() {
     (rightPanelOpen ? rightPanelWidth + 6 : 0)
 
   return (
-    <div className="w-screen h-screen bg-[#eceae5] flex items-center justify-start overflow-x-auto overflow-y-hidden select-none font-sans">
+    <div
+      data-theme={settingThemeMode === "深色" ? "dark" : "light"}
+      className={`w-screen h-screen ${
+        settingThemeMode === "深色" ? "dark bg-[#100e0c]" : "bg-[#eceae5]"
+      } flex items-center justify-start overflow-x-auto overflow-y-hidden select-none font-sans`}
+    >
       {/* Tokmon Agent Desktop Window */}
       <div
         style={{
@@ -4139,29 +4137,35 @@ export default function App() {
                         <div key={msg.id}>
                           {msg.sender === "user" ? (
                             <div className="flex justify-end">
-                              <div className="max-w-[713px] bg-[#fcf8f3] border border-[#ebdcd0]/70 rounded-[22px] rounded-br-[6px] p-3.5 sm:p-4 text-[13px] text-[#292524] leading-relaxed shadow-2xs">
-                                <p className="font-medium text-[#1c1917] mb-1">
+                              <div className="max-w-[713px] bg-[#fcf8f3] dark:bg-[#251d16] border border-[#ebdcd0]/70 dark:border-[#e88d43]/15 rounded-[22px] rounded-br-[6px] p-3.5 sm:p-4 text-[13px] text-[#292524] dark:text-[#ede5da] leading-relaxed shadow-2xs">
+                                <p className="font-medium text-[#1c1917] dark:text-[#f5ece3] mb-1">
                                   {msg.text}
                                 </p>
                                 {msg.details && (
-                                  <div className="font-mono text-[12px] text-[#57534e] space-y-0.5 bg-[#f7efe5]/60 p-2.5 rounded-xl border border-[#ebdcd0]/60 mt-1.5">
-                                    <p>
-                                      <span className="text-[#a8a29e]">
+                                  <div className="font-mono text-[12px] text-[#57534e] dark:text-[#dcd3c6] space-y-1 bg-[#f7efe5]/60 dark:bg-[#1a140e]/95 p-2.5 rounded-xl border border-[#ebdcd0]/60 dark:border-white/[0.04] mt-2">
+                                    <p className="flex items-center space-x-1.5">
+                                      <span className="text-[#a8a29e] dark:text-[#9c9282]">
                                         模型路径:
                                       </span>{" "}
-                                      {msg.details.modelPath}
+                                      <span className="text-[#57534e] dark:text-[#e88d43] font-medium">
+                                        {msg.details.modelPath}
+                                      </span>
                                     </p>
-                                    <p>
-                                      <span className="text-[#a8a29e]">
+                                    <p className="flex items-center space-x-1.5">
+                                      <span className="text-[#a8a29e] dark:text-[#9c9282]">
                                         音频文件:
                                       </span>{" "}
-                                      {msg.details.audioFile}
+                                      <span className="text-[#57534e] dark:text-[#dcd3c6]">
+                                        {msg.details.audioFile}
+                                      </span>
                                     </p>
-                                    <p>
-                                      <span className="text-[#a8a29e]">
+                                    <p className="flex items-center space-x-1.5">
+                                      <span className="text-[#a8a29e] dark:text-[#9c9282]">
                                         输出字幕文件:
                                       </span>{" "}
-                                      {msg.details.outputFile}
+                                      <span className="text-[#57534e] dark:text-[#dcd3c6]">
+                                        {msg.details.outputFile}
+                                      </span>
                                     </p>
                                   </div>
                                 )}
@@ -5304,8 +5308,8 @@ export default function App() {
                           }
                           className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-xs active:scale-95 ${
                             inputMessage.trim()
-                              ? "bg-[#1c1917] hover:bg-[#2c2724] text-white cursor-pointer"
-                              : "bg-[#e5e5e5] text-[#a8a29e] cursor-not-allowed"
+                              ? "bg-[#c86a28] hover:bg-[#b85e1f] text-white cursor-pointer shadow-sm"
+                              : "bg-black/[0.05] dark:bg-white/[0.08] text-[#a8a29e] dark:text-[#6d6457] cursor-not-allowed"
                           }`}
                         >
                           <ArrowUp className="w-4 h-4 stroke-[2.5]" />
@@ -6993,100 +6997,133 @@ export default function App() {
                   {/* 6. CATEGORY: 外观 */}
                   {activeSettingsTab === "appearance" && (
                     <div className="space-y-6 text-[13px]">
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
-                          主题模式
-                        </span>
-                        <div className="flex bg-[#f5f5f4] p-1 rounded-xl border border-[#e7e5e4]">
-                          {(["浅色", "深色"] as const).map((mode) => (
-                            <button
-                              key={mode}
-                              onClick={() => setSettingThemeMode(mode)}
-                              className={`px-6 py-1.5 rounded-lg font-medium text-[12.5px] transition-all cursor-pointer ${
-                                settingThemeMode === mode
-                                  ? "bg-[#fef3d6] text-[#855702] font-semibold shadow-2xs"
-                                  : "text-[#78716c] hover:text-[#1c1917]"
-                              }`}
-                            >
-                              {mode}
-                            </button>
-                          ))}
+                      <div>
+                        <div className="mb-3">
+                          <span className="font-semibold text-[#1c1917] text-[13.5px]">
+                            界面主题风格
+                          </span>
+                          <p className="text-[12px] text-[#78716c] mt-0.5">
+                            为 Tokmon 工作空间选择契合视效氛围的暖色系主题
+                          </p>
+                        </div>
+
+                        {/* Visual Theme Cards */}
+                        <div className="grid grid-cols-2 gap-4">
+                          {/* Light Warm Milk Tea Card */}
+                          <div
+                            onClick={() => setSettingThemeMode("浅色")}
+                            className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+                              settingThemeMode === "浅色"
+                                ? "border-[#c86a28] bg-[#fef8f4] shadow-sm ring-2 ring-[#c86a28]/10"
+                                : "border-[#e7e5e4] hover:border-[#d4d1c8] bg-white"
+                            }`}
+                          >
+                            <div className="space-y-2">
+                              {/* Mini UI Representation */}
+                              <div className="h-20 rounded-xl bg-[#faf9f6] border border-[#ebdcd0] p-2 flex flex-col justify-between overflow-hidden shadow-2xs">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-1.5">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-[#c86a28]" />
+                                    <div className="w-12 h-2 rounded-full bg-[#e5e2da]" />
+                                  </div>
+                                  <div className="w-4 h-2 rounded-full bg-[#ebdcd0]" />
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="w-3/4 h-2 rounded bg-[#edebe4]" />
+                                  <div className="w-1/2 h-2 rounded bg-[#f2ece2]" />
+                                </div>
+                                <div className="h-4 rounded-lg bg-white border border-[#ebdcd0] flex items-center px-1.5">
+                                  <div className="w-2 h-2 rounded-full bg-[#c86a28]/60" />
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between pt-1">
+                                <div>
+                                  <h4 className="font-semibold text-[#1c1917] text-[13px]">
+                                    浅色 · 暖白奶茶
+                                  </h4>
+                                  <p className="text-[11.5px] text-[#78716c]">
+                                    温润护眼的经典米白暖调
+                                  </p>
+                                </div>
+                                {settingThemeMode === "浅色" && (
+                                  <div className="w-5 h-5 rounded-full bg-[#c86a28] text-white flex items-center justify-center shadow-xs">
+                                    <Check className="w-3 h-3 stroke-[2.5]" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Dark Warm Mocha Card */}
+                          <div
+                            onClick={() => setSettingThemeMode("深色")}
+                            className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+                              settingThemeMode === "深色"
+                                ? "border-[#e88d43] bg-[#2a2016] shadow-sm ring-2 ring-[#e88d43]/20"
+                                : "border-[#e7e5e4] hover:border-[#d4d1c8] bg-white"
+                            }`}
+                          >
+                            <div className="space-y-2">
+                              {/* Mini UI Representation */}
+                              <div className="h-20 rounded-xl bg-[#181614] border border-[#3d342a] p-2 flex flex-col justify-between overflow-hidden shadow-2xs">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-1.5">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-[#e88d43]" />
+                                    <div className="w-12 h-2 rounded-full bg-[#3d342a]" />
+                                  </div>
+                                  <div className="w-4 h-2 rounded-full bg-[#4a3f33]" />
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="w-3/4 h-2 rounded bg-[#28221b]" />
+                                  <div className="w-1/2 h-2 rounded bg-[#332a20]" />
+                                </div>
+                                <div className="h-4 rounded-lg bg-[#201d19] border border-[#3d342a] flex items-center px-1.5">
+                                  <div className="w-2 h-2 rounded-full bg-[#e88d43]/60" />
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between pt-1">
+                                <div>
+                                  <h4 className="font-semibold text-[#1c1917] text-[13px]">
+                                    深色 · 暖黑摩卡
+                                  </h4>
+                                  <p className="text-[11.5px] text-[#78716c]">
+                                    深焙奶茶与沉浸暗光环境
+                                  </p>
+                                </div>
+                                {settingThemeMode === "深色" && (
+                                  <div className="w-5 h-5 rounded-full bg-[#e88d43] text-white flex items-center justify-center shadow-xs">
+                                    <Check className="w-3 h-3 stroke-[2.5]" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
-                          强调色
-                        </span>
-                        <div className="flex items-center space-x-3">
-                          {[
-                            { id: "gold", color: "#f5a623" },
-
-                            { id: "rose", color: "#f43f5e" },
-
-                            { id: "purple", color: "#a855f7" },
-
-                            { id: "blue", color: "#3b82f6" },
-
-                            { id: "green", color: "#22c55e" },
-
-                            { id: "gray", color: "#6b7280" },
-                          ].map((item) => (
-                            <button
-                              key={item.id}
-                              onClick={() =>
-                                setSettingThemeAccentColor(item.id)
-                              }
-                              style={{ backgroundColor: item.color }}
-                              className={`w-6 h-6 rounded-full transition-transform cursor-pointer ${
-                                settingAccentColor === item.id
-                                  ? "ring-2 ring-offset-2 ring-[#f5a623] scale-110"
-                                  : "hover:scale-105"
-                              }`}
-                            />
-                          ))}
+                      <div className="flex items-center justify-between pt-4 border-t border-[#f5f5f4]">
+                        <div>
+                          <span className="font-medium text-[#1c1917]">
+                            界面字体缩放
+                          </span>
+                          <p className="text-[11.5px] text-[#78716c] mt-0.5">
+                            调节编辑器与各面板的字号大小
+                          </p>
                         </div>
-                      </div>
-
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
-                          界面密度
-                        </span>
-                        <div className="flex bg-[#f5f5f4] p-1 rounded-xl border border-[#e7e5e4]">
-                          {(["紧凑", "舒适", "宽松"] as const).map(
-                            (density) => (
-                              <button
-                                key={density}
-                                onClick={() => setSettingDensity(density)}
-                                className={`px-5 py-1.5 rounded-lg font-medium text-[12.5px] transition-all cursor-pointer ${
-                                  settingDensity === density
-                                    ? "bg-[#fef3d6] text-[#855702] font-semibold shadow-2xs"
-                                    : "text-[#78716c] hover:text-[#1c1917]"
-                                }`}
-                              >
-                                {density}
-                              </button>
-                            ),
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-[#1c1917]">
-                          字体大小
-                        </span>
-                        <div className="flex items-center space-x-3 w-[240px]">
+                        <div className="flex items-center space-x-3 w-[220px]">
                           <input
                             type="range"
-                            min={80}
-                            max={120}
+                            min={85}
+                            max={115}
                             value={settingFontSize}
                             onChange={(e) =>
                               setSettingFontSize(Number(e.target.value))
                             }
-                            className="w-full accent-[#f5a623] cursor-pointer"
+                            className="w-full accent-[#c86a28] cursor-pointer"
                           />
-                          <span className="font-mono text-[12px] text-[#78716c] w-10 text-right">
+                          <span className="font-mono text-[12px] text-[#78716c] w-10 text-right font-medium">
                             {settingFontSize}%
                           </span>
                         </div>
