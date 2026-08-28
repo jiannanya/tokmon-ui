@@ -842,6 +842,8 @@ export default function App() {
   const [settingAccessLevel, setSettingAccessLevel] =
     useState<"完全访问" | "受信路径" | "按需确认">("完全访问")
 
+  const [enableWebSearch, setEnableWebSearch] = useState(false)
+
   const [showAccessDropdown, setShowAccessDropdown] = useState(false)
 
   const [showContextPopover, setShowContextPopover] = useState(false)
@@ -3033,10 +3035,10 @@ export default function App() {
                 )}
 
                 {/* Integrated Sleek Segmented Switcher: 对话 (Chat) vs 轨迹 (Trajectory) */}
-                <div className="flex items-center bg-[#edebe4]/70 p-0.5 rounded-lg text-[12px] font-medium select-none ml-2">
+                <div className="flex items-center bg-[#edebe4]/70 p-1 rounded-full text-[12px] font-medium select-none ml-2">
                   <button
                     onClick={() => setMainViewMode("chat")}
-                    className={`px-2.5 py-0.5 rounded-md transition-all cursor-pointer ${
+                    className={`px-3 py-0.5 rounded-full transition-all cursor-pointer ${
                       mainViewMode === "chat"
                         ? "bg-white text-[#1c1917] shadow-2xs font-semibold"
                         : "text-[#78716c] hover:text-[#1c1917]"
@@ -3046,7 +3048,7 @@ export default function App() {
                   </button>
                   <button
                     onClick={() => setMainViewMode("trajectory")}
-                    className={`px-2.5 py-0.5 rounded-md transition-all cursor-pointer ${
+                    className={`px-3 py-0.5 rounded-full transition-all cursor-pointer ${
                       mainViewMode === "trajectory"
                         ? "bg-white text-[#1c1917] shadow-2xs font-semibold"
                         : "text-[#78716c] hover:text-[#1c1917]"
@@ -4001,12 +4003,12 @@ export default function App() {
                     <div key={msg.id}>
                       {msg.sender === "user" ? (
                         <div className="flex justify-end">
-                          <div className="max-w-[620px] bg-[#fcf8f3] border border-[#ebdcd0] rounded-2xl p-3.5 text-[13px] text-[#292524] leading-relaxed shadow-2xs">
+                          <div className="max-w-[620px] bg-[#fcf8f3] border border-[#ebdcd0]/70 rounded-[22px] rounded-br-[6px] p-3.5 sm:p-4 text-[13px] text-[#292524] leading-relaxed shadow-2xs">
                             <p className="font-medium text-[#1c1917] mb-1">
                               {msg.text}
                             </p>
                             {msg.details && (
-                              <div className="font-mono text-[12px] text-[#57534e] space-y-0.5 bg-[#f7efe5]/60 p-2 rounded-lg border border-[#ebdcd0] mt-1.5">
+                              <div className="font-mono text-[12px] text-[#57534e] space-y-0.5 bg-[#f7efe5]/60 p-2.5 rounded-xl border border-[#ebdcd0]/60 mt-1.5">
                                 <p>
                                   <span className="text-[#a8a29e]">
                                     模型路径:
@@ -4767,9 +4769,9 @@ export default function App() {
             {/* Bottom Input Box Area - Floating cleanly on background */}
             <div className="flex-shrink-0 px-4 pb-4 pt-1 bg-[#fafaf9] z-30">
               <div className="max-w-[760px] mx-auto">
-                {/* Embedded Context Tab attached to the top-left of the input dialog box */}
-                <div className="relative z-10 -mb-[1px]">
-                  <div className="inline-flex items-center space-x-2 px-3 py-1 bg-[#f0eee9] hover:bg-[#eae7e1] rounded-t-xl border-t border-l border-r border-black/[0.06] text-[11.5px] text-[#57534e] select-none shadow-2xs transition-colors">
+                {/* Embedded Backing Workspace Tab (Seamlessly docked directly behind the top edge with zero gap) */}
+                <div className="flex items-center ml-5 relative z-0 -mb-[1px]">
+                  <div className="inline-flex items-center space-x-2 px-3.5 pt-1.5 pb-1 bg-[#edebe4] hover:bg-[#e4e2da] rounded-t-xl border-t border-l border-r border-black/[0.07] text-[11.5px] text-[#57534e] select-none transition-colors shadow-2xs">
                     <div
                       onClick={() => {
                         if (messages.length === 0) {
@@ -4809,8 +4811,8 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Main Input Dialog Box Card (Clean static card with soft ambient elevation) */}
-                <div className="bg-white border border-black/[0.07] rounded-2xl rounded-tl-none shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-3 pointer-events-auto space-y-2 relative">
+                {/* Main White Input Dialog Box Card (Seamlessly lays over the tab with zero gap) */}
+                <div className="bg-white border border-black/[0.08] hover:border-black/[0.12] focus-within:border-[#c86a28]/40 focus-within:ring-4 focus-within:ring-[#c86a28]/5 rounded-[24px] shadow-[0_6px_24px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.02)] p-3.5 sm:p-4 pointer-events-auto space-y-2.5 relative z-10 transition-all duration-200">
                   <textarea
                     ref={textareaRef}
                     value={inputMessage}
@@ -4825,36 +4827,53 @@ export default function App() {
                     placeholder={
                       messages.length === 0
                         ? "随心输入需求，或点击上方卡片快速开始..."
-                        : "提出后续修改要求"
+                        : "提出后续修改要求..."
                     }
                     rows={1}
                     style={{ minHeight: "38px" }}
                     className="w-full bg-transparent border-0 resize-none overflow-hidden text-[13.5px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none px-1 py-0.5 leading-relaxed transition-all"
                   />
 
-                  {/* Bottom Toolbar Row matching Reference Image 1 */}
+                  {/* Bottom Toolbar Row with Rounded Badge Buttons */}
                   <div className="flex items-center justify-between pt-1 text-[12.5px]">
-                    {/* Left Group */}
-                    <div className="flex items-center space-x-2">
-                      <button className="p-1.5 rounded-lg text-[#78716c] hover:bg-[#f5f5f4] transition-colors cursor-pointer">
+                    {/* Left Group: Attachments, Web Search, Access Level */}
+                    <div className="flex items-center space-x-1.5">
+                      <button
+                        title="添加附件或上下文"
+                        className="w-7 h-7 rounded-full bg-black/[0.03] hover:bg-black/[0.07] active:scale-95 text-[#57534e] flex items-center justify-center transition-all cursor-pointer"
+                      >
                         <Plus className="w-4 h-4" />
                       </button>
 
-                      {/* Access Level Dropdown */}
+                      {/* Web Search Toggle Badge */}
+                      <button
+                        onClick={() => setEnableWebSearch(!enableWebSearch)}
+                        className={`flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11.5px] font-medium transition-all cursor-pointer select-none active:scale-95 ${
+                          enableWebSearch
+                            ? "bg-[#e0f2fe] text-[#0284c7] border border-[#bae6fd] shadow-2xs"
+                            : "bg-black/[0.03] hover:bg-black/[0.06] text-[#78716c]"
+                        }`}
+                        title="联网搜索开关"
+                      >
+                        <Globe className="w-3.5 h-3.5" />
+                        <span>联网</span>
+                      </button>
+
+                      {/* Access Level Dropdown Badge */}
                       <div className="relative">
                         <button
                           onClick={() =>
                             setShowAccessDropdown(!showAccessDropdown)
                           }
-                          className="flex items-center space-x-1.5 px-2 py-1 rounded-lg text-[#d97706] hover:bg-[#fef3d6]/60 transition-colors font-medium cursor-pointer"
+                          className="flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11.5px] bg-[#fef8f4] hover:bg-[#fef0e4] text-[#c86a28] font-medium border border-[#f5d9c3]/60 transition-all cursor-pointer select-none active:scale-95"
                         >
-                          <ShieldAlert className="w-3.5 h-3.5 text-[#d97706]" />
+                          <ShieldAlert className="w-3.5 h-3.5 text-[#c86a28]" />
                           <span>{settingAccessLevel}</span>
-                          <ChevronDown className="w-3 h-3 text-[#d97706]" />
+                          <ChevronDown className="w-3 h-3 text-[#c86a28]" />
                         </button>
 
                         {showAccessDropdown && (
-                          <div className="absolute left-0 bottom-9 w-36 bg-white border border-[#e7e5e4] rounded-xl shadow-xl py-1 z-50 text-[12px]">
+                          <div className="absolute left-0 bottom-9 w-36 bg-white border border-black/[0.07] rounded-2xl shadow-xl py-1.5 z-50 text-[12px] animate-in fade-in zoom-in-95 duration-150">
                             {([
                               "完全访问",
                               "受信路径",
@@ -4884,9 +4903,9 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Right Group */}
-                    <div className="flex items-center space-x-2.5">
-                      {/* Donut Ring Context Usage Icon with Hover Popover (Reference Image 2) */}
+                    {/* Right Group: Context Gauge, Model Selector, Reasoning Level, Send/Stop */}
+                    <div className="flex items-center space-x-2">
+                      {/* Context Capacity Gauge Badge */}
                       <div
                         className="relative"
                         onMouseEnter={() => setShowContextPopover(true)}
@@ -4896,14 +4915,15 @@ export default function App() {
                           onClick={() =>
                             setShowContextPopover(!showContextPopover)
                           }
-                          className="p-1 rounded-lg text-[#a8a29e] hover:text-[#1c1917] hover:bg-[#f5f5f4] transition-colors cursor-pointer flex items-center justify-center"
+                          className="w-7 h-7 rounded-full bg-black/[0.03] hover:bg-black/[0.06] text-[#78716c] hover:text-[#1c1917] flex items-center justify-center transition-all cursor-pointer active:scale-95"
+                          title="上下文用量"
                         >
                           <CircleDashed className="w-4 h-4 text-[#78716c]" />
                         </button>
 
                         {/* Context Capacity Hover Popover Card */}
                         {showContextPopover && (
-                          <div className="absolute right-0 bottom-9 w-[320px] bg-white border border-[#e7e5e4] rounded-2xl shadow-2xl p-4 text-[12px] z-50 text-[#1c1917] space-y-3 pointer-events-auto animate-in fade-in zoom-in-95 duration-150">
+                          <div className="absolute right-0 bottom-9 w-[320px] bg-white border border-black/[0.07] rounded-2xl shadow-2xl p-4 text-[12px] z-50 text-[#1c1917] space-y-3 pointer-events-auto animate-in fade-in zoom-in-95 duration-150">
                             <div className="flex justify-between items-center">
                               <span className="font-bold text-[13px] text-[#1c1917]">
                                 上下文容量
@@ -5024,7 +5044,7 @@ export default function App() {
                         )}
                       </div>
 
-                      {/* Model Selector Dropdown */}
+                      {/* Model Selector Pill Badge */}
                       <div className="relative">
                         <button
                           onClick={() => {
@@ -5032,16 +5052,16 @@ export default function App() {
 
                             setShowReasoningDropdown(false)
                           }}
-                          className="flex items-center space-x-1.5 px-2 py-1 rounded-lg text-[#44403c] hover:bg-[#f5f5f4] transition-colors font-medium cursor-pointer"
+                          className="flex items-center space-x-1.5 px-3 py-1 rounded-full text-[11.5px] font-mono bg-black/[0.03] hover:bg-black/[0.06] text-[#44403c] font-medium transition-all cursor-pointer select-none active:scale-95"
                         >
-                          <span className="font-mono text-[12px]">
+                          <span className="truncate max-w-[170px]">
                             {selectedChatModel}
                           </span>
                           <ChevronDown className="w-3 h-3 text-[#78716c]" />
                         </button>
 
                         {showModelDropdown && (
-                          <div className="absolute right-0 bottom-9 w-56 bg-white border border-[#e7e5e4] rounded-xl shadow-xl py-1 z-50 text-[12px] font-mono">
+                          <div className="absolute right-0 bottom-9 w-56 bg-white border border-black/[0.07] rounded-2xl shadow-xl py-1.5 z-50 text-[12px] font-mono animate-in fade-in zoom-in-95 duration-150">
                             <div className="px-3 py-1 text-[11px] text-[#a8a29e] font-semibold border-b border-[#f5f5f4] font-sans">
                               选择模型
                             </div>
@@ -5077,7 +5097,7 @@ export default function App() {
                         )}
                       </div>
 
-                      {/* Reasoning Strength Dropdown */}
+                      {/* Reasoning Strength Pill Badge */}
                       <div className="relative">
                         <button
                           onClick={() => {
@@ -5085,7 +5105,7 @@ export default function App() {
 
                             setShowModelDropdown(false)
                           }}
-                          className="flex items-center space-x-1 px-2 py-1 rounded-lg text-[#44403c] hover:bg-[#f5f5f4] transition-colors font-medium cursor-pointer"
+                          className="flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11.5px] bg-black/[0.03] hover:bg-black/[0.06] text-[#44403c] font-medium transition-all cursor-pointer select-none active:scale-95"
                         >
                           <Brain className="w-3.5 h-3.5 text-[#78716c]" />
                           <span>{reasoningLevel}</span>
@@ -5093,7 +5113,7 @@ export default function App() {
                         </button>
 
                         {showReasoningDropdown && (
-                          <div className="absolute right-0 bottom-9 w-32 bg-white border border-[#e7e5e4] rounded-xl shadow-xl py-1 z-50 text-[12px]">
+                          <div className="absolute right-0 bottom-9 w-32 bg-white border border-black/[0.07] rounded-2xl shadow-xl py-1.5 z-50 text-[12px] animate-in fade-in zoom-in-95 duration-150">
                             <div className="px-3 py-1 text-[11px] text-[#a8a29e] font-semibold border-b border-[#f5f5f4]">
                               推理强度
                             </div>
@@ -5121,15 +5141,15 @@ export default function App() {
                         )}
                       </div>
 
-                      {/* Send / Stop Generation Button (Matches Screenshot Box 3) */}
+                      {/* Send / Stop Generation Rounded Pill Button (Matches Screenshot Box 3) */}
                       {isGenerating ? (
                         <button
                           onClick={handleStopGeneration}
                           title="停止生成"
-                          className="w-7 h-7 rounded-xl bg-[#1c1917] hover:bg-red-600 active:scale-95 text-white flex items-center justify-center transition-all cursor-pointer shadow-xs relative group"
+                          className="w-8 h-8 rounded-full bg-[#1c1917] hover:bg-red-600 active:scale-95 text-white flex items-center justify-center transition-all cursor-pointer shadow-xs relative group"
                         >
-                          <span className="absolute inset-0 rounded-xl border border-white/20 animate-pulse pointer-events-none" />
-                          <Square className="w-3 h-3 fill-current text-white" />
+                          <span className="absolute inset-0 rounded-full border border-white/20 animate-pulse pointer-events-none" />
+                          <Square className="w-3.5 h-3.5 fill-current text-white" />
                         </button>
                       ) : (
                         <button
@@ -5140,7 +5160,7 @@ export default function App() {
                               ? "发送消息 (Enter)"
                               : "请输入需求..."
                           }
-                          className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all shadow-xs active:scale-95 ${
+                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-xs active:scale-95 ${
                             inputMessage.trim()
                               ? "bg-[#1c1917] hover:bg-[#2c2724] text-white cursor-pointer"
                               : "bg-[#e5e5e5] text-[#a8a29e] cursor-not-allowed"
@@ -5226,15 +5246,15 @@ export default function App() {
               )}
 
               {/* TOP TABS BAR (MATCHES SCREENSHOTS 1 & 2) */}
-              <div className="h-[40px] flex-shrink-0 border-b border-[#e7e5e4]/60 bg-[#fafaf9] flex items-center justify-between px-2 text-[12.5px] select-none">
-                <div className="flex items-center space-x-1 h-full overflow-x-auto no-scrollbar">
+              <div className="h-[40px] flex-shrink-0 border-b border-[#e7e5e4]/60 bg-[#fafaf9] flex items-center justify-between px-2.5 text-[12.5px] select-none">
+                <div className="flex items-center space-x-1.5 h-full overflow-x-auto no-scrollbar">
                   {openTabs.map((tab) => {
                     const isActive = rightPanelTab === tab.id
                     return (
                       <div
                         key={tab.id}
                         onClick={() => setRightPanelTab(tab.id)}
-                        className={`h-[28px] px-2.5 rounded-lg flex items-center space-x-1.5 cursor-pointer transition-all ${
+                        className={`h-[28px] px-3 rounded-full flex items-center space-x-1.5 cursor-pointer transition-all ${
                           isActive
                             ? "bg-white text-[#1c1917] font-medium shadow-2xs border border-black/[0.06]"
                             : "text-[#78716c] hover:bg-black/[0.04] hover:text-[#1c1917]"
@@ -5251,7 +5271,7 @@ export default function App() {
                             e.stopPropagation()
                             closeTab(tab.id)
                           }}
-                          className="p-0.5 hover:bg-black/[0.06] rounded text-[#a8a29e] hover:text-[#1c1917] transition-colors"
+                          className="p-0.5 hover:bg-black/[0.06] rounded-full text-[#a8a29e] hover:text-[#1c1917] transition-colors"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -5271,7 +5291,7 @@ export default function App() {
                       }
                     }}
                     title="添加标签页"
-                    className="w-6 h-6 flex items-center justify-center hover:bg-black/[0.05] rounded-md text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer ml-0.5"
+                    className="w-6 h-6 flex items-center justify-center hover:bg-black/[0.05] rounded-full text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer ml-0.5"
                   >
                     <Plus className="w-3.5 h-3.5" />
                   </button>
@@ -5282,14 +5302,14 @@ export default function App() {
                   <button
                     onClick={() => setIsMaximized(!isMaximized)}
                     title={isMaximized ? "还原面板" : "最大化面板"}
-                    className="w-6 h-6 flex items-center justify-center hover:bg-black/[0.05] rounded-md text-[#78716c] transition-colors cursor-pointer"
+                    className="w-6 h-6 flex items-center justify-center hover:bg-black/[0.05] rounded-full text-[#78716c] transition-colors cursor-pointer"
                   >
                     <Maximize2 className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => setRightPanelOpen(false)}
                     title="关闭面板"
-                    className="w-6 h-6 flex items-center justify-center hover:bg-[#ef4444] hover:text-white rounded-md text-[#78716c] transition-colors cursor-pointer"
+                    className="w-6 h-6 flex items-center justify-center hover:bg-[#ef4444] hover:text-white rounded-full text-[#78716c] transition-colors cursor-pointer"
                   >
                     <PanelRightClose className="w-3.5 h-3.5" />
                   </button>
@@ -5301,29 +5321,29 @@ export default function App() {
               {/* ========================================================================= */}
               {rightPanelTab === "launcher" ? (
                 <div className="flex-1 flex flex-col items-center justify-center select-none bg-[#fafaf9] p-6 animate-in fade-in duration-150">
-                  <div className="w-full max-w-[260px] space-y-2">
+                  <div className="w-full max-w-[260px] space-y-2.5">
                     <button
                       onClick={() => openReviewTab()}
-                      className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-black/[0.04] text-[#292524] transition-all group cursor-pointer"
+                      className="w-full flex items-center justify-between px-4 py-3 rounded-2xl hover:bg-black/[0.04] text-[#292524] transition-all group cursor-pointer border border-transparent hover:border-black/[0.05] shadow-2xs"
                     >
                       <div className="flex items-center space-x-3">
                         <ReviewIcon className="w-4 h-4 text-[#78716c] group-hover:text-[#c86a28] transition-colors" />
                         <span className="text-[13.5px] font-medium">审查</span>
                       </div>
-                      <kbd className="px-2 py-0.5 text-[11px] font-mono text-[#a8a29e] bg-white group-hover:bg-white rounded-md border border-black/[0.06] shadow-2xs">
+                      <kbd className="px-2.5 py-0.5 text-[11px] font-mono text-[#a8a29e] bg-white group-hover:bg-white rounded-full border border-black/[0.07] shadow-2xs">
                         Ctrl+Shift+G
                       </kbd>
                     </button>
 
                     <button
                       onClick={() => openWorkspaceFileTab()}
-                      className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-black/[0.04] text-[#292524] transition-all group cursor-pointer"
+                      className="w-full flex items-center justify-between px-4 py-3 rounded-2xl hover:bg-black/[0.04] text-[#292524] transition-all group cursor-pointer border border-transparent hover:border-black/[0.05] shadow-2xs"
                     >
                       <div className="flex items-center space-x-3">
                         <Folder className="w-4 h-4 text-[#78716c] group-hover:text-[#c86a28] transition-colors" />
                         <span className="text-[13.5px] font-medium">文件</span>
                       </div>
-                      <kbd className="px-2 py-0.5 text-[11px] font-mono text-[#a8a29e] bg-white group-hover:bg-white rounded-md border border-black/[0.06] shadow-2xs">
+                      <kbd className="px-2.5 py-0.5 text-[11px] font-mono text-[#a8a29e] bg-white group-hover:bg-white rounded-full border border-black/[0.07] shadow-2xs">
                         Ctrl+P
                       </kbd>
                     </button>
