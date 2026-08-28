@@ -225,18 +225,30 @@ function WindowControls({
 function ThoughtProcessCard({
   content,
   defaultExpanded = true,
+  isThinking = false,
+  thinkingSeconds = 0,
 }: {
   content: string
   defaultExpanded?: boolean
+  isThinking?: boolean
+  thinkingSeconds?: number
 }) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded)
+
+  // When thinking is actively streaming, keep expanded
+  useEffect(() => {
+    if (isThinking) {
+      setIsExpanded(true)
+    }
+  }, [isThinking])
 
   // Extract first non-empty line as preview snippet in collapsed state (matches screenshot 2)
   const firstLine =
     content
       .split("\n")
       .map((s) => s.trim())
-      .filter((s) => s && !s.startsWith("#"))[0] || "思考过程"
+      .filter((s) => s && !s.startsWith("#"))[0] ||
+    (isThinking ? "正在思考..." : "思考过程")
 
   // Split content by paragraphs
   const paragraphs = content
@@ -254,26 +266,54 @@ function ThoughtProcessCard({
           className="w-full flex items-center justify-between px-3.5 py-1 text-left cursor-pointer select-none group hover:bg-[#ededed] transition-colors focus:outline-none min-h-[26px]"
         >
           <div className="flex items-center space-x-2 min-w-0 flex-1 mr-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#78716c] flex-shrink-0" />
-            <span className="text-[12px] sm:text-[12.5px] text-[#8e8e93] truncate font-normal leading-tight">
-              {firstLine}
+            {isThinking ? (
+              <div className="w-2.5 h-2.5 rounded-full border-2 border-[#c86a28]/30 border-t-[#c86a28] animate-spin flex-shrink-0" />
+            ) : (
+              <span className="w-1.5 h-1.5 rounded-full bg-[#78716c] flex-shrink-0" />
+            )}
+            <span className="text-[12px] sm:text-[12.5px] text-[#8e8e93] truncate font-normal leading-tight flex items-center space-x-1.5">
+              <span>{firstLine}</span>
+              {isThinking && thinkingSeconds > 0 && (
+                <span className="text-[11px] text-[#c86a28] font-mono">
+                  {thinkingSeconds}s
+                </span>
+              )}
             </span>
           </div>
           <ChevronDown className="w-3.5 h-3.5 text-[#78716c] group-hover:text-[#1c1917] transition-colors flex-shrink-0 stroke-[1.8]" />
         </button>
       ) : (
-        /* Expanded State: Header with "思考过程" and chevron up + structured body text on gray background (matches screenshot 1) */
+        /* Expanded State: Header with "正在思考..." or "思考过程" and chevron up (matches screenshot 1 & user request) */
         <div className="p-4 sm:p-5">
           <button
             type="button"
             onClick={() => setIsExpanded(false)}
             className="w-full flex items-center justify-between text-left cursor-pointer select-none group focus:outline-none"
           >
-            <div className="flex items-center space-x-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#78716c] inline-block" />
-              <span className="text-[13.5px] font-medium text-[#262626] group-hover:text-[#000000] transition-colors">
-                思考过程
-              </span>
+            <div className="flex items-center space-x-2.5">
+              {isThinking ? (
+                <div className="relative flex items-center justify-center">
+                  <div className="w-3 h-3 rounded-full border-2 border-[#c86a28]/30 border-t-[#c86a28] animate-spin" />
+                </div>
+              ) : (
+                <span className="w-1.5 h-1.5 rounded-full bg-[#78716c] inline-block" />
+              )}
+              <div className="flex items-center space-x-2">
+                <span
+                  className={`text-[13.5px] font-medium transition-colors ${
+                    isThinking
+                      ? "text-[#c86a28]"
+                      : "text-[#262626] group-hover:text-[#000000]"
+                  }`}
+                >
+                  {isThinking ? "正在思考..." : "思考过程"}
+                </span>
+                {isThinking && thinkingSeconds > 0 && (
+                  <span className="text-[11px] font-mono text-[#c86a28] bg-[#c86a28]/10 px-1.5 py-0.2 rounded font-medium">
+                    {thinkingSeconds}s
+                  </span>
+                )}
+              </div>
             </div>
             <div className="text-[#737373] group-hover:text-[#1c1917] transition-colors p-0.5">
               <ChevronUp className="w-4 h-4 stroke-[1.8]" />
@@ -281,6 +321,12 @@ function ThoughtProcessCard({
           </button>
 
           <div className="mt-3.5 space-y-3.5 text-[13px] sm:text-[13.5px] text-[#4b5563] leading-[1.7] font-normal animate-in fade-in duration-200">
+            {paragraphs.length === 0 && isThinking && (
+              <div className="flex items-center space-x-2 text-[#a8a29e] text-[12.5px] py-1">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#c86a28] animate-ping" />
+                <span>分析任务意图与工作空间上下文...</span>
+              </div>
+            )}
             {paragraphs.map((para, pIdx) => {
               const lines = para.split("\n")
 
@@ -343,20 +389,15 @@ function ThoughtProcessCard({
                 )
               }
 
-              if (para.endsWith(":") || para.endsWith("：")) {
-                return (
-                  <p key={pIdx} className="text-[#374151] font-medium">
-                    {para}
-                  </p>
-                )
-              }
-
               return (
                 <p key={pIdx} className="text-[#4b5563]">
                   {para}
                 </p>
               )
             })}
+            {isThinking && (
+              <span className="inline-block w-1.5 h-3.5 ml-0.5 bg-[#c86a28] animate-pulse align-middle" />
+            )}
           </div>
         </div>
       )}
@@ -697,6 +738,20 @@ export default function App() {
 
   const [inputMessage, setInputMessage] = useState("")
 
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generationPhase, setGenerationPhase] =
+    useState<"thinking" | "streaming" | "idle">("idle")
+  const [thinkingSeconds, setThinkingSeconds] = useState(0)
+  const generationTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const thinkingTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (generationTimerRef.current) clearInterval(generationTimerRef.current)
+      if (thinkingTimerRef.current) clearInterval(thinkingTimerRef.current)
+    }
+  }, [])
+
   const [messages, setMessages] = useState<Array<{
     id: number
 
@@ -707,6 +762,8 @@ export default function App() {
     text: string
 
     thought?: string
+
+    isThinking?: boolean
 
     details?: {
       modelPath: string
@@ -1238,8 +1295,35 @@ export default function App() {
 
   // Send message action
 
+  // Stop Generation Action
+  const handleStopGeneration = () => {
+    if (generationTimerRef.current) {
+      clearInterval(generationTimerRef.current)
+      generationTimerRef.current = null
+    }
+    if (thinkingTimerRef.current) {
+      clearInterval(thinkingTimerRef.current)
+      thinkingTimerRef.current = null
+    }
+    setIsGenerating(false)
+    setGenerationPhase("idle")
+
+    setMessages((prev) =>
+      prev.map((m, idx) =>
+        idx === prev.length - 1 && m.sender === "bot"
+          ? {
+              ...m,
+              isThinking: false,
+              text: m.text ? m.text : m.thought ? "（已停止生成）" : "已停止",
+            }
+          : m,
+      ),
+    )
+  }
+
+  // Send message action with realistic Thought Process & Text Streaming
   const handleSendMessage = () => {
-    if (!inputMessage.trim()) return
+    if (!inputMessage.trim() || isGenerating) return
 
     const currentInput = inputMessage
 
@@ -1256,40 +1340,112 @@ export default function App() {
       text: currentInput,
     }
 
-    setMessages((prev) => [...prev, newMsg])
+    const botMsgId = Date.now() + 1
+    const plannedThought = generateThoughtForPrompt(
+      currentInput,
+      selectedAgent,
+      activeWorkspace.name,
+    )
+    const plannedText = `智能体（${selectedAgent}）已理解你的需求并完成任务规划，正在按步骤执行...`
+
+    setMessages((prev) => [
+      ...prev,
+      newMsg,
+      {
+        id: botMsgId,
+        sender: "bot" as const,
+        time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        thought: "",
+        text: "",
+        isThinking: true,
+      },
+    ])
 
     setInputMessage("")
+    setIsGenerating(true)
+    setGenerationPhase("thinking")
+    setThinkingSeconds(0)
 
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto"
     }
 
-    // Simulate Agent Auto-Reply with realistic Thought Process
+    // Thinking seconds counter
+    if (thinkingTimerRef.current) clearInterval(thinkingTimerRef.current)
+    thinkingTimerRef.current = setInterval(() => {
+      setThinkingSeconds((s) => s + 1)
+    }, 1000)
 
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
+    // Stream thought text first
+    let currentThoughtIndex = 0
+    const thoughtChars = plannedThought.split("")
+    const streamThoughtInterval = setInterval(
+      () => {
+        currentThoughtIndex += 3
+        if (currentThoughtIndex >= thoughtChars.length) {
+          clearInterval(streamThoughtInterval)
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === botMsgId
+                ? { ...m, thought: plannedThought, isThinking: false }
+                : m,
+            ),
+          )
+          if (thinkingTimerRef.current) {
+            clearInterval(thinkingTimerRef.current)
+            thinkingTimerRef.current = null
+          }
+          setGenerationPhase("streaming")
 
-        {
-          id: Date.now() + 1,
+          // Stream response text
+          let currentTextIndex = 0
+          const textChars = plannedText.split("")
+          const streamTextInterval = setInterval(() => {
+            currentTextIndex += 2
+            if (currentTextIndex >= textChars.length) {
+              clearInterval(streamTextInterval)
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === botMsgId
+                    ? { ...m, text: plannedText, isThinking: false }
+                    : m,
+                ),
+              )
+              setIsGenerating(false)
+              setGenerationPhase("idle")
+              generationTimerRef.current = null
+            } else {
+              const partialText = textChars.slice(0, currentTextIndex).join("")
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === botMsgId
+                    ? { ...m, text: partialText, isThinking: false }
+                    : m,
+                ),
+              )
+            }
+          }, 30)
+          generationTimerRef.current = streamTextInterval
+        } else {
+          const partialThought = thoughtChars
+            .slice(0, currentThoughtIndex)
+            .join("")
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === botMsgId
+                ? { ...m, thought: partialThought, isThinking: true }
+                : m,
+            ),
+          )
+        }
+      },
+      25,
+    )
 
-          sender: "bot" as const,
-
-          time: new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-
-          thought: generateThoughtForPrompt(
-            currentInput,
-            selectedAgent,
-            activeWorkspace.name,
-          ),
-
-          text: `智能体（${selectedAgent}）已理解你的需求并完成任务规划，正在按步骤执行...`,
-        },
-      ])
-    }, 600)
+    generationTimerRef.current = streamThoughtInterval
   }
 
   // Open New Conversation Settings Modal
@@ -2508,7 +2664,7 @@ export default function App() {
           <aside
             style={{ width: leftSidebarOpen ? `${leftSidebarWidth}px` : "0px" }}
             className={`h-full flex-shrink-0 bg-[#f9f9f8] ${
-              leftSidebarOpen ? "border-r border-[#e7e5e4]" : "border-r-0"
+              leftSidebarOpen ? "border-r border-[#e7e5e4]/70" : "border-r-0"
             } flex flex-col justify-between overflow-hidden ${
               isDragging
                 ? "transition-none"
@@ -2516,7 +2672,7 @@ export default function App() {
             }`}
           >
             {/* Header with Tokmon Logo (Pinned outside scrollable tree) */}
-            <div className="h-[46px] min-w-[240px] flex-shrink-0 px-4 border-b border-[#e7e5e4] flex items-center justify-between bg-[#f9f9f8]">
+            <div className="h-[46px] min-w-[240px] flex-shrink-0 px-4 border-b border-[#e7e5e4]/60 flex items-center justify-between bg-[#f9f9f8]">
               <div className="flex items-center space-x-2 cursor-pointer">
                 <TokmonLogo />
                 <span className="text-[17px] font-bold tracking-tight text-[#1c1917]">
@@ -2526,13 +2682,13 @@ export default function App() {
             </div>
 
             {/* Scrollable Tree Navigation & Content Area (Fills entire window height, zero horizontal scrollbar) */}
-            <div className="flex-1 min-h-0 min-w-[240px] overflow-y-auto overflow-x-hidden p-3 space-y-3.5 custom-scrollbar">
+            <div className="flex-1 min-h-0 min-w-[240px] overflow-y-auto overflow-x-hidden p-3 space-y-3 custom-scrollbar">
               {/* New Conversation Button */}
               <button
                 onClick={handleOpenNewConvModal}
-                className="flex items-center justify-center space-x-1.5 w-full py-2.5 px-4 rounded-xl bg-[#f7efe5] border border-[#ebdcd0] text-[#8b5229] font-medium text-[13.5px] hover:bg-[#f3e4d5] active:scale-98 transition-all shadow-2xs cursor-pointer"
+                className="flex items-center justify-center space-x-1.5 w-full py-2.5 px-4 rounded-xl bg-[#f2ece2] hover:bg-[#eae2d5] text-[#7c431b] font-medium text-[13px] active:scale-98 transition-all cursor-pointer"
               >
-                <Plus className="w-4 h-4 text-[#8b5229]" strokeWidth={2.5} />
+                <Plus className="w-4 h-4 text-[#7c431b]" strokeWidth={2.2} />
                 <span>新建会话</span>
               </button>
 
@@ -2544,7 +2700,7 @@ export default function App() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="搜索会话、项目或分组..."
-                  className="w-full bg-[#f0eee8] border border-transparent rounded-xl pl-9 pr-8 py-1.5 text-[12.5px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:bg-white focus:border-[#c86a28] transition-all"
+                  className="w-full bg-[#edebe4]/70 border-0 rounded-xl pl-9 pr-8 py-1.5 text-[12.5px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#c86a28]/40 transition-all"
                 />
                 {searchQuery && (
                   <button
@@ -2833,10 +2989,10 @@ export default function App() {
               </div>
             )}
 
-            {/* Middle Chat Header Bar */}
-            <header className="h-[46px] flex-shrink-0 bg-[#fafaf9]/90 backdrop-blur-xs border-b border-[#e7e5e4] flex items-center justify-between px-4 z-10">
+            {/* Middle Chat Header Bar with Integrated Mode Tabs */}
+            <header className="h-[46px] flex-shrink-0 bg-[#fafaf9]/90 backdrop-blur-xs border-b border-[#e7e5e4]/60 flex items-center justify-between px-4 z-10">
               <div
-                className={`flex items-center space-x-2.5 ${
+                className={`flex items-center space-x-3 ${
                   !leftSidebarOpen ? "pl-7" : ""
                 }`}
               >
@@ -2859,11 +3015,11 @@ export default function App() {
                       }
                     }}
                     autoFocus
-                    className="text-[14.5px] font-semibold text-[#1c1917] bg-white border border-[#f5a623] px-2 py-0.5 rounded-md focus:outline-none"
+                    className="text-[14px] font-semibold text-[#1c1917] bg-white border border-[#f5a623] px-2 py-0.5 rounded-md focus:outline-none"
                   />
                 ) : (
-                  <div className="flex items-center space-x-2">
-                    <h1 className="text-[14.5px] font-semibold text-[#1c1917] tracking-tight">
+                  <div className="flex items-center space-x-1.5">
+                    <h1 className="text-[14px] font-semibold text-[#1c1917] tracking-tight">
                       {conversationTitle}
                     </h1>
                     <button
@@ -2871,10 +3027,34 @@ export default function App() {
                       className="p-1 hover:bg-[#e7e5e4] rounded-md text-[#a8a29e] transition-colors cursor-pointer"
                       title="修改会话名称"
                     >
-                      <Edit2 className="w-3.5 h-3.5" />
+                      <Edit2 className="w-3 h-3" />
                     </button>
                   </div>
                 )}
+
+                {/* Integrated Sleek Segmented Switcher: 对话 (Chat) vs 轨迹 (Trajectory) */}
+                <div className="flex items-center bg-[#edebe4]/70 p-0.5 rounded-lg text-[12px] font-medium select-none ml-2">
+                  <button
+                    onClick={() => setMainViewMode("chat")}
+                    className={`px-2.5 py-0.5 rounded-md transition-all cursor-pointer ${
+                      mainViewMode === "chat"
+                        ? "bg-white text-[#1c1917] shadow-2xs font-semibold"
+                        : "text-[#78716c] hover:text-[#1c1917]"
+                    }`}
+                  >
+                    对话
+                  </button>
+                  <button
+                    onClick={() => setMainViewMode("trajectory")}
+                    className={`px-2.5 py-0.5 rounded-md transition-all cursor-pointer ${
+                      mainViewMode === "trajectory"
+                        ? "bg-white text-[#1c1917] shadow-2xs font-semibold"
+                        : "text-[#78716c] hover:text-[#1c1917]"
+                    }`}
+                  >
+                    轨迹
+                  </button>
+                </div>
               </div>
 
               {/* Right Controls in Main Header */}
@@ -2889,30 +3069,6 @@ export default function App() {
                 )}
               </div>
             </header>
-
-            {/* View Switcher Tabs: 对话 (Chat) vs 轨迹 (Trajectory) */}
-            <div className="h-[38px] flex-shrink-0 bg-[#faf9f6] border-b border-[#e8e6df] flex items-center px-6 space-x-6 text-[13.5px] font-medium text-[#78716c] z-10">
-              <button
-                onClick={() => setMainViewMode("chat")}
-                className={`h-full border-b-2 flex items-center transition-colors cursor-pointer ${
-                  mainViewMode === "chat"
-                    ? "border-[#c86a28] text-[#8b5229] font-bold"
-                    : "border-transparent hover:text-[#1c1917]"
-                }`}
-              >
-                对话
-              </button>
-              <button
-                onClick={() => setMainViewMode("trajectory")}
-                className={`h-full border-b-2 flex items-center transition-colors cursor-pointer ${
-                  mainViewMode === "trajectory"
-                    ? "border-[#c86a28] text-[#8b5229] font-bold"
-                    : "border-transparent hover:text-[#1c1917]"
-                }`}
-              >
-                轨迹
-              </button>
-            </div>
 
             {/* ========================================================================= */}
             {/* TOP-RIGHT FLOATING ENVIRONMENT INFORMATION PANEL / APPLE ASSISTIVETOUCH */}
@@ -3640,9 +3796,9 @@ export default function App() {
                           textareaRef.current.focus()
                         }
                       }}
-                      className="bg-white hover:bg-[#fefcfb] border border-[#e8e6df] hover:border-[#38bdf8]/60 shadow-2xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                      className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-sky-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
                     >
-                      <div className="w-8 h-8 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-500 group-hover:scale-110 group-hover:bg-sky-100 transition-all">
+                      <div className="w-8 h-8 rounded-xl bg-sky-50 flex items-center justify-center text-sky-500 group-hover:scale-110 group-hover:bg-sky-100 transition-all">
                         {/* Custom Telescope / Code Explorer SVG */}
                         <svg
                           className="w-4.5 h-4.5"
@@ -3670,7 +3826,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Card 2: 构建新功能、应用或工具 */}
+                    {/* Card 2: 构建新功能或应用 */}
                     <div
                       onClick={() => {
                         setInputMessage(
@@ -3681,9 +3837,9 @@ export default function App() {
                           textareaRef.current.focus()
                         }
                       }}
-                      className="bg-white hover:bg-[#fefcfb] border border-[#e8e6df] hover:border-[#a855f7]/60 shadow-2xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                      className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-purple-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
                     >
-                      <div className="w-8 h-8 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-500 group-hover:scale-110 group-hover:bg-purple-100 transition-all">
+                      <div className="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center text-purple-500 group-hover:scale-110 group-hover:bg-purple-100 transition-all">
                         {/* Custom Builder / Hammer SVG */}
                         <svg
                           className="w-4.5 h-4.5"
@@ -3699,25 +3855,20 @@ export default function App() {
                             strokeLinejoin="round"
                           />
                           <path
-                            d="M11 5L4 12L2 18L8 16L15 9"
+                            d="M12 6L4 14L2 18L6 16L14 8"
                             stroke="currentColor"
                             strokeWidth="1.6"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           />
-                          <path
-                            d="M7 13L10 10"
-                            stroke="currentColor"
-                            strokeWidth="1.6"
-                          />
                         </svg>
                       </div>
                       <div>
                         <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-purple-600 transition-colors leading-snug">
-                          构建新功能、应用或工具
+                          构建新功能或应用
                         </h4>
                         <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">
-                          设计方案并编写实现代码
+                          规划方案并编写实现代码
                         </p>
                       </div>
                     </div>
@@ -3733,9 +3884,9 @@ export default function App() {
                           textareaRef.current.focus()
                         }
                       }}
-                      className="bg-white hover:bg-[#fefcfb] border border-[#e8e6df] hover:border-[#10b981]/60 shadow-2xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                      className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-emerald-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
                     >
-                      <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-500 group-hover:scale-110 group-hover:bg-emerald-100 transition-all">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500 group-hover:scale-110 group-hover:bg-emerald-100 transition-all">
                         {/* Custom Code Audit / Checkmark Refresh SVG */}
                         <svg
                           className="w-4.5 h-4.5"
@@ -3767,7 +3918,7 @@ export default function App() {
                       </div>
                       <div>
                         <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-emerald-600 transition-colors leading-snug">
-                          审查代码并提出修改建议
+                          审查代码并提建议
                         </h4>
                         <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">
                           排查隐患与提升代码规范
@@ -3786,9 +3937,9 @@ export default function App() {
                           textareaRef.current.focus()
                         }
                       }}
-                      className="bg-white hover:bg-[#fefcfb] border border-[#e8e6df] hover:border-[#f97316]/60 shadow-2xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                      className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-orange-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
                     >
-                      <div className="w-8 h-8 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-[#c86a28] group-hover:scale-110 group-hover:bg-orange-100 transition-all">
+                      <div className="w-8 h-8 rounded-xl bg-orange-50 flex items-center justify-center text-[#c86a28] group-hover:scale-110 group-hover:bg-orange-100 transition-all">
                         {/* Custom Bug / Diagnostic SVG */}
                         <svg
                           className="w-4.5 h-4.5"
@@ -3881,15 +4032,36 @@ export default function App() {
                       ) : (
                         <div className="space-y-3 max-w-full">
                           {/* Thought Process (Chain of Thought Reasoning) Card */}
-                          {msg.thought && (
+                          {(msg.thought || msg.isThinking) && (
                             <ThoughtProcessCard
-                              content={msg.thought}
+                              content={msg.thought || ""}
+                              isThinking={msg.isThinking}
+                              thinkingSeconds={thinkingSeconds}
                               defaultExpanded={true}
                             />
                           )}
-                          <div className="text-[13.5px] text-[#292524] leading-relaxed whitespace-pre-line">
-                            {msg.text}
-                          </div>
+
+                          {/* Message Text or Animated Typing Indicator (Matches Screenshot Box 2) */}
+                          {msg.text ? (
+                            <div className="text-[13.5px] text-[#292524] leading-relaxed whitespace-pre-line">
+                              {msg.text}
+                              {isGenerating &&
+                                msg.id === messages[messages.length - 1]?.id &&
+                                generationPhase === "streaming" && (
+                                  <span className="inline-block w-1.5 h-4 ml-0.5 bg-[#c86a28] animate-pulse align-middle" />
+                                )}
+                            </div>
+                          ) : (
+                            /* Red Box 2 in Screenshot: Animated Loading Typing Bubble */
+                            isGenerating &&
+                            msg.id === messages[messages.length - 1]?.id && (
+                              <div className="flex items-center space-x-1.5 px-3.5 py-2 bg-[#f4f4f4] border border-black/[0.05] rounded-xl w-fit animate-in fade-in duration-200">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#c86a28] animate-bounce [animation-delay:-0.3s]" />
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#c86a28] animate-bounce [animation-delay:-0.15s]" />
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#c86a28] animate-bounce" />
+                              </div>
+                            )
+                          )}
                         </div>
                       )}
                     </div>
@@ -4592,12 +4764,12 @@ export default function App() {
               </div>
             )}
 
-            {/* Bottom Input Box Area - Pinned on top with solid background */}
-            <div className="flex-shrink-0 px-4 pb-4 pt-2 bg-[#fafaf9] border-t border-[#e7e5e4]/60 z-30 shadow-xs">
+            {/* Bottom Input Box Area - Floating cleanly on background */}
+            <div className="flex-shrink-0 px-4 pb-4 pt-1 bg-[#fafaf9] z-30">
               <div className="max-w-[760px] mx-auto">
                 {/* Embedded Context Tab attached to the top-left of the input dialog box */}
                 <div className="relative z-10 -mb-[1px]">
-                  <div className="inline-flex items-center space-x-2 px-3 py-1 bg-[#f4f3ef] hover:bg-[#edebe4] rounded-t-xl border-t border-l border-r border-[#e7e5e4] text-[11.5px] text-[#57534e] select-none shadow-2xs transition-colors">
+                  <div className="inline-flex items-center space-x-2 px-3 py-1 bg-[#f0eee9] hover:bg-[#eae7e1] rounded-t-xl border-t border-l border-r border-black/[0.06] text-[11.5px] text-[#57534e] select-none shadow-2xs transition-colors">
                     <div
                       onClick={() => {
                         if (messages.length === 0) {
@@ -4637,8 +4809,8 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Main Input Dialog Box Card (Clean static card without focus border) */}
-                <div className="bg-[#ffffff] border border-[#e7e5e4] rounded-2xl rounded-tl-none shadow-lg p-3 pointer-events-auto space-y-2 relative">
+                {/* Main Input Dialog Box Card (Clean static card with soft ambient elevation) */}
+                <div className="bg-white border border-black/[0.07] rounded-2xl rounded-tl-none shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-3 pointer-events-auto space-y-2 relative">
                   <textarea
                     ref={textareaRef}
                     value={inputMessage}
@@ -4949,13 +5121,34 @@ export default function App() {
                         )}
                       </div>
 
-                      {/* Send Up Arrow Button */}
-                      <button
-                        onClick={handleSendMessage}
-                        className="w-7 h-7 rounded-xl bg-[#6b7280] hover:bg-[#4b5563] active:scale-95 text-white flex items-center justify-center transition-all cursor-pointer shadow-xs"
-                      >
-                        <ArrowUp className="w-4 h-4 stroke-[2.5]" />
-                      </button>
+                      {/* Send / Stop Generation Button (Matches Screenshot Box 3) */}
+                      {isGenerating ? (
+                        <button
+                          onClick={handleStopGeneration}
+                          title="停止生成"
+                          className="w-7 h-7 rounded-xl bg-[#1c1917] hover:bg-red-600 active:scale-95 text-white flex items-center justify-center transition-all cursor-pointer shadow-xs relative group"
+                        >
+                          <span className="absolute inset-0 rounded-xl border border-white/20 animate-pulse pointer-events-none" />
+                          <Square className="w-3 h-3 fill-current text-white" />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={handleSendMessage}
+                          disabled={!inputMessage.trim()}
+                          title={
+                            inputMessage.trim()
+                              ? "发送消息 (Enter)"
+                              : "请输入需求..."
+                          }
+                          className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all shadow-xs active:scale-95 ${
+                            inputMessage.trim()
+                              ? "bg-[#1c1917] hover:bg-[#2c2724] text-white cursor-pointer"
+                              : "bg-[#e5e5e5] text-[#a8a29e] cursor-not-allowed"
+                          }`}
+                        >
+                          <ArrowUp className="w-4 h-4 stroke-[2.5]" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -5018,7 +5211,7 @@ export default function App() {
           {rightPanelOpen ? (
             <section
               style={{ width: `${rightPanelWidth}px` }}
-              className={`flex-shrink-0 bg-[#fafaf9] flex flex-col border-l border-[#e7e5e4] ${
+              className={`flex-shrink-0 bg-[#fafaf9] flex flex-col border-l border-[#e7e5e4]/70 ${
                 isDragging
                   ? "transition-none"
                   : "transition-[width] duration-150 ease-out"
@@ -5033,7 +5226,7 @@ export default function App() {
               )}
 
               {/* TOP TABS BAR (MATCHES SCREENSHOTS 1 & 2) */}
-              <div className="h-[40px] flex-shrink-0 border-b border-[#e7e5e4] bg-[#fafaf9] flex items-center justify-between px-2 text-[12.5px] select-none">
+              <div className="h-[40px] flex-shrink-0 border-b border-[#e7e5e4]/60 bg-[#fafaf9] flex items-center justify-between px-2 text-[12.5px] select-none">
                 <div className="flex items-center space-x-1 h-full overflow-x-auto no-scrollbar">
                   {openTabs.map((tab) => {
                     const isActive = rightPanelTab === tab.id
@@ -5041,10 +5234,10 @@ export default function App() {
                       <div
                         key={tab.id}
                         onClick={() => setRightPanelTab(tab.id)}
-                        className={`h-[30px] px-2.5 rounded-lg flex items-center space-x-1.5 cursor-pointer transition-all ${
+                        className={`h-[28px] px-2.5 rounded-lg flex items-center space-x-1.5 cursor-pointer transition-all ${
                           isActive
-                            ? "bg-white text-[#1c1917] font-medium shadow-2xs border border-[#e5e5e5]"
-                            : "text-[#78716c] hover:bg-[#f0f0ef] hover:text-[#1c1917]"
+                            ? "bg-white text-[#1c1917] font-medium shadow-2xs border border-black/[0.06]"
+                            : "text-[#78716c] hover:bg-black/[0.04] hover:text-[#1c1917]"
                         }`}
                       >
                         {tab.id === "review" ? (
@@ -5058,7 +5251,7 @@ export default function App() {
                             e.stopPropagation()
                             closeTab(tab.id)
                           }}
-                          className="p-0.5 hover:bg-[#e7e5e4] rounded text-[#a8a29e] hover:text-[#1c1917] transition-colors"
+                          className="p-0.5 hover:bg-black/[0.06] rounded text-[#a8a29e] hover:text-[#1c1917] transition-colors"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -5078,7 +5271,7 @@ export default function App() {
                       }
                     }}
                     title="添加标签页"
-                    className="w-6 h-6 flex items-center justify-center hover:bg-[#e7e5e4] rounded-md text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer ml-0.5"
+                    className="w-6 h-6 flex items-center justify-center hover:bg-black/[0.05] rounded-md text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer ml-0.5"
                   >
                     <Plus className="w-3.5 h-3.5" />
                   </button>
@@ -5089,7 +5282,7 @@ export default function App() {
                   <button
                     onClick={() => setIsMaximized(!isMaximized)}
                     title={isMaximized ? "还原面板" : "最大化面板"}
-                    className="w-6 h-6 flex items-center justify-center hover:bg-[#e7e5e4] rounded-md text-[#78716c] transition-colors cursor-pointer"
+                    className="w-6 h-6 flex items-center justify-center hover:bg-black/[0.05] rounded-md text-[#78716c] transition-colors cursor-pointer"
                   >
                     <Maximize2 className="w-3.5 h-3.5" />
                   </button>
@@ -5111,26 +5304,26 @@ export default function App() {
                   <div className="w-full max-w-[260px] space-y-2">
                     <button
                       onClick={() => openReviewTab()}
-                      className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-[#f0f0ef] text-[#292524] transition-all group cursor-pointer border border-transparent hover:border-[#e5e5e5]"
+                      className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-black/[0.04] text-[#292524] transition-all group cursor-pointer"
                     >
                       <div className="flex items-center space-x-3">
                         <ReviewIcon className="w-4 h-4 text-[#78716c] group-hover:text-[#c86a28] transition-colors" />
                         <span className="text-[13.5px] font-medium">审查</span>
                       </div>
-                      <kbd className="px-2 py-0.5 text-[11px] font-mono text-[#a8a29e] bg-white group-hover:bg-white rounded-md border border-[#e5e5e5] shadow-2xs">
+                      <kbd className="px-2 py-0.5 text-[11px] font-mono text-[#a8a29e] bg-white group-hover:bg-white rounded-md border border-black/[0.06] shadow-2xs">
                         Ctrl+Shift+G
                       </kbd>
                     </button>
 
                     <button
                       onClick={() => openWorkspaceFileTab()}
-                      className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-[#f0f0ef] text-[#292524] transition-all group cursor-pointer border border-transparent hover:border-[#e5e5e5]"
+                      className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-black/[0.04] text-[#292524] transition-all group cursor-pointer"
                     >
                       <div className="flex items-center space-x-3">
                         <Folder className="w-4 h-4 text-[#78716c] group-hover:text-[#c86a28] transition-colors" />
                         <span className="text-[13.5px] font-medium">文件</span>
                       </div>
-                      <kbd className="px-2 py-0.5 text-[11px] font-mono text-[#a8a29e] bg-white group-hover:bg-white rounded-md border border-[#e5e5e5] shadow-2xs">
+                      <kbd className="px-2 py-0.5 text-[11px] font-mono text-[#a8a29e] bg-white group-hover:bg-white rounded-md border border-black/[0.06] shadow-2xs">
                         Ctrl+P
                       </kbd>
                     </button>
@@ -5142,7 +5335,7 @@ export default function App() {
                 /* ========================================================================= */
                 <div className="flex-1 flex flex-col min-h-0 bg-[#fafaf9] animate-in fade-in duration-150">
                   {/* GIT BRANCH & ACTIONS TOOLBAR */}
-                  <div className="h-[44px] flex-shrink-0 border-b border-[#e7e5e4] px-3 flex items-center justify-between bg-[#fafaf9] text-[12.5px] relative">
+                  <div className="h-[42px] flex-shrink-0 border-b border-[#e7e5e4]/60 px-3 flex items-center justify-between bg-[#fafaf9] text-[12.5px] relative">
                     {/* Left: Branch selector, Stats badge, Tracking branch */}
                     <div className="flex items-center space-x-2.5">
                       <div className="relative">
@@ -5578,9 +5771,9 @@ export default function App() {
 
                     {/* RIGHT SUB-SIDEBAR: CHANGED FILES LIST (MATCHES SCREENSHOT 1) */}
                     {showRightFileSidebar && (
-                      <div className="w-48 sm:w-56 flex-shrink-0 border-l border-[#e7e5e4] bg-[#fafaf9] flex flex-col min-h-0 select-none">
+                      <div className="w-48 sm:w-56 flex-shrink-0 border-l border-[#e7e5e4]/60 bg-[#fafaf9] flex flex-col min-h-0 select-none">
                         {/* Search Input */}
-                        <div className="p-2 border-b border-[#e7e5e4] bg-[#fafaf9]">
+                        <div className="p-2 bg-[#fafaf9]">
                           <div className="relative">
                             <Search className="w-3.5 h-3.5 text-[#a8a29e] absolute left-2.5 top-1/2 -translate-y-1/2" />
                             <input
@@ -5590,7 +5783,7 @@ export default function App() {
                                 setReviewFileSearch(e.target.value)
                               }
                               placeholder="筛选文件..."
-                              className="w-full bg-white border border-[#e5e5e5] rounded-lg pl-7 pr-2 py-1 text-[11.5px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:border-[#c86a28]"
+                              className="w-full bg-[#edebe4]/70 border-0 rounded-lg pl-7 pr-2 py-1 text-[11.5px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#c86a28]/40 transition-all"
                             />
                           </div>
                         </div>
@@ -5636,8 +5829,8 @@ export default function App() {
                                     }
                                     className={`w-full text-left flex items-center justify-between px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
                                       isSelected
-                                        ? "bg-white text-[#1c1917] font-medium border border-[#e5e5e5] shadow-2xs"
-                                        : "hover:bg-[#f0f0ef] text-[#44403c]"
+                                        ? "bg-white text-[#1c1917] font-medium shadow-2xs border border-black/[0.06]"
+                                        : "hover:bg-black/[0.04] text-[#44403c]"
                                     }`}
                                   >
                                     <div className="flex items-center space-x-1.5 min-w-0 truncate">
@@ -5672,7 +5865,7 @@ export default function App() {
                   {/* LEFT / CENTER VIEW */}
                   <div className="flex-1 flex flex-col min-w-0 bg-[#fafaf9]">
                     {/* Header */}
-                    <div className="h-[36px] flex-shrink-0 bg-[#fafaf9] border-b border-[#e7e5e4] px-3 flex items-center justify-between text-[12px] font-mono text-[#57534e]">
+                    <div className="h-[34px] flex-shrink-0 bg-[#fafaf9] border-b border-[#e7e5e4]/60 px-3 flex items-center justify-between text-[12px] font-mono text-[#57534e]">
                       <span>C:</span>
                       <Folder className="w-4 h-4 text-[#78716c]" />
                     </div>
@@ -5680,7 +5873,7 @@ export default function App() {
                     {/* Main Workspace File Content / Empty State */}
                     {selectedWorkspaceFile ? (
                       <div className="flex-1 overflow-y-auto font-mono text-[12px] p-4 bg-[#fafaf9] select-text custom-scrollbar">
-                        <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#e7e5e4]">
+                        <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[#e7e5e4]/60">
                           <span className="font-semibold text-[#1c1917]">
                             {selectedWorkspaceFile}
                           </span>
@@ -5697,7 +5890,7 @@ export default function App() {
                       </div>
                     ) : (
                       <div className="flex-1 flex flex-col items-center justify-center text-center p-8 select-none">
-                        <div className="w-16 h-16 rounded-2xl bg-white border border-[#e7e5e4] flex items-center justify-center mb-4 text-[#78716c] shadow-2xs">
+                        <div className="w-16 h-16 rounded-2xl bg-white border border-black/[0.06] flex items-center justify-center mb-4 text-[#78716c] shadow-2xs">
                           <FolderOpen className="w-8 h-8 stroke-[1.5]" />
                         </div>
                         <h3 className="text-[15px] font-semibold text-[#1c1917] mb-1">
@@ -5711,9 +5904,9 @@ export default function App() {
                   </div>
 
                   {/* RIGHT SUB-SIDEBAR: WORKSPACE DIRECTORY TREE (SCREENSHOT 2) */}
-                  <div className="w-56 sm:w-64 flex-shrink-0 border-l border-[#e7e5e4] bg-[#fafaf9] flex flex-col min-h-0 select-none">
+                  <div className="w-56 sm:w-64 flex-shrink-0 border-l border-[#e7e5e4]/60 bg-[#fafaf9] flex flex-col min-h-0 select-none">
                     {/* Search Bar */}
-                    <div className="p-2.5 border-b border-[#e7e5e4] bg-[#fafaf9]">
+                    <div className="p-2.5 bg-[#fafaf9]">
                       <div className="relative">
                         <Search className="w-3.5 h-3.5 text-[#a8a29e] absolute left-2.5 top-1/2 -translate-y-1/2" />
                         <input
@@ -5723,7 +5916,7 @@ export default function App() {
                             setWorkspaceTreeSearch(e.target.value)
                           }
                           placeholder="筛选文件..."
-                          className="w-full bg-white border border-[#e5e5e5] rounded-xl pl-8 pr-2.5 py-1 text-[12px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:border-[#c86a28]"
+                          className="w-full bg-[#edebe4]/70 border-0 rounded-xl pl-8 pr-2.5 py-1 text-[12px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#c86a28]/40 transition-all"
                         />
                       </div>
                     </div>
