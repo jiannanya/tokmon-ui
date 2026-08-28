@@ -32,6 +32,7 @@ import {
   PanelLeftOpen,
   PanelRightClose,
   PanelRightOpen,
+  PanelRight,
   Box,
   Copy,
   Lock,
@@ -630,6 +631,7 @@ export default function App() {
     "unified",
   )
   const [showRightFileSidebar, setShowRightFileSidebar] = useState(true)
+  const [isRightPanelFullscreen, setIsRightPanelFullscreen] = useState(false)
   const [currentBranch, setCurrentBranch] = useState("main")
   const [showBranchDropdown, setShowBranchDropdown] = useState(false)
   const [showMoreGitMenu, setShowMoreGitMenu] = useState(false)
@@ -641,6 +643,7 @@ export default function App() {
 
   // Workspace Tree / Open File States
   const [workspaceTreeSearch, setWorkspaceTreeSearch] = useState("")
+  const [showWorkspaceTreeSidebar, setShowWorkspaceTreeSidebar] = useState(true)
   const [selectedWorkspaceFile, setSelectedWorkspaceFile] =
     useState<string | null>(null)
   const [expandedFolders, setExpandedFolders] =
@@ -3435,14 +3438,14 @@ export default function App() {
       {/* Tokmon Agent Desktop Window */}
       <div
         style={{
-          width: isMaximized ? "100vw" : `${totalWindowWidth}px`,
+          width: isMaximized || isRightPanelFullscreen ? "100vw" : `${totalWindowWidth}px`,
         }}
         className={`h-full flex flex-col bg-[#fafaf9] text-[#1c1917] overflow-hidden relative ${
           isDragging
             ? "transition-none"
             : "transition-[width] duration-150 ease-out"
         } ${
-          isMaximized
+          isMaximized || isRightPanelFullscreen
             ? "w-screen rounded-none"
             : "border-r border-[#d4d1c8] shadow-2xl"
         }`}
@@ -3453,9 +3456,12 @@ export default function App() {
           {/* COLUMN 1: LEFT SIDEBAR */}
           {/* ========================================================= */}
           <aside
-            style={{ width: leftSidebarOpen ? `${leftSidebarWidth}px` : "0px" }}
+            style={{
+              width: isRightPanelFullscreen || !leftSidebarOpen ? "0px" : `${leftSidebarWidth}px`,
+              display: isRightPanelFullscreen ? "none" : undefined,
+            }}
             className={`h-full flex-shrink-0 bg-[#f9f9f8] ${
-              leftSidebarOpen ? "border-r border-[#e7e5e4]/70" : "border-r-0"
+              !isRightPanelFullscreen && leftSidebarOpen ? "border-r border-[#e7e5e4]/70" : "border-r-0 hidden"
             } flex flex-col justify-between overflow-hidden ${
               isDragging
                 ? "transition-none"
@@ -3699,7 +3705,7 @@ export default function App() {
           </aside>
 
           {/* LEFT SIDEBAR RESIZER DIVIDER */}
-          {leftSidebarOpen && (
+          {!isRightPanelFullscreen && leftSidebarOpen && (
             <div className="relative flex-shrink-0 z-40 select-none h-full flex items-center">
               {/* Drag Hit Zone & Glowing Line */}
               <div
@@ -3750,13 +3756,14 @@ export default function App() {
           {/* ========================================================= */}
           {/* COLUMN 2: MAIN CHAT & WORKFLOW EXECUTION */}
           {/* ========================================================= */}
-          <main
-            style={{
-              width:
-                isMaximized && !rightPanelOpen
-                  ? undefined
-                  : `${effectiveMainWidth}px`,
-            }}
+          {!isRightPanelFullscreen && (
+            <main
+              style={{
+                width:
+                  isMaximized && !rightPanelOpen
+                    ? undefined
+                    : `${effectiveMainWidth}px`,
+              }}
             className={`${
               isMaximized && !rightPanelOpen ? "flex-1" : "flex-shrink-0"
             } flex flex-col bg-[#fafaf9] overflow-hidden relative ${
@@ -5321,9 +5328,10 @@ export default function App() {
               </div>
             </div>
           </main>
+          )}
 
           {/* RIGHT PANEL RESIZER DIVIDER */}
-          {rightPanelOpen && (
+          {!isRightPanelFullscreen && rightPanelOpen && (
             <div className="relative flex-shrink-0 z-40 select-none h-full flex items-center">
               {/* Drag Hit Zone & Glowing Line */}
               <div
@@ -5376,8 +5384,14 @@ export default function App() {
           {/* ========================================================= */}
           {rightPanelOpen ? (
             <section
-              style={{ width: `${rightPanelWidth}px` }}
-              className={`flex-shrink-0 bg-[#fafaf9] flex flex-col border-l border-[#e7e5e4]/70 ${
+              style={{
+                width: isRightPanelFullscreen ? "100%" : `${rightPanelWidth}px`,
+              }}
+              className={`${
+                isRightPanelFullscreen ? "flex-1 w-full" : "flex-shrink-0"
+              } bg-[#fafaf9] flex flex-col ${
+                isRightPanelFullscreen ? "border-l-0" : "border-l border-[#e7e5e4]/70"
+              } ${
                 isDragging
                   ? "transition-none"
                   : "transition-[width] duration-150 ease-out"
@@ -5446,14 +5460,21 @@ export default function App() {
                 {/* Right panel window controls */}
                 <div className="flex items-center space-x-1 text-[#78716c]">
                   <button
-                    onClick={() => setIsMaximized(!isMaximized)}
-                    title={isMaximized ? "还原面板" : "最大化面板"}
-                    className="w-6 h-6 flex items-center justify-center hover:bg-black/[0.05] rounded-full text-[#78716c] transition-colors cursor-pointer"
+                    onClick={() => setIsRightPanelFullscreen(!isRightPanelFullscreen)}
+                    title={isRightPanelFullscreen ? "还原右侧栏 (退出全屏)" : "全屏占满界面窗口"}
+                    className="w-6 h-6 flex items-center justify-center hover:bg-black/[0.05] dark:hover:bg-white/[0.06] rounded-full text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer"
                   >
-                    <Maximize2 className="w-3.5 h-3.5" />
+                    {isRightPanelFullscreen ? (
+                      <Minimize2 className="w-3.5 h-3.5" />
+                    ) : (
+                      <Maximize2 className="w-3.5 h-3.5" />
+                    )}
                   </button>
                   <button
-                    onClick={() => setRightPanelOpen(false)}
+                    onClick={() => {
+                      setIsRightPanelFullscreen(false)
+                      setRightPanelOpen(false)
+                    }}
                     title="关闭面板"
                     className="w-6 h-6 flex items-center justify-center hover:bg-[#ef4444] hover:text-white rounded-full text-[#78716c] transition-colors cursor-pointer"
                   >
@@ -6032,8 +6053,34 @@ export default function App() {
                   <div className="flex-1 flex flex-col min-w-0 bg-[#fafaf9]">
                     {/* Header */}
                     <div className="h-[34px] flex-shrink-0 bg-[#fafaf9] border-b border-[#e7e5e4]/60 px-3 flex items-center justify-between text-[12px] font-mono text-[#57534e]">
-                      <span>C:</span>
-                      <Folder className="w-4 h-4 text-[#78716c]" />
+                      <div className="flex items-center space-x-2 min-w-0 truncate">
+                        <span className="font-semibold text-[#1c1917]">C:</span>
+                        {selectedWorkspaceFile && (
+                          <span className="truncate text-[#1c1917] font-medium">
+                            / {selectedWorkspaceFile}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Small Folder Icon Toggle Button */}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowWorkspaceTreeSidebar(!showWorkspaceTreeSidebar)
+                        }
+                        title={
+                          showWorkspaceTreeSidebar
+                            ? "收起目录树"
+                            : "展开目录树"
+                        }
+                        className={`w-6 h-6 flex items-center justify-center rounded-md transition-colors cursor-pointer ${
+                          showWorkspaceTreeSidebar
+                            ? "text-[#c86a28] hover:bg-black/[0.05] dark:hover:bg-white/[0.06]"
+                            : "text-[#78716c] hover:bg-black/[0.05] dark:hover:bg-white/[0.06] hover:text-[#1c1917]"
+                        }`}
+                      >
+                        <Folder className="w-4 h-4" />
+                      </button>
                     </div>
 
                     {/* Main Workspace File Content / Empty State */}
@@ -6070,96 +6117,98 @@ export default function App() {
                   </div>
 
                   {/* RIGHT SUB-SIDEBAR: WORKSPACE DIRECTORY TREE (SCREENSHOT 2) */}
-                  <div className="w-56 sm:w-64 flex-shrink-0 border-l border-[#e7e5e4]/60 bg-[#fafaf9] flex flex-col min-h-0 select-none">
-                    {/* Search Bar */}
-                    <div className="p-2.5 bg-[#fafaf9]">
-                      <div className="relative">
-                        <Search className="w-3.5 h-3.5 text-[#a8a29e] absolute left-2.5 top-1/2 -translate-y-1/2" />
-                        <input
-                          type="text"
-                          value={workspaceTreeSearch}
-                          onChange={(e) =>
-                            setWorkspaceTreeSearch(e.target.value)
-                          }
-                          placeholder="筛选文件..."
-                          className="w-full bg-[#edebe4]/70 border-0 rounded-xl pl-8 pr-2.5 py-1 text-[12px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#c86a28]/40 transition-all"
-                        />
+                  {showWorkspaceTreeSidebar && (
+                    <div className="w-56 sm:w-64 flex-shrink-0 border-l border-[#e7e5e4]/60 bg-[#fafaf9] flex flex-col min-h-0 select-none animate-in fade-in duration-150">
+                      {/* Search Bar */}
+                      <div className="p-2.5 bg-[#fafaf9]">
+                        <div className="relative">
+                          <Search className="w-3.5 h-3.5 text-[#a8a29e] absolute left-2.5 top-1/2 -translate-y-1/2" />
+                          <input
+                            type="text"
+                            value={workspaceTreeSearch}
+                            onChange={(e) =>
+                              setWorkspaceTreeSearch(e.target.value)
+                            }
+                            placeholder="筛选文件..."
+                            className="w-full bg-[#edebe4]/70 border-0 rounded-xl pl-8 pr-2.5 py-1 text-[12px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#c86a28]/40 transition-all"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Workspace Directory Tree Items */}
+                      <div className="flex-1 overflow-y-auto p-2 space-y-0.5 custom-scrollbar text-[12.5px] font-mono">
+                        {workspaceTreeItems
+                          .filter((item) =>
+                            item.name
+                              .toLowerCase()
+                              .includes(workspaceTreeSearch.toLowerCase()),
+                          )
+                          .map((item) => {
+                            if (item.type === "folder") {
+                              const isExpanded = expandedFolders[item.name]
+                              return (
+                                <div key={item.name} className="space-y-0.5">
+                                  <button
+                                    onClick={() =>
+                                      setExpandedFolders((prev) => ({
+                                        ...prev,
+                                        [item.name]: !isExpanded,
+                                      }))
+                                    }
+                                    className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-md hover:bg-[#f5f5f4] text-[#44403c] transition-colors cursor-pointer text-left"
+                                  >
+                                    {isExpanded ? (
+                                      <ChevronDown className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
+                                    ) : (
+                                      <ChevronRight className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
+                                    )}
+                                    <span className="truncate">{item.name}</span>
+                                  </button>
+
+                                  {isExpanded && item.items && (
+                                    <div className="pl-5 space-y-0.5">
+                                      {item.items.map((subItem) => (
+                                        <button
+                                          key={subItem}
+                                          onClick={() =>
+                                            setSelectedWorkspaceFile(subItem)
+                                          }
+                                          className="w-full flex items-center space-x-1.5 px-2 py-0.5 rounded hover:bg-[#f5f5f4] text-[#78716c] hover:text-[#1c1917] text-[11.5px] transition-colors cursor-pointer text-left truncate"
+                                        >
+                                          <FileText className="w-3 h-3 text-[#a8a29e] flex-shrink-0" />
+                                          <span className="truncate">
+                                            {subItem}
+                                          </span>
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            }
+
+                            const isFileSelected =
+                              selectedWorkspaceFile === item.name
+                            return (
+                              <button
+                                key={item.name}
+                                onClick={() =>
+                                  setSelectedWorkspaceFile(item.name)
+                                }
+                                className={`w-full flex items-center space-x-2 px-2 py-1 rounded-md transition-colors cursor-pointer text-left ${
+                                  isFileSelected
+                                    ? "bg-[#faf5ef] text-[#c86a28] font-medium"
+                                    : "hover:bg-[#f5f5f4] text-[#44403c]"
+                                }`}
+                              >
+                                <FileText className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
+                                <span className="truncate">{item.name}</span>
+                              </button>
+                            )
+                          })}
                       </div>
                     </div>
-
-                    {/* Workspace Directory Tree Items */}
-                    <div className="flex-1 overflow-y-auto p-2 space-y-0.5 custom-scrollbar text-[12.5px] font-mono">
-                      {workspaceTreeItems
-                        .filter((item) =>
-                          item.name
-                            .toLowerCase()
-                            .includes(workspaceTreeSearch.toLowerCase()),
-                        )
-                        .map((item) => {
-                          if (item.type === "folder") {
-                            const isExpanded = expandedFolders[item.name]
-                            return (
-                              <div key={item.name} className="space-y-0.5">
-                                <button
-                                  onClick={() =>
-                                    setExpandedFolders((prev) => ({
-                                      ...prev,
-                                      [item.name]: !isExpanded,
-                                    }))
-                                  }
-                                  className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-md hover:bg-[#f5f5f4] text-[#44403c] transition-colors cursor-pointer text-left"
-                                >
-                                  {isExpanded ? (
-                                    <ChevronDown className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
-                                  ) : (
-                                    <ChevronRight className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
-                                  )}
-                                  <span className="truncate">{item.name}</span>
-                                </button>
-
-                                {isExpanded && item.items && (
-                                  <div className="pl-5 space-y-0.5">
-                                    {item.items.map((subItem) => (
-                                      <button
-                                        key={subItem}
-                                        onClick={() =>
-                                          setSelectedWorkspaceFile(subItem)
-                                        }
-                                        className="w-full flex items-center space-x-1.5 px-2 py-0.5 rounded hover:bg-[#f5f5f4] text-[#78716c] hover:text-[#1c1917] text-[11.5px] transition-colors cursor-pointer text-left truncate"
-                                      >
-                                        <FileText className="w-3 h-3 text-[#a8a29e] flex-shrink-0" />
-                                        <span className="truncate">
-                                          {subItem}
-                                        </span>
-                                      </button>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            )
-                          }
-
-                          const isFileSelected =
-                            selectedWorkspaceFile === item.name
-                          return (
-                            <button
-                              key={item.name}
-                              onClick={() =>
-                                setSelectedWorkspaceFile(item.name)
-                              }
-                              className={`w-full flex items-center space-x-2 px-2 py-1 rounded-md transition-colors cursor-pointer text-left ${
-                                isFileSelected
-                                  ? "bg-[#faf5ef] text-[#c86a28] font-medium"
-                                  : "hover:bg-[#f5f5f4] text-[#44403c]"
-                              }`}
-                            >
-                              <FileText className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
-                              <span className="truncate">{item.name}</span>
-                            </button>
-                          )
-                        })}
-                    </div>
-                  </div>
+                  )}
                 </div>
               )}
 
