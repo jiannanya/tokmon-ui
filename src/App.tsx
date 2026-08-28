@@ -555,34 +555,31 @@ export default function App() {
         setMainWidth(newMain)
       } else if (isDraggingRight) {
         // Dragging right divider: mainWidth changes, rightPanelWidth absorbs the difference
-
         // Total (mainWidth + rightPanelWidth) stays constant!
-
         const totalMR =
           dragRef.current.startMainWidth + dragRef.current.startRightWidth
-
         const minMain = 450
-
-        const maxMain = Math.min(totalMR - 280, 1200)
-
+        const minRight = 240
+        const maxMain = Math.max(minMain, totalMR - minRight)
         const newMain = Math.min(
           Math.max(dragRef.current.startMainWidth + deltaX, minMain),
           maxMain,
         )
-
         const newRight = totalMR - newMain
-
         setMainWidth(newMain)
-
         setRightPanelWidth(newRight)
       } else if (isDraggingMainRight) {
-        // When right panel is closed, dragging right window border adjusts mainWidth
-
+        // Dragging right window border adjusts mainWidth dynamically with ample headroom (up to viewport width or 2600px+)
+        const maxAllowedMain = Math.max(
+          typeof window !== "undefined"
+            ? window.innerWidth - (leftSidebarOpen ? leftSidebarWidth : 0) - (rightPanelOpen ? rightPanelWidth : 0) - 20
+            : 2600,
+          2600,
+        )
         const newWidth = Math.min(
           Math.max(dragRef.current.startMainWidth + deltaX, 480),
-          1400,
+          maxAllowedMain,
         )
-
         setMainWidth(newWidth)
       }
     }
@@ -884,11 +881,11 @@ export default function App() {
     ? mainWidth
     : mainWidth + leftSidebarWidth + 6
 
-  // Only auto-expand when middle column has enough width to fit centered message stream (760px) + right panel (278px + 16px margin + gap) + equal left margin
-  // (W - 760) / 2 >= 278 + 16 + 16 = 310 => W >= 1380px (~1360px)
+  // Only auto-expand when middle column has enough width to fit centered message stream (874px) + right panel (278px + 16px margin + gap) + equal left margin
+  // (W - 874) / 2 >= 278 + 16 + 16 = 310 => W >= 1494px (~1480px)
   const isWideColumn =
-    effectiveMainWidth >= 1360 ||
-    (isMaximized && (!rightPanelOpen || effectiveMainWidth >= 1360))
+    effectiveMainWidth >= 1480 ||
+    (isMaximized && (!rightPanelOpen || effectiveMainWidth >= 1480))
   const prevIsWideRef = useRef(isWideColumn)
   const [manualOpenState, setManualOpenState] = useState<
     "pinned" | "collapsed" | null
@@ -2692,7 +2689,7 @@ export default function App() {
   })()
 
   const renderEnvCard = () => (
-    <div className="w-[278px] bg-white/95 backdrop-blur-2xl rounded-2xl border border-[#e5e5e5] shadow-[0_16px_40px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] p-3 text-[#292524] animate-in fade-in zoom-in-95 duration-200 space-y-1 relative">
+    <div className="w-[278px] bg-white/95 backdrop-blur-2xl rounded-2xl border border-[#e5e5e5] shadow-[0_16px_40px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] p-3 text-[#292524] space-y-1 relative">
       {/* Card Section 1: 环境信息 Header */}
       <div className="flex items-center justify-between px-1 pb-1">
         <span className="text-[13px] font-medium text-[#44403c] tracking-tight">
@@ -3727,7 +3724,13 @@ export default function App() {
               className="absolute top-[48px] right-4 z-40 select-none"
             >
               {/* Collapsed State: Apple iPhone AssistiveTouch Floating Button */}
-              {!isEnvPanelOpen ? (
+              <div
+                className={`transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top-right transform-gpu ${
+                  !isEnvPanelOpen
+                    ? "opacity-100 scale-100 pointer-events-auto"
+                    : "opacity-0 scale-75 pointer-events-none absolute top-0 right-0"
+                }`}
+              >
                 <div className="relative group">
                   <button
                     type="button"
@@ -3797,14 +3800,22 @@ export default function App() {
                     </span>
                   </div>
                 </div>
-              ) : (
-                /* Expanded Overlay Card */
-                renderEnvCard()
-              )}
+              </div>
+
+              {/* Expanded Floating Card */}
+              <div
+                className={`transition-all duration-240 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top-right transform-gpu ${
+                  isEnvPanelOpen
+                    ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+                    : "opacity-0 scale-95 -translate-y-1.5 pointer-events-none absolute top-0 right-0"
+                }`}
+              >
+                {renderEnvCard()}
+              </div>
 
               {/* Floating Toast Notification (when collapsed) */}
               {!isEnvPanelOpen && envToast && (
-                <div className="absolute right-0 top-full mt-2 whitespace-nowrap bg-white text-[#292524] text-[11.5px] font-medium px-3 py-1.5 rounded-xl shadow-xl border border-[#e7e5e4] z-50 animate-in fade-in slide-in-from-top-1 duration-150 flex items-center space-x-1.5">
+                <div className="absolute right-0 top-14 whitespace-nowrap bg-white text-[#292524] text-[11.5px] font-medium px-3 py-1.5 rounded-xl shadow-xl border border-[#e7e5e4] z-50 animate-in fade-in slide-in-from-top-1 duration-150 flex items-center space-x-1.5">
                   <Check className="w-3.5 h-3.5 text-emerald-500" />
                   <span>{envToast}</span>
                 </div>
@@ -3814,7 +3825,7 @@ export default function App() {
             {mainViewMode === "chat" ? (
               messages.length === 0 ? (
                 <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6 custom-scrollbar flex items-center justify-center">
-                  <div className="w-full max-w-[840px] mx-auto flex flex-col items-center justify-center text-center select-none animate-in fade-in duration-300">
+                  <div className="w-full max-w-[966px] mx-auto flex flex-col items-center justify-center text-center select-none animate-in fade-in duration-300">
                       {/* 1. Tokmon Brand SVG Logo (matching top-left logo) */}
                       <div className="relative mb-5 group cursor-pointer">
                         <div className="w-16 h-16 rounded-3xl bg-gradient-to-b from-[#fef8f4] to-[#fbf1e7] border border-[#f5d9c3] shadow-xs flex items-center justify-center group-hover:scale-105 group-hover:shadow-md transition-all duration-300">
@@ -4056,7 +4067,7 @@ export default function App() {
               ) : (
                 /* Chat Messages & Execution Scroll Panel */
                 <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-6 custom-scrollbar pb-6">
-                  <div className="w-full max-w-[760px] mx-auto space-y-6">
+                  <div className="w-full max-w-[874px] mx-auto space-y-6">
                     {/* Timestamp tag */}
                     <div className="text-center">
                       <span className="text-[11.5px] text-[#a8a29e] font-medium">
@@ -4069,7 +4080,7 @@ export default function App() {
                         <div key={msg.id}>
                           {msg.sender === "user" ? (
                             <div className="flex justify-end">
-                              <div className="max-w-[620px] bg-[#fcf8f3] border border-[#ebdcd0]/70 rounded-[22px] rounded-br-[6px] p-3.5 sm:p-4 text-[13px] text-[#292524] leading-relaxed shadow-2xs">
+                              <div className="max-w-[713px] bg-[#fcf8f3] border border-[#ebdcd0]/70 rounded-[22px] rounded-br-[6px] p-3.5 sm:p-4 text-[13px] text-[#292524] leading-relaxed shadow-2xs">
                                 <p className="font-medium text-[#1c1917] mb-1">
                                   {msg.text}
                                 </p>
@@ -4835,7 +4846,7 @@ export default function App() {
 
             {/* Bottom Input Box Area - Floating cleanly on background */}
             <div className="flex-shrink-0 px-4 pb-4 pt-1 bg-[#fafaf9] z-30">
-              <div className="max-w-[760px] mx-auto">
+              <div className="max-w-[874px] mx-auto">
                 {/* Embedded Backing Workspace Tab (Seamlessly docked directly behind the top edge with zero gap) */}
                 <div className="flex items-center ml-5 relative z-0 -mb-[1px]">
                   <div className="inline-flex items-center space-x-2 px-3.5 pt-1.5 pb-1 bg-[#edebe4] hover:bg-[#e4e2da] rounded-t-xl border-t border-l border-r border-black/[0.07] text-[11.5px] text-[#57534e] select-none transition-colors shadow-2xs">
@@ -6083,6 +6094,30 @@ export default function App() {
                   </div>
                 </div>
               )}
+
+              {/* WINDOW RIGHT BORDER RESIZER (when right panel open) */}
+              <div
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  dragRef.current = {
+                    startX: e.clientX,
+                    startLeftWidth: leftSidebarWidth,
+                    startMainWidth: mainWidth,
+                    startRightWidth: rightPanelWidth,
+                  }
+                  setIsDraggingMainRight(true)
+                }}
+                title="按住左右拖拽调整窗口整体宽度"
+                className="absolute right-0 top-0 bottom-0 w-2.5 cursor-col-resize z-50 flex justify-end items-center group/winline pointer-events-auto select-none"
+              >
+                <div
+                  className={`w-[2px] h-full transition-colors duration-150 ${
+                    isDraggingMainRight
+                      ? "bg-[#c86a28]/80"
+                      : "bg-transparent group-hover/winline:bg-[#c86a28]/80"
+                  }`}
+                />
+              </div>
             </section>
           ) : null}
 
