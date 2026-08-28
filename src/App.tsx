@@ -56,6 +56,9 @@ import {
   Globe,
   Maximize2,
   Minimize2,
+  ArrowUpRight,
+  Link2,
+  Image as ImageIcon,
 } from "lucide-react"
 
 // Custom Precise Icons matching Review & Git Toolbar (Screenshots 1, 2, 3)
@@ -877,11 +880,68 @@ export default function App() {
   const [copiedPathToast, setCopiedPathToast] = useState(false)
 
   // Environment Info Floating Panel & Apple AssistiveTouch State
+  const effectiveMainWidth = leftSidebarOpen
+    ? mainWidth
+    : mainWidth + leftSidebarWidth + 6
 
-  const [isEnvPanelOpen, setIsEnvPanelOpen] = useState(true)
+  // Only auto-expand when middle column has enough width to fit centered message stream (760px) + right panel (278px + 16px margin + gap) + equal left margin
+  // (W - 760) / 2 >= 278 + 16 + 16 = 310 => W >= 1380px (~1360px)
+  const isWideColumn =
+    effectiveMainWidth >= 1360 ||
+    (isMaximized && (!rightPanelOpen || effectiveMainWidth >= 1360))
+  const prevIsWideRef = useRef(isWideColumn)
+  const [manualOpenState, setManualOpenState] = useState<
+    "pinned" | "collapsed" | null
+  >(null)
+  const [isHovered, setIsHovered] = useState(false)
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    if (prevIsWideRef.current !== isWideColumn) {
+      prevIsWideRef.current = isWideColumn
+      setManualOpenState(null)
+    }
+  }, [isWideColumn])
+
+  const isEnvPanelOpen =
+    manualOpenState === "pinned"
+      ? true
+      : manualOpenState === "collapsed"
+      ? isHovered
+      : isWideColumn || isHovered
+
+  const handleEnvPanelMouseEnter = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current)
+      hoverTimeoutRef.current = null
+    }
+    setIsHovered(true)
+  }
+
+  const handleEnvPanelMouseLeave = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovered(false)
+    }, 220)
+  }
+
+  const [envSources] = useState([
+    {
+      id: "clip-1",
+      name: "codex-clipboard-3898a4b2-63b3-4a71...",
+      fullId: "codex-clipboard-3898a4b2-63b3-4a71-9df9-c3d52368c12b",
+      type: "file",
+    },
+    {
+      id: "clip-2",
+      name: "codex-clipboard-506c9f2d-3b7a-4de4...",
+      fullId: "codex-clipboard-506c9f2d-3b7a-4de4-859a-302efd978a59",
+      type: "image",
+    },
+  ])
 
   const [envDropdown, setEnvDropdown] =
-    useState<"none" | "changes" | "local" | "branch" | "plus">("none")
+    useState<"none" | "changes" | "local" | "branch" | "plus" | "sourcesPlus">("none")
 
   const [gitBranches, setGitBranches] = useState([
     "main",
@@ -2631,9 +2691,690 @@ export default function App() {
       .filter(Boolean) as typeof treeData
   })()
 
-  const effectiveMainWidth = leftSidebarOpen
-    ? mainWidth
-    : mainWidth + leftSidebarWidth + 6
+  const renderEnvCard = () => (
+    <div className="w-[278px] bg-white/95 backdrop-blur-2xl rounded-2xl border border-[#e5e5e5] shadow-[0_16px_40px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] p-3 text-[#292524] animate-in fade-in zoom-in-95 duration-200 space-y-1 relative">
+      {/* Card Section 1: 环境信息 Header */}
+      <div className="flex items-center justify-between px-1 pb-1">
+        <span className="text-[13px] font-medium text-[#44403c] tracking-tight">
+          环境信息
+        </span>
+        <div className="flex items-center space-x-1">
+          {/* Plus Quick Actions Button */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() =>
+                setEnvDropdown(
+                  envDropdown === "plus" ? "none" : "plus",
+                )
+              }
+              title="快捷操作"
+              className={`w-6 h-6 rounded-md flex items-center justify-center text-[#78716c] hover:text-[#1c1917] hover:bg-[#f5f5f4] transition-colors cursor-pointer ${
+                envDropdown === "plus"
+                  ? "bg-[#f5f5f4] text-[#1c1917]"
+                  : ""
+              }`}
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+
+            {/* Plus Dropdown Menu */}
+            {envDropdown === "plus" && (
+              <div className="absolute right-0 top-7 w-48 bg-white border border-[#e7e5e4] rounded-xl shadow-xl py-1.5 z-50 text-[12px] space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNewBranchInput(true)
+                    setEnvDropdown("branch")
+                  }}
+                  className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
+                >
+                  <GitBranch className="w-3.5 h-3.5" />
+                  <span>新建 Git 分支</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEnvDropdown("none")
+                    handleBrowseNativeDirectory("changeWorkspace")
+                  }}
+                  className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
+                >
+                  <FolderOpen className="w-3.5 h-3.5" />
+                  <span>浏览本地目录</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEnvDropdown("none")
+                    showEnvToastMessage(
+                      "已重新扫描工作空间 (142 文件就绪)",
+                    )
+                  }}
+                  className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>重新扫描工作空间</span>
+                </button>
+                <div className="my-1 border-t border-[#f0eee6]" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEnvDropdown("none")
+                    setShowSettingsModal(true)
+                    setActiveSettingsTab("workspace")
+                  }}
+                  className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  <span>工作空间偏好设置</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Collapse Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              setManualOpenState("collapsed")
+              setIsHovered(false)
+              setEnvDropdown("none")
+            }}
+            title="收起为悬浮按钮"
+            className="w-6 h-6 rounded-md flex items-center justify-center text-[#78716c] hover:text-[#c86a28] hover:bg-[#fef8f4] transition-colors cursor-pointer group/min"
+          >
+            <svg
+              className="w-3.5 h-3.5 text-[#78716c] group-hover/min:text-[#c86a28] transition-colors"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                cx="8"
+                cy="8"
+                r="6.5"
+                stroke="currentColor"
+                strokeOpacity="0.3"
+                strokeWidth="1.1"
+              />
+              <circle
+                cx="8"
+                cy="8"
+                r="4"
+                stroke="currentColor"
+                strokeOpacity="0.7"
+                strokeWidth="1.2"
+              />
+              <circle
+                cx="8"
+                cy="8"
+                r="1.8"
+                fill="currentColor"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Section 1 Rows List */}
+      <div className="space-y-0.5 text-[12.5px]">
+        {/* Row 1: 变更 (Diff / Changes) */}
+        <div>
+          <button
+            type="button"
+            onClick={() =>
+              setEnvDropdown(
+                envDropdown === "changes" ? "none" : "changes",
+              )
+            }
+            className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#1c1917] transition-colors cursor-pointer"
+          >
+            <div className="flex items-center space-x-2.5">
+              <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#57534e]">
+                <svg
+                  className="w-4 h-4"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    x="2"
+                    y="2"
+                    width="12"
+                    height="12"
+                    rx="2.5"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                  />
+                  <path
+                    d="M8 5V9M6 7H10M6 11H10"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </div>
+              <span className="font-normal text-[12.5px]">变更</span>
+            </div>
+          </button>
+
+          {/* Changes Dropdown */}
+          {envDropdown === "changes" && (
+            <div className="mt-1 p-2 bg-[#fafaf9] rounded-xl border border-[#e7e5e4] text-[11.5px] space-y-1.5 animate-in fade-in duration-150">
+              <div className="flex items-center justify-between text-[10.5px] text-[#a8a29e] px-1">
+                <span>未提交的改动 ({envModifiedFiles.length} 个文件)</span>
+                <span className="text-emerald-600 font-mono">
+                  +146 -9
+                </span>
+              </div>
+              <div className="space-y-1 max-h-32 overflow-y-auto custom-scrollbar">
+                {envModifiedFiles.map((file, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => {
+                      if (file.name.includes(".py"))
+                        setSelectedFile("transcribe.py")
+                      else if (file.name.includes(".yaml"))
+                        setSelectedFile("config.yaml")
+                      else setSelectedFile("output.srt")
+
+                      setActiveTab("code")
+                      if (!rightPanelOpen) setRightPanelOpen(true)
+                    }}
+                    className="flex items-center justify-between px-2 py-1 rounded bg-white hover:bg-[#fef8f4] border border-[#ebdcd0]/60 text-[#44403c] cursor-pointer transition-colors"
+                  >
+                    <span className="font-mono truncate max-w-[140px] text-[11px]">
+                      {file.name}
+                    </span>
+                    <div className="flex items-center space-x-1 font-mono text-[9.5px]">
+                      <span className="text-emerald-600">
+                        +{file.additions}
+                      </span>
+                      <span className="text-rose-500">
+                        -{file.deletions}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Row 2: 本地 (Local Environment / Workspace) */}
+        <div>
+          <button
+            type="button"
+            onClick={() =>
+              setEnvDropdown(
+                envDropdown === "local" ? "none" : "local",
+              )
+            }
+            className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#1c1917] transition-colors cursor-pointer"
+          >
+            <div className="flex items-center space-x-2.5 min-w-0">
+              <Laptop className="w-4 h-4 text-[#57534e] flex-shrink-0" />
+              <span className="font-normal text-[12.5px]">本地</span>
+            </div>
+            <ChevronDown
+              className={`w-3.5 h-3.5 text-[#a8a29e] transition-transform ${
+                envDropdown === "local" ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+
+          {/* Local Workspace Dropdown */}
+          {envDropdown === "local" && (
+            <div className="mt-1 p-1.5 bg-[#fafaf9] rounded-xl border border-[#e7e5e4] text-[11.5px] space-y-1 animate-in fade-in duration-150">
+              <div className="text-[10px] font-medium text-[#a8a29e] px-1.5 py-0.5">
+                切换工作空间项目
+              </div>
+              <div className="space-y-0.5 max-h-32 overflow-y-auto custom-scrollbar">
+                {treeData
+                  .flatMap((g) => g.projects)
+                  .map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveWorkspace({
+                          group:
+                            treeData.find((g) =>
+                              g.projects.some(
+                                (proj) => proj.id === p.id,
+                              ),
+                            )?.name || "默认",
+                          name: p.name,
+                          path: p.workspacePath,
+                          shortPath: p.shortPath,
+                          branch: "main",
+                          indexedFiles: 142,
+                          totalTokens: "84.2k",
+                        })
+                        showEnvToastMessage(
+                          `已切换至工作空间: ${p.name}`,
+                        )
+                        setEnvDropdown("none")
+                      }}
+                      className={`w-full flex items-center justify-between px-2 py-1 rounded-lg text-left transition-colors cursor-pointer ${
+                        activeWorkspace.name === p.name
+                          ? "bg-[#fef8f4] text-[#c86a28] font-medium border border-[#f5d9c3]"
+                          : "hover:bg-white text-[#44403c]"
+                      }`}
+                    >
+                      <span className="truncate">{p.name}</span>
+                      {activeWorkspace.name === p.name && (
+                        <Check className="w-3 h-3 text-[#c86a28]" />
+                      )}
+                    </button>
+                  ))}
+              </div>
+              <div className="border-t border-[#e7e5e4] my-1" />
+              <button
+                type="button"
+                onClick={() => {
+                  setEnvDropdown("none")
+                  setChangeWorkspacePathInput(activeWorkspace.path)
+                  setShowChangeWorkspaceModal(true)
+                }}
+                className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-lg text-[10.5px] text-[#c86a28] hover:bg-[#fef8f4] font-medium transition-colors cursor-pointer"
+              >
+                <FolderOpen className="w-3 h-3 text-[#c86a28]" />
+                <span>更换物理目录...</span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Row 3: main (Git Branch) */}
+        <div>
+          <button
+            type="button"
+            onClick={() =>
+              setEnvDropdown(
+                envDropdown === "branch" ? "none" : "branch",
+              )
+            }
+            className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#1c1917] transition-colors cursor-pointer"
+          >
+            <div className="flex items-center space-x-2.5 min-w-0">
+              <GitBranch className="w-4 h-4 text-[#57534e] flex-shrink-0" />
+              <span className="font-mono text-[12.5px]">
+                {activeWorkspace.branch}
+              </span>
+            </div>
+            <ChevronDown
+              className={`w-3.5 h-3.5 text-[#a8a29e] transition-transform ${
+                envDropdown === "branch" ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+
+          {/* Git Branch Dropdown */}
+          {envDropdown === "branch" && (
+            <div className="mt-1 p-1.5 bg-[#fafaf9] rounded-xl border border-[#e7e5e4] text-[11.5px] space-y-1 animate-in fade-in duration-150">
+              <div className="text-[10px] font-medium text-[#a8a29e] px-1.5 py-0.5">
+                Git 分支列表
+              </div>
+              <div className="space-y-0.5">
+                {gitBranches.map((br) => (
+                  <button
+                    key={br}
+                    type="button"
+                    onClick={() => {
+                      setActiveWorkspace((prev) => ({
+                        ...prev,
+                        branch: br,
+                      }))
+                      showEnvToastMessage(`已切换至分支: ${br}`)
+                      setEnvDropdown("none")
+                    }}
+                    className={`w-full flex items-center justify-between px-2 py-1 rounded-lg text-left font-mono text-[11.5px] transition-colors cursor-pointer ${
+                      activeWorkspace.branch === br
+                        ? "bg-[#fef8f4] text-[#c86a28] font-medium border border-[#f5d9c3]"
+                        : "hover:bg-white text-[#44403c]"
+                    }`}
+                  >
+                    <span>{br}</span>
+                    {activeWorkspace.branch === br && (
+                      <Check className="w-3 h-3 text-[#c86a28]" />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* Create new branch input */}
+              {showNewBranchInput ? (
+                <div className="pt-1 flex items-center space-x-1">
+                  <input
+                    type="text"
+                    value={newBranchInput}
+                    onChange={(e) =>
+                      setNewBranchInput(e.target.value)
+                    }
+                    placeholder="新分支名称..."
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (
+                        e.key === "Enter" &&
+                        newBranchInput.trim()
+                      ) {
+                        const newBr = newBranchInput.trim()
+                        setGitBranches((prev) => [...prev, newBr])
+                        setActiveWorkspace((prev) => ({
+                          ...prev,
+                          branch: newBr,
+                        }))
+                        setNewBranchInput("")
+                        setShowNewBranchInput(false)
+                        setEnvDropdown("none")
+                        showEnvToastMessage(
+                          `已创建并切换至新分支: ${newBr}`,
+                        )
+                      }
+                    }}
+                    className="flex-1 px-1.5 py-0.5 text-[11px] font-mono bg-white border border-[#c86a28] rounded-md focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (newBranchInput.trim()) {
+                        const newBr = newBranchInput.trim()
+                        setGitBranches((prev) => [...prev, newBr])
+                        setActiveWorkspace((prev) => ({
+                          ...prev,
+                          branch: newBr,
+                        }))
+                        setNewBranchInput("")
+                        setShowNewBranchInput(false)
+                        setEnvDropdown("none")
+                        showEnvToastMessage(
+                          `已创建并切换至新分支: ${newBr}`,
+                        )
+                      }
+                    }}
+                    className="px-2 py-0.5 bg-[#c86a28] text-white text-[11px] rounded-md hover:bg-[#b45309] cursor-pointer"
+                  >
+                    创建
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowNewBranchInput(true)}
+                  className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-lg text-[10.5px] text-[#c86a28] hover:bg-[#fef8f4] font-medium transition-colors cursor-pointer"
+                >
+                  <Plus className="w-3 h-3 text-[#c86a28]" />
+                  <span>新建分支...</span>
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Row 4: 提交或推送 (Commit or Push) */}
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              showEnvToastMessage(
+                "已提交更改并推送到 origin/" +
+                  activeWorkspace.branch,
+              )
+            }}
+            className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#1c1917] transition-colors cursor-pointer group"
+          >
+            <div className="flex items-center space-x-2.5">
+              <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#57534e]">
+                <svg
+                  className="w-4 h-4"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M2 8H6M10 8H14"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
+                  />
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="2.2"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                  />
+                </svg>
+              </div>
+              <span className="font-normal text-[12.5px]">
+                提交或推送
+              </span>
+            </div>
+          </button>
+        </div>
+
+        {/* Row 5: 无法获取 Pull Request 状态 */}
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              showEnvToastMessage(
+                "PR 状态: 未检测到关联的 GitHub Pull Request",
+              )
+            }}
+            className="w-full flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#57534e] hover:text-[#1c1917] transition-colors cursor-pointer text-left"
+          >
+            <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#57534e] flex-shrink-0">
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.09 10 14.96 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z"
+                />
+              </svg>
+            </div>
+            <span className="text-[12.5px] truncate font-normal">
+              无法获取 Pull Request 状态
+            </span>
+          </button>
+        </div>
+
+        {/* Row 6: 比较分支 (Compare Branches) */}
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              openReviewTab()
+              showEnvToastMessage("正在比较分支差异...")
+            }}
+            className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#57534e] hover:text-[#1c1917] transition-colors cursor-pointer text-left"
+          >
+            <div className="flex items-center space-x-2.5 min-w-0">
+              <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#57534e] flex-shrink-0">
+                <svg
+                  className="w-4 h-4"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.09 10 14.96 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z"
+                  />
+                </svg>
+              </div>
+              <span className="text-[12.5px] truncate font-normal">
+                比较分支
+              </span>
+            </div>
+            <ArrowUpRight className="w-3.5 h-3.5 text-[#9ca3af] flex-shrink-0" />
+          </button>
+        </div>
+      </div>
+
+      {/* Divider Line */}
+      <div className="border-t border-[#f0eee6] my-1" />
+
+      {/* Card Section 2: 来源 Header */}
+      <div className="flex items-center justify-between px-1 pb-1">
+        <span className="text-[13px] font-medium text-[#78716c] tracking-tight">
+          来源
+        </span>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() =>
+              setEnvDropdown(
+                envDropdown === "sourcesPlus"
+                  ? "none"
+                  : "sourcesPlus",
+              )
+            }
+            title="添加来源"
+            className={`w-6 h-6 rounded-md flex items-center justify-center text-[#78716c] hover:text-[#1c1917] hover:bg-[#f5f5f4] transition-colors cursor-pointer ${
+              envDropdown === "sourcesPlus"
+                ? "bg-[#f5f5f4] text-[#1c1917]"
+                : ""
+            }`}
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+
+          {/* Sources Plus Menu */}
+          {envDropdown === "sourcesPlus" && (
+            <div className="absolute right-0 top-7 w-44 bg-white border border-[#e7e5e4] rounded-xl shadow-xl py-1.5 z-50 text-[12px] space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
+              <button
+                type="button"
+                onClick={() => {
+                  setEnvDropdown("none")
+                  showEnvToastMessage("已从系统剪贴板导入新来源")
+                }}
+                className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
+              >
+                <Paperclip className="w-3.5 h-3.5" />
+                <span>粘贴剪贴板内容</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEnvDropdown("none")
+                  showEnvToastMessage("已选择本地文件作为上下文来源")
+                }}
+                className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
+              >
+                <FolderOpen className="w-3.5 h-3.5" />
+                <span>选择本地文件...</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Section 2 Rows List */}
+      <div className="space-y-0.5 text-[12.5px]">
+        {/* Item 1: Clipboard Text Source */}
+        <button
+          type="button"
+          onClick={() => {
+            showEnvToastMessage(
+              "已载入剪贴板来源: codex-clipboard-3898a4b2",
+            )
+          }}
+          title="codex-clipboard-3898a4b2-63b3-4a71-9df9-c3d52368c12b"
+          className="w-full flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#4b5563] hover:text-[#1c1917] transition-colors cursor-pointer text-left group"
+        >
+          <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#9ca3af] group-hover:text-[#57534e] flex-shrink-0">
+            <svg
+              className="w-4 h-4"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeDasharray="2 1.5"
+            >
+              <rect x="2.5" y="2" width="11" height="12" rx="2" />
+              <path
+                d="M5 5.5h6M5 8h4"
+                strokeDasharray="none"
+                strokeWidth="1.1"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+          <span className="font-mono text-[11.5px] truncate text-[#4b5563] group-hover:text-[#1c1917]">
+            codex-clipboard-3898a4b2-63b3-4a71...
+          </span>
+        </button>
+
+        {/* Item 2: Clipboard Image Source */}
+        <button
+          type="button"
+          onClick={() => {
+            showEnvToastMessage(
+              "已载入图片上下文: codex-clipboard-506c9f2d",
+            )
+          }}
+          title="codex-clipboard-506c9f2d-3b7a-4de4-859a-302efd978a59.png"
+          className="w-full flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#4b5563] hover:text-[#1c1917] transition-colors cursor-pointer text-left group"
+        >
+          <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#9ca3af] group-hover:text-[#57534e] flex-shrink-0">
+            <svg
+              className="w-4 h-4"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeDasharray="2 1.5"
+            >
+              <rect x="2.5" y="2" width="11" height="12" rx="2" />
+              <circle
+                cx="5.5"
+                cy="5.5"
+                r="1"
+                fill="currentColor"
+                stroke="none"
+              />
+              <path
+                d="M3.5 12l3-3 2 2 3-3 2 2"
+                strokeDasharray="none"
+                strokeWidth="1"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <span className="font-mono text-[11.5px] truncate text-[#4b5563] group-hover:text-[#1c1917]">
+            codex-clipboard-506c9f2d-3b7a-4de4...
+          </span>
+        </button>
+
+        {/* Item 3: 查看全部 */}
+        <button
+          type="button"
+          onClick={() => {
+            showEnvToastMessage(
+              "已展开当前会话全部 2 项上下文来源",
+            )
+          }}
+          className="w-full flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#57534e] hover:text-[#1c1917] transition-colors cursor-pointer text-left group"
+        >
+          <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#78716c] group-hover:text-[#c86a28] flex-shrink-0">
+            <Link2 className="w-4 h-4" />
+          </div>
+          <span className="text-[12.5px] text-[#57534e] group-hover:text-[#1c1917] font-normal">
+            查看全部
+          </span>
+        </button>
+      </div>
+    </div>
+  )
 
   const totalWindowWidth =
     leftSidebarWidth +
@@ -2976,107 +3717,13 @@ export default function App() {
                 : "transition-[width] duration-150 ease-out"
             }`}
           >
-            {/* Left border micro-pill to expand left sidebar when closed */}
-            {!leftSidebarOpen && (
-              <div className="absolute left-0 top-0 bottom-0 w-2 z-40 flex justify-center items-start select-none pointer-events-none">
-                <button
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onMouseUp={(e) => e.stopPropagation()}
-                  onClick={() => setLeftSidebarOpen(true)}
-                  title="展开侧边栏"
-                  className="absolute top-2.5 left-1.5 z-50 w-6 h-6 rounded-md bg-[#fef8f4] border border-[#ebdcd0] shadow-2xs hover:shadow-md hover:border-[#c86a28] hover:bg-[#fcf2ea] text-[#c86a28] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 pointer-events-auto"
-                >
-                  <PanelLeftOpen className="w-3.5 h-3.5 text-[#c86a28]" />
-                </button>
-              </div>
-            )}
-
-            {/* Middle Chat Header Bar with Integrated Mode Tabs */}
-            <header className="h-[46px] flex-shrink-0 bg-[#fafaf9]/90 backdrop-blur-xs border-b border-[#e7e5e4]/60 flex items-center justify-between px-4 z-10">
-              <div
-                className={`flex items-center space-x-3 ${
-                  !leftSidebarOpen ? "pl-7" : ""
-                }`}
-              >
-                {/* Editable Title */}
-                {isEditingTitle ? (
-                  <input
-                    type="text"
-                    value={conversationTitle}
-                    onChange={(e) => setConversationTitle(e.target.value)}
-                    onBlur={() => {
-                      setIsEditingTitle(false)
-
-                      setSelectedConversation(conversationTitle)
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        setIsEditingTitle(false)
-
-                        setSelectedConversation(conversationTitle)
-                      }
-                    }}
-                    autoFocus
-                    className="text-[14px] font-semibold text-[#1c1917] bg-white border border-[#f5a623] px-2 py-0.5 rounded-md focus:outline-none"
-                  />
-                ) : (
-                  <div className="flex items-center space-x-1.5">
-                    <h1 className="text-[14px] font-semibold text-[#1c1917] tracking-tight">
-                      {conversationTitle}
-                    </h1>
-                    <button
-                      onClick={() => setIsEditingTitle(true)}
-                      className="p-1 hover:bg-[#e7e5e4] rounded-md text-[#a8a29e] transition-colors cursor-pointer"
-                      title="修改会话名称"
-                    >
-                      <Edit2 className="w-3 h-3" />
-                    </button>
-                  </div>
-                )}
-
-                {/* Integrated Sleek Segmented Switcher: 对话 (Chat) vs 轨迹 (Trajectory) */}
-                <div className="flex items-center bg-[#edebe4]/70 p-1 rounded-full text-[12px] font-medium select-none ml-2">
-                  <button
-                    onClick={() => setMainViewMode("chat")}
-                    className={`px-3 py-0.5 rounded-full transition-all cursor-pointer ${
-                      mainViewMode === "chat"
-                        ? "bg-white text-[#1c1917] shadow-2xs font-semibold"
-                        : "text-[#78716c] hover:text-[#1c1917]"
-                    }`}
-                  >
-                    对话
-                  </button>
-                  <button
-                    onClick={() => setMainViewMode("trajectory")}
-                    className={`px-3 py-0.5 rounded-full transition-all cursor-pointer ${
-                      mainViewMode === "trajectory"
-                        ? "bg-white text-[#1c1917] shadow-2xs font-semibold"
-                        : "text-[#78716c] hover:text-[#1c1917]"
-                    }`}
-                  >
-                    轨迹
-                  </button>
-                </div>
-              </div>
-
-              {/* Right Controls in Main Header */}
-              <div className="flex items-center">
-                {!rightPanelOpen && (
-                  <div className="pr-8">
-                    <WindowControls
-                      isMaximized={isMaximized}
-                      onToggleMaximize={() => setIsMaximized(!isMaximized)}
-                    />
-                  </div>
-                )}
-              </div>
-            </header>
-
             {/* ========================================================================= */}
-            {/* TOP-RIGHT FLOATING ENVIRONMENT INFORMATION PANEL / APPLE ASSISTIVETOUCH */}
+            {/* FLOATING ENVIRONMENT PANEL / APPLE ASSISTIVETOUCH (Anchored to right edge) */}
             {/* ========================================================================= */}
             <div
               ref={envPanelRef}
+              onMouseEnter={handleEnvPanelMouseEnter}
+              onMouseLeave={handleEnvPanelMouseLeave}
               className="absolute top-[48px] right-4 z-40 select-none"
             >
               {/* Collapsed State: Apple iPhone AssistiveTouch Floating Button */}
@@ -3085,11 +3732,10 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => {
-                      setIsEnvPanelOpen(true)
-
+                      setManualOpenState("pinned")
                       setEnvDropdown("none")
                     }}
-                    title="环境信息 (点击展开)"
+                    title="环境信息 (悬停预览，点击展开)"
                     className="w-12 h-12 rounded-[18px] bg-gradient-to-b from-white/95 via-white/90 to-[#f6f5f0]/90 hover:from-white hover:to-[#fcfbfa] active:scale-95 text-[#292524] backdrop-blur-2xl border border-white/90 shadow-[0_12px_28px_-4px_rgba(0,0,0,0.1),0_4px_12px_-2px_rgba(0,0,0,0.05),inset_0_1px_1px_rgba(255,255,255,1)] flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 ring-1 ring-[#e5e2da]/70 select-none"
                   >
                     {/* Authentic Apple AssistiveTouch Geometric Vector Glyph */}
@@ -3152,594 +3798,12 @@ export default function App() {
                   </div>
                 </div>
               ) : (
-                /* Expanded State: Environment Information Floating Card matching screenshot */
-
-                <div className="w-[275px] bg-white/95 backdrop-blur-xl rounded-2xl border border-[#e7e5e4] shadow-[0_16px_40px_rgba(0,0,0,0.14)] p-3 text-[#292524] animate-in fade-in zoom-in-95 duration-200 space-y-1.5">
-                  {/* Card Header: 环境信息 + Quick Actions (+) + Collapse / AssistiveTouch Icon */}
-                  <div className="flex items-center justify-between px-1 pb-1 border-b border-[#f0eee6]">
-                    <div className="flex items-center space-x-1.5">
-                      <span className="text-[13px] font-semibold text-[#44403c] tracking-tight">
-                        环境信息
-                      </span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      {/* Plus Quick Actions Button */}
-                      <div className="relative">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setEnvDropdown(
-                              envDropdown === "plus" ? "none" : "plus",
-                            )
-                          }
-                          title="快捷操作"
-                          className={`w-6 h-6 rounded-md flex items-center justify-center text-[#78716c] hover:text-[#1c1917] hover:bg-[#f5f5f4] transition-colors cursor-pointer ${
-                            envDropdown === "plus"
-                              ? "bg-[#f5f5f4] text-[#1c1917]"
-                              : ""
-                          }`}
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-
-                        {/* Plus Dropdown Menu */}
-                        {envDropdown === "plus" && (
-                          <div className="absolute right-0 top-7 w-48 bg-white border border-[#e7e5e4] rounded-xl shadow-xl py-1.5 z-50 text-[12px] space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setShowNewBranchInput(true)
-
-                                setEnvDropdown("branch")
-                              }}
-                              className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
-                            >
-                              <GitBranch className="w-3.5 h-3.5" />
-                              <span>新建 Git 分支</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setEnvDropdown("none")
-
-                                handleBrowseNativeDirectory("changeWorkspace")
-                              }}
-                              className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
-                            >
-                              <FolderOpen className="w-3.5 h-3.5" />
-                              <span>浏览本地目录</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setEnvDropdown("none")
-
-                                showEnvToastMessage(
-                                  "已重新扫描工作空间 (142 文件就绪)",
-                                )
-                              }}
-                              className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
-                            >
-                              <RefreshCw className="w-3.5 h-3.5" />
-                              <span>重新扫描工作空间</span>
-                            </button>
-                            <div className="my-1 border-t border-[#f0eee6]" />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setEnvDropdown("none")
-
-                                setShowSettingsModal(true)
-
-                                setActiveSettingsTab("workspace")
-                              }}
-                              className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
-                            >
-                              <Settings className="w-3.5 h-3.5" />
-                              <span>工作空间偏好设置</span>
-                            </button>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Collapse Button (Apple AssistiveTouch Miniature Icon) */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsEnvPanelOpen(false)
-
-                          setEnvDropdown("none")
-                        }}
-                        title="收起为 AssistiveTouch 悬浮按钮"
-                        className="w-6 h-6 rounded-lg flex items-center justify-center text-[#78716c] hover:text-[#c86a28] hover:bg-[#fef8f4] transition-colors cursor-pointer group/min"
-                      >
-                        <svg
-                          className="w-4 h-4 text-[#78716c] group-hover/min:text-[#c86a28] transition-colors"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <circle
-                            cx="8"
-                            cy="8"
-                            r="6.8"
-                            stroke="currentColor"
-                            strokeOpacity="0.25"
-                            strokeWidth="1"
-                          />
-                          <circle
-                            cx="8"
-                            cy="8"
-                            r="4.2"
-                            stroke="currentColor"
-                            strokeOpacity="0.65"
-                            strokeWidth="1.2"
-                          />
-                          <circle
-                            cx="8"
-                            cy="8"
-                            r="1.8"
-                            fill="currentColor"
-                            fillOpacity="0.9"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Main 5 Rows List */}
-                  <div className="space-y-0.5 text-[12.5px]">
-                    {/* Row 1: 变更 (Diff / Changes) */}
-                    <div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setEnvDropdown(
-                            envDropdown === "changes" ? "none" : "changes",
-                          )
-                        }
-                        className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#1c1917] transition-colors cursor-pointer"
-                      >
-                        <div className="flex items-center space-x-2.5">
-                          {/* Diff square icon with +/- */}
-                          <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#57534e]">
-                            <svg
-                              className="w-4 h-4"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <rect
-                                x="2"
-                                y="2"
-                                width="12"
-                                height="12"
-                                rx="2.5"
-                                stroke="currentColor"
-                                strokeWidth="1.3"
-                              />
-                              <path
-                                d="M8 5V9M6 7H10M6 11H10"
-                                stroke="currentColor"
-                                strokeWidth="1.3"
-                                strokeLinecap="round"
-                              />
-                            </svg>
-                          </div>
-                          <span className="font-medium">变更</span>
-                        </div>
-                        <span className="text-[10.5px] font-mono text-[#78716c] bg-[#f5f5f4] px-1.5 py-0.2 rounded border border-[#e7e5e4]">
-                          {envModifiedFiles.length} 个文件
-                        </span>
-                      </button>
-
-                      {/* Changes Dropdown */}
-                      {envDropdown === "changes" && (
-                        <div className="mt-1 p-2 bg-[#fafaf9] rounded-xl border border-[#e7e5e4] text-[11.5px] space-y-1.5 animate-in fade-in duration-150">
-                          <div className="flex items-center justify-between text-[10.5px] text-[#a8a29e] px-1">
-                            <span>未提交的改动</span>
-                            <span className="text-emerald-600 font-mono">
-                              +146 -9
-                            </span>
-                          </div>
-                          <div className="space-y-1 max-h-32 overflow-y-auto custom-scrollbar">
-                            {envModifiedFiles.map((file, idx) => (
-                              <div
-                                key={idx}
-                                onClick={() => {
-                                  if (file.name.includes(".py"))
-                                    setSelectedFile("transcribe.py")
-                                  else if (file.name.includes(".yaml"))
-                                    setSelectedFile("config.yaml")
-                                  else setSelectedFile("output.srt")
-
-                                  setActiveTab("code")
-
-                                  if (!rightPanelOpen) setRightPanelOpen(true)
-                                }}
-                                className="flex items-center justify-between px-2 py-1 rounded bg-white hover:bg-[#fef8f4] border border-[#ebdcd0]/60 text-[#44403c] cursor-pointer transition-colors"
-                              >
-                                <span className="font-mono truncate max-w-[140px] text-[11px]">
-                                  {file.name}
-                                </span>
-                                <div className="flex items-center space-x-1 font-mono text-[9.5px]">
-                                  <span className="text-emerald-600">
-                                    +{file.additions}
-                                  </span>
-                                  <span className="text-rose-500">
-                                    -{file.deletions}
-                                  </span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Row 2: 本地 (Local Environment / Workspace) */}
-                    <div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setEnvDropdown(
-                            envDropdown === "local" ? "none" : "local",
-                          )
-                        }
-                        className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#1c1917] transition-colors cursor-pointer"
-                      >
-                        <div className="flex items-center space-x-2.5 min-w-0">
-                          <Laptop className="w-4 h-4 text-[#57534e] flex-shrink-0" />
-                          <span className="font-medium">本地</span>
-                          <span className="text-[11px] text-[#78716c] font-normal truncate max-w-[100px]">
-                            ({activeWorkspace.name})
-                          </span>
-                        </div>
-                        <ChevronDown
-                          className={`w-3.5 h-3.5 text-[#a8a29e] transition-transform ${
-                            envDropdown === "local" ? "rotate-180" : ""
-                          }`}
-                        />
-                      </button>
-
-                      {/* Local Workspace Dropdown */}
-                      {envDropdown === "local" && (
-                        <div className="mt-1 p-1.5 bg-[#fafaf9] rounded-xl border border-[#e7e5e4] text-[11.5px] space-y-1 animate-in fade-in duration-150">
-                          <div className="text-[10px] font-medium text-[#a8a29e] px-1.5 py-0.5">
-                            切换工作空间项目
-                          </div>
-                          <div className="space-y-0.5 max-h-32 overflow-y-auto custom-scrollbar">
-                            {treeData
-                              .flatMap((g) => g.projects)
-                              .map((p) => (
-                                <button
-                                  key={p.id}
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveWorkspace({
-                                      group:
-                                        treeData.find((g) =>
-                                          g.projects.some(
-                                            (proj) => proj.id === p.id,
-                                          ),
-                                        )?.name || "默认",
-
-                                      name: p.name,
-
-                                      path: p.workspacePath,
-
-                                      shortPath: p.shortPath,
-
-                                      branch: "main",
-
-                                      indexedFiles: 142,
-
-                                      totalTokens: "84.2k",
-                                    })
-
-                                    showEnvToastMessage(
-                                      `已切换至工作空间: ${p.name}`,
-                                    )
-
-                                    setEnvDropdown("none")
-                                  }}
-                                  className={`w-full flex items-center justify-between px-2 py-1 rounded-lg text-left transition-colors cursor-pointer ${
-                                    activeWorkspace.name === p.name
-                                      ? "bg-[#fef8f4] text-[#c86a28] font-medium border border-[#f5d9c3]"
-                                      : "hover:bg-white text-[#44403c]"
-                                  }`}
-                                >
-                                  <span className="truncate">{p.name}</span>
-                                  {activeWorkspace.name === p.name && (
-                                    <Check className="w-3 h-3 text-[#c86a28]" />
-                                  )}
-                                </button>
-                              ))}
-                          </div>
-                          <div className="border-t border-[#e7e5e4] my-1" />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEnvDropdown("none")
-
-                              setChangeWorkspacePathInput(activeWorkspace.path)
-
-                              setShowChangeWorkspaceModal(true)
-                            }}
-                            className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-lg text-[10.5px] text-[#c86a28] hover:bg-[#fef8f4] font-medium transition-colors cursor-pointer"
-                          >
-                            <FolderOpen className="w-3 h-3 text-[#c86a28]" />
-                            <span>更换物理目录...</span>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Row 3: main (Git Branch) */}
-                    <div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setEnvDropdown(
-                            envDropdown === "branch" ? "none" : "branch",
-                          )
-                        }
-                        className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#1c1917] transition-colors cursor-pointer"
-                      >
-                        <div className="flex items-center space-x-2.5 min-w-0">
-                          <GitBranch className="w-4 h-4 text-[#57534e] flex-shrink-0" />
-                          <span className="font-mono font-medium text-[12.5px]">
-                            {activeWorkspace.branch}
-                          </span>
-                        </div>
-                        <ChevronDown
-                          className={`w-3.5 h-3.5 text-[#a8a29e] transition-transform ${
-                            envDropdown === "branch" ? "rotate-180" : ""
-                          }`}
-                        />
-                      </button>
-
-                      {/* Git Branch Dropdown */}
-                      {envDropdown === "branch" && (
-                        <div className="mt-1 p-1.5 bg-[#fafaf9] rounded-xl border border-[#e7e5e4] text-[11.5px] space-y-1 animate-in fade-in duration-150">
-                          <div className="text-[10px] font-medium text-[#a8a29e] px-1.5 py-0.5">
-                            Git 分支列表
-                          </div>
-                          <div className="space-y-0.5">
-                            {gitBranches.map((br) => (
-                              <button
-                                key={br}
-                                type="button"
-                                onClick={() => {
-                                  setActiveWorkspace((prev) => ({
-                                    ...prev,
-                                    branch: br,
-                                  }))
-
-                                  showEnvToastMessage(`已切换至分支: ${br}`)
-
-                                  setEnvDropdown("none")
-                                }}
-                                className={`w-full flex items-center justify-between px-2 py-1 rounded-lg text-left font-mono text-[11.5px] transition-colors cursor-pointer ${
-                                  activeWorkspace.branch === br
-                                    ? "bg-[#fef8f4] text-[#c86a28] font-medium border border-[#f5d9c3]"
-                                    : "hover:bg-white text-[#44403c]"
-                                }`}
-                              >
-                                <span>{br}</span>
-                                {activeWorkspace.branch === br && (
-                                  <Check className="w-3 h-3 text-[#c86a28]" />
-                                )}
-                              </button>
-                            ))}
-                          </div>
-
-                          {/* Create new branch input */}
-                          {showNewBranchInput ? (
-                            <div className="pt-1 flex items-center space-x-1">
-                              <input
-                                type="text"
-                                value={newBranchInput}
-                                onChange={(e) =>
-                                  setNewBranchInput(e.target.value)
-                                }
-                                placeholder="新分支名称..."
-                                autoFocus
-                                onKeyDown={(e) => {
-                                  if (
-                                    e.key === "Enter" &&
-                                    newBranchInput.trim()
-                                  ) {
-                                    const newBr = newBranchInput.trim()
-
-                                    setGitBranches((prev) => [...prev, newBr])
-
-                                    setActiveWorkspace((prev) => ({
-                                      ...prev,
-                                      branch: newBr,
-                                    }))
-
-                                    setNewBranchInput("")
-
-                                    setShowNewBranchInput(false)
-
-                                    setEnvDropdown("none")
-
-                                    showEnvToastMessage(
-                                      `已创建并切换至新分支: ${newBr}`,
-                                    )
-                                  }
-                                }}
-                                className="flex-1 px-1.5 py-0.5 text-[11px] font-mono bg-white border border-[#c86a28] rounded-md focus:outline-none"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (newBranchInput.trim()) {
-                                    const newBr = newBranchInput.trim()
-
-                                    setGitBranches((prev) => [...prev, newBr])
-
-                                    setActiveWorkspace((prev) => ({
-                                      ...prev,
-                                      branch: newBr,
-                                    }))
-
-                                    setNewBranchInput("")
-
-                                    setShowNewBranchInput(false)
-
-                                    setEnvDropdown("none")
-
-                                    showEnvToastMessage(
-                                      `已创建并切换至新分支: ${newBr}`,
-                                    )
-                                  }
-                                }}
-                                className="px-2 py-0.5 bg-[#c86a28] text-white text-[11px] rounded-md hover:bg-[#b45309] cursor-pointer"
-                              >
-                                创建
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => setShowNewBranchInput(true)}
-                              className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-lg text-[10.5px] text-[#c86a28] hover:bg-[#fef8f4] font-medium transition-colors cursor-pointer"
-                            >
-                              <Plus className="w-3 h-3 text-[#c86a28]" />
-                              <span>新建分支...</span>
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Row 4: 提交或推送 (Commit or Push) */}
-                    <div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          showEnvToastMessage(
-                            "已提交更改并推送到 origin/" +
-                              activeWorkspace.branch,
-                          )
-                        }}
-                        className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#57534e] hover:text-[#1c1917] transition-colors cursor-pointer group"
-                      >
-                        <div className="flex items-center space-x-2.5">
-                          {/* Git commit node icon -o- */}
-                          <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#57534e]">
-                            <svg
-                              className="w-4 h-4"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M2 8H6M10 8H14"
-                                stroke="currentColor"
-                                strokeWidth="1.3"
-                                strokeLinecap="round"
-                              />
-                              <circle
-                                cx="8"
-                                cy="8"
-                                r="2.2"
-                                stroke="currentColor"
-                                strokeWidth="1.3"
-                              />
-                            </svg>
-                          </div>
-                          <span className="font-medium text-[12.5px]">
-                            提交或推送
-                          </span>
-                        </div>
-                        <span className="text-[10.5px] text-[#78716c] group-hover:text-[#c86a28] font-medium transition-colors">
-                          推送 (0↑)
-                        </span>
-                      </button>
-                    </div>
-
-                    {/* Row 5: 无法获取拉取请求状态 (PR Status) */}
-                    <div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          showEnvToastMessage(
-                            "PR 状态: 未检测到关联的 GitHub Pull Request",
-                          )
-                        }}
-                        className="w-full flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#78716c] hover:text-[#57534e] transition-colors cursor-pointer text-left"
-                      >
-                        {/* GitHub Cat Icon */}
-                        <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#57534e] flex-shrink-0">
-                          <svg
-                            className="w-4 h-4"
-                            viewBox="0 0 16 16"
-                            fill="currentColor"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              clipRule="evenodd"
-                              d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.09 10 14.96 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z"
-                            />
-                          </svg>
-                        </div>
-                        <span className="text-[11.5px] truncate">
-                          无法获取拉取请求状态
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Card Footer: Path & Index Status */}
-                  <div className="pt-2 border-t border-[#f0eee6] space-y-1.5 text-[11px] text-[#78716c]">
-                    <div className="flex items-center justify-between px-1">
-                      <span
-                        onClick={() => {
-                          navigator.clipboard.writeText(activeWorkspace.path)
-
-                          showEnvToastMessage("已复制工作空间完整路径")
-                        }}
-                        title={`点击复制: ${activeWorkspace.path}`}
-                        className="font-mono text-[10px] text-[#78716c] hover:text-[#c86a28] bg-[#f5f5f4] hover:bg-[#fef8f4] px-1.5 py-0.2 rounded border border-[#e7e5e4] truncate max-w-[170px] cursor-pointer transition-colors"
-                      >
-                        {activeWorkspace.shortPath}
-                      </span>
-                      <div className="flex items-center space-x-1 text-[10px] text-[#78716c]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        <span>{activeWorkspace.indexedFiles} 文件就绪</span>
-                      </div>
-                    </div>
-
-                    {/* Change Directory / Locked Indicator */}
-                    {messages.length === 0 ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setChangeWorkspacePathInput(activeWorkspace.path)
-
-                          setShowChangeWorkspaceModal(true)
-                        }}
-                        className="w-full flex items-center justify-center space-x-1 px-2 py-1 rounded-lg bg-[#fef8f4] hover:bg-[#fcf2ea] border border-[#f5d9c3] text-[#c86a28] text-[10.5px] font-medium transition-colors cursor-pointer"
-                      >
-                        <FolderOpen className="w-3 h-3 text-[#c86a28]" />
-                        <span>更换工作空间目录</span>
-                      </button>
-                    ) : (
-                      <div className="flex items-center justify-center space-x-1 px-2 py-0.5 rounded-md bg-[#f5f5f4] text-[#a8a29e] text-[9.5px]">
-                        <Lock className="w-2.5 h-2.5" />
-                        <span>当前会话工作空间已锁定</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                /* Expanded Overlay Card */
+                renderEnvCard()
               )}
 
-              {/* Floating Toast Notification */}
-              {envToast && (
+              {/* Floating Toast Notification (when collapsed) */}
+              {!isEnvPanelOpen && envToast && (
                 <div className="absolute right-0 top-full mt-2 whitespace-nowrap bg-white text-[#292524] text-[11.5px] font-medium px-3 py-1.5 rounded-xl shadow-xl border border-[#e7e5e4] z-50 animate-in fade-in slide-in-from-top-1 duration-150 flex items-center space-x-1.5">
                   <Check className="w-3.5 h-3.5 text-emerald-500" />
                   <span>{envToast}</span>
@@ -3749,564 +3813,567 @@ export default function App() {
 
             {mainViewMode === "chat" ? (
               messages.length === 0 ? (
-                <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-center justify-center p-6 text-center select-none animate-in fade-in duration-300 max-w-[900px] mx-auto w-full">
-                  {/* 1. Tokmon Brand SVG Logo (matching top-left logo) */}
-                  <div className="relative mb-5 group cursor-pointer">
-                    <div className="w-16 h-16 rounded-3xl bg-gradient-to-b from-[#fef8f4] to-[#fbf1e7] border border-[#f5d9c3] shadow-xs flex items-center justify-center group-hover:scale-105 group-hover:shadow-md transition-all duration-300">
-                      <TokmonLogo size={36} />
+                <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6 custom-scrollbar flex items-center justify-center">
+                  <div className="w-full max-w-[840px] mx-auto flex flex-col items-center justify-center text-center select-none animate-in fade-in duration-300">
+                      {/* 1. Tokmon Brand SVG Logo (matching top-left logo) */}
+                      <div className="relative mb-5 group cursor-pointer">
+                        <div className="w-16 h-16 rounded-3xl bg-gradient-to-b from-[#fef8f4] to-[#fbf1e7] border border-[#f5d9c3] shadow-xs flex items-center justify-center group-hover:scale-105 group-hover:shadow-md transition-all duration-300">
+                          <TokmonLogo size={36} />
+                        </div>
+                        {/* Subtle breathing ring */}
+                        <div className="absolute -inset-1 bg-[#c86a28]/10 rounded-[26px] -z-10 blur-xs group-hover:bg-[#c86a28]/20 transition-colors" />
+                      </div>
+
+                      {/* 2. Main Question Heading */}
+                      <div className="space-y-2 mb-8 max-w-[680px]">
+                        <h2 className="text-[23px] sm:text-[25px] font-semibold text-[#1c1917] tracking-tight leading-snug">
+                          你想让我们在{" "}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setChangeWorkspacePathInput(activeWorkspace.path)
+
+                              setShowChangeWorkspaceModal(true)
+                            }}
+                            title="点击切换或更换工作空间目录"
+                            className="inline-flex items-center font-semibold text-[#1c1917] hover:text-[#c86a28] border-b-2 border-dashed border-[#a8a29e] hover:border-[#c86a28] pb-0.5 transition-colors cursor-pointer"
+                          >
+                            <span>{activeWorkspace.name}</span>
+                          </button>{" "}
+                          中构建什么？
+                        </h2>
+                        <p className="text-[13px] text-[#78716c]">
+                          智能体已就绪，当前关联工作空间{" "}
+                          <span className="font-mono text-[#c86a28] font-medium bg-[#fef8f4] px-1.5 py-0.5 rounded border border-[#f5d9c3]">
+                            {activeWorkspace.shortPath}
+                          </span>
+                        </p>
+                      </div>
+
+                      {/* 3. Four Action / Quick Starter Cards */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 w-full text-left">
+                        {/* Card 1: 探索并理解代码 */}
+                        <div
+                          onClick={() => {
+                            setInputMessage(
+                              `请全面分析并梳理当前工作空间（${activeWorkspace.name}）的代码架构、模块依赖与核心实现逻辑。`,
+                            )
+
+                            if (textareaRef.current) {
+                              textareaRef.current.focus()
+                            }
+                          }}
+                          className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-sky-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                        >
+                          <div className="w-8 h-8 rounded-xl bg-sky-50 flex items-center justify-center text-sky-500 group-hover:scale-110 group-hover:bg-sky-100 transition-all">
+                            {/* Custom Telescope / Code Explorer SVG */}
+                            <svg
+                              className="w-4.5 h-4.5"
+                              viewBox="0 0 20 20"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M16.5 3.5L11 9M11 9L8 6L13.5 0.5L16.5 3.5ZM11 9L6.5 13.5M6.5 13.5L3.5 10.5L8 6L11 9ZM6.5 13.5L2 18"
+                                stroke="currentColor"
+                                strokeWidth="1.6"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <circle cx="2" cy="18" r="1" fill="currentColor" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-sky-600 transition-colors leading-snug">
+                              探索并理解代码
+                            </h4>
+                            <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">
+                              梳理架构、依赖与核心逻辑
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Card 2: 构建新功能或应用 */}
+                        <div
+                          onClick={() => {
+                            setInputMessage(
+                              `我想为当前工作空间（${activeWorkspace.name}）构建一个新功能，请帮我规划设计方案并编写实现代码。`,
+                            )
+
+                            if (textareaRef.current) {
+                              textareaRef.current.focus()
+                            }
+                          }}
+                          className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-purple-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                        >
+                          <div className="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center text-purple-500 group-hover:scale-110 group-hover:bg-purple-100 transition-all">
+                            {/* Custom Builder / Hammer SVG */}
+                            <svg
+                              className="w-4.5 h-4.5"
+                              viewBox="0 0 20 20"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M14 2L18 6L15 9L11 5L14 2Z"
+                                stroke="currentColor"
+                                strokeWidth="1.6"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M12 6L4 14L2 18L6 16L14 8"
+                                stroke="currentColor"
+                                strokeWidth="1.6"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                          <div>
+                            <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-purple-600 transition-colors leading-snug">
+                              构建新功能或应用
+                            </h4>
+                            <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">
+                              规划方案并编写实现代码
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Card 3: 审查代码并提出修改建议 */}
+                        <div
+                          onClick={() => {
+                            setInputMessage(
+                              `请对当前项目代码进行全面审查，指出潜在质量风险、规范问题并提出优化重构建议。`,
+                            )
+
+                            if (textareaRef.current) {
+                              textareaRef.current.focus()
+                            }
+                          }}
+                          className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-emerald-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                        >
+                          <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500 group-hover:scale-110 group-hover:bg-emerald-100 transition-all">
+                            {/* Custom Code Audit / Checkmark Refresh SVG */}
+                            <svg
+                              className="w-4.5 h-4.5"
+                              viewBox="0 0 20 20"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10C17 13.866 13.866 17 10 17"
+                                stroke="currentColor"
+                                strokeWidth="1.6"
+                                strokeLinecap="round"
+                              />
+                              <path
+                                d="M3 6V10H7"
+                                stroke="currentColor"
+                                strokeWidth="1.6"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M8 10.5L10 12.5L14.5 8"
+                                stroke="currentColor"
+                                strokeWidth="1.6"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                          <div>
+                            <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-emerald-600 transition-colors leading-snug">
+                              审查代码并提建议
+                            </h4>
+                            <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">
+                              排查隐患与提升代码规范
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Card 4: 修复问题和失败 */}
+                        <div
+                          onClick={() => {
+                            setInputMessage(
+                              `请帮我诊断当前工作空间中的报错和运行异常，定位原因并提供修复补丁。`,
+                            )
+
+                            if (textareaRef.current) {
+                              textareaRef.current.focus()
+                            }
+                          }}
+                          className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-orange-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                        >
+                          <div className="w-8 h-8 rounded-xl bg-orange-50 flex items-center justify-center text-[#c86a28] group-hover:scale-110 group-hover:bg-orange-100 transition-all">
+                            {/* Custom Bug / Diagnostic SVG */}
+                            <svg
+                              className="w-4.5 h-4.5"
+                              viewBox="0 0 20 20"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <circle
+                                cx="10"
+                                cy="11"
+                                r="5"
+                                stroke="currentColor"
+                                strokeWidth="1.6"
+                              />
+                              <path
+                                d="M10 6V4M10 6C11.5 6 12 4.5 12 4.5M10 6C8.5 6 8 4.5 8 4.5"
+                                stroke="currentColor"
+                                strokeWidth="1.4"
+                                strokeLinecap="round"
+                              />
+                              <path
+                                d="M5 11H2M18 11H15M5.5 8L3 6.5M14.5 8L17 6.5M5.5 14L3 15.5M14.5 14L17 15.5"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                              />
+                              <path
+                                d="M10 9V13"
+                                stroke="currentColor"
+                                strokeWidth="1.6"
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                          </div>
+                          <div>
+                            <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-[#c86a28] transition-colors leading-snug">
+                              修复问题和失败
+                            </h4>
+                            <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">
+                              诊断报错堆栈并修复异常
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    {/* Subtle breathing ring */}
-                    <div className="absolute -inset-1 bg-[#c86a28]/10 rounded-[26px] -z-10 blur-xs group-hover:bg-[#c86a28]/20 transition-colors" />
                   </div>
-
-                  {/* 2. Main Question Heading */}
-                  <div className="space-y-2 mb-8 max-w-[680px]">
-                    <h2 className="text-[23px] sm:text-[25px] font-semibold text-[#1c1917] tracking-tight leading-snug">
-                      你想让我们在{" "}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setChangeWorkspacePathInput(activeWorkspace.path)
-
-                          setShowChangeWorkspaceModal(true)
-                        }}
-                        title="点击切换或更换工作空间目录"
-                        className="inline-flex items-center font-semibold text-[#1c1917] hover:text-[#c86a28] border-b-2 border-dashed border-[#a8a29e] hover:border-[#c86a28] pb-0.5 transition-colors cursor-pointer"
-                      >
-                        <span>{activeWorkspace.name}</span>
-                      </button>{" "}
-                      中构建什么？
-                    </h2>
-                    <p className="text-[13px] text-[#78716c]">
-                      智能体已就绪，当前关联工作空间{" "}
-                      <span className="font-mono text-[#c86a28] font-medium bg-[#fef8f4] px-1.5 py-0.5 rounded border border-[#f5d9c3]">
-                        {activeWorkspace.shortPath}
-                      </span>
-                    </p>
-                  </div>
-
-                  {/* 3. Four Action / Quick Starter Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 w-full max-w-[840px] px-2 text-left">
-                    {/* Card 1: 探索并理解代码 */}
-                    <div
-                      onClick={() => {
-                        setInputMessage(
-                          `请全面分析并梳理当前工作空间（${activeWorkspace.name}）的代码架构、模块依赖与核心实现逻辑。`,
-                        )
-
-                        if (textareaRef.current) {
-                          textareaRef.current.focus()
-                        }
-                      }}
-                      className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-sky-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
-                    >
-                      <div className="w-8 h-8 rounded-xl bg-sky-50 flex items-center justify-center text-sky-500 group-hover:scale-110 group-hover:bg-sky-100 transition-all">
-                        {/* Custom Telescope / Code Explorer SVG */}
-                        <svg
-                          className="w-4.5 h-4.5"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M16.5 3.5L11 9M11 9L8 6L13.5 0.5L16.5 3.5ZM11 9L6.5 13.5M6.5 13.5L3.5 10.5L8 6L11 9ZM6.5 13.5L2 18"
-                            stroke="currentColor"
-                            strokeWidth="1.6"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <circle cx="2" cy="18" r="1" fill="currentColor" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-sky-600 transition-colors leading-snug">
-                          探索并理解代码
-                        </h4>
-                        <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">
-                          梳理架构、依赖与核心逻辑
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Card 2: 构建新功能或应用 */}
-                    <div
-                      onClick={() => {
-                        setInputMessage(
-                          `我想为当前工作空间（${activeWorkspace.name}）构建一个新功能，请帮我规划设计方案并编写实现代码。`,
-                        )
-
-                        if (textareaRef.current) {
-                          textareaRef.current.focus()
-                        }
-                      }}
-                      className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-purple-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
-                    >
-                      <div className="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center text-purple-500 group-hover:scale-110 group-hover:bg-purple-100 transition-all">
-                        {/* Custom Builder / Hammer SVG */}
-                        <svg
-                          className="w-4.5 h-4.5"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M14 2L18 6L15 9L11 5L14 2Z"
-                            stroke="currentColor"
-                            strokeWidth="1.6"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M12 6L4 14L2 18L6 16L14 8"
-                            stroke="currentColor"
-                            strokeWidth="1.6"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-purple-600 transition-colors leading-snug">
-                          构建新功能或应用
-                        </h4>
-                        <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">
-                          规划方案并编写实现代码
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Card 3: 审查代码并提出修改建议 */}
-                    <div
-                      onClick={() => {
-                        setInputMessage(
-                          `请对当前项目代码进行全面审查，指出潜在质量风险、规范问题并提出优化重构建议。`,
-                        )
-
-                        if (textareaRef.current) {
-                          textareaRef.current.focus()
-                        }
-                      }}
-                      className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-emerald-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
-                    >
-                      <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500 group-hover:scale-110 group-hover:bg-emerald-100 transition-all">
-                        {/* Custom Code Audit / Checkmark Refresh SVG */}
-                        <svg
-                          className="w-4.5 h-4.5"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10C17 13.866 13.866 17 10 17"
-                            stroke="currentColor"
-                            strokeWidth="1.6"
-                            strokeLinecap="round"
-                          />
-                          <path
-                            d="M3 6V10H7"
-                            stroke="currentColor"
-                            strokeWidth="1.6"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                          <path
-                            d="M8 10.5L10 12.5L14.5 8"
-                            stroke="currentColor"
-                            strokeWidth="1.6"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-emerald-600 transition-colors leading-snug">
-                          审查代码并提建议
-                        </h4>
-                        <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">
-                          排查隐患与提升代码规范
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Card 4: 修复问题和失败 */}
-                    <div
-                      onClick={() => {
-                        setInputMessage(
-                          `请帮我诊断当前工作空间中的报错和运行异常，定位原因并提供修复补丁。`,
-                        )
-
-                        if (textareaRef.current) {
-                          textareaRef.current.focus()
-                        }
-                      }}
-                      className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-orange-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
-                    >
-                      <div className="w-8 h-8 rounded-xl bg-orange-50 flex items-center justify-center text-[#c86a28] group-hover:scale-110 group-hover:bg-orange-100 transition-all">
-                        {/* Custom Bug / Diagnostic SVG */}
-                        <svg
-                          className="w-4.5 h-4.5"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <circle
-                            cx="10"
-                            cy="11"
-                            r="5"
-                            stroke="currentColor"
-                            strokeWidth="1.6"
-                          />
-                          <path
-                            d="M10 6V4M10 6C11.5 6 12 4.5 12 4.5M10 6C8.5 6 8 4.5 8 4.5"
-                            stroke="currentColor"
-                            strokeWidth="1.4"
-                            strokeLinecap="round"
-                          />
-                          <path
-                            d="M5 11H2M18 11H15M5.5 8L3 6.5M14.5 8L17 6.5M5.5 14L3 15.5M14.5 14L17 15.5"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                          />
-                          <path
-                            d="M10 9V13"
-                            stroke="currentColor"
-                            strokeWidth="1.6"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-[#c86a28] transition-colors leading-snug">
-                          修复问题和失败
-                        </h4>
-                        <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">
-                          诊断报错堆栈并修复异常
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               ) : (
                 /* Chat Messages & Execution Scroll Panel */
-
                 <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-6 custom-scrollbar pb-6">
-                  {/* Timestamp tag */}
-                  <div className="text-center">
-                    <span className="text-[11.5px] text-[#a8a29e] font-medium">
-                      10:20
-                    </span>
-                  </div>
+                  <div className="w-full max-w-[760px] mx-auto space-y-6">
+                    {/* Timestamp tag */}
+                    <div className="text-center">
+                      <span className="text-[11.5px] text-[#a8a29e] font-medium">
+                        10:20
+                      </span>
+                    </div>
 
-                  {/* Render Chat Messages */}
-                  {messages.map((msg) => (
-                    <div key={msg.id}>
-                      {msg.sender === "user" ? (
-                        <div className="flex justify-end">
-                          <div className="max-w-[620px] bg-[#fcf8f3] border border-[#ebdcd0]/70 rounded-[22px] rounded-br-[6px] p-3.5 sm:p-4 text-[13px] text-[#292524] leading-relaxed shadow-2xs">
-                            <p className="font-medium text-[#1c1917] mb-1">
-                              {msg.text}
-                            </p>
-                            {msg.details && (
-                              <div className="font-mono text-[12px] text-[#57534e] space-y-0.5 bg-[#f7efe5]/60 p-2.5 rounded-xl border border-[#ebdcd0]/60 mt-1.5">
-                                <p>
-                                  <span className="text-[#a8a29e]">
-                                    模型路径:
-                                  </span>{" "}
-                                  {msg.details.modelPath}
+                    {/* Render Chat Messages */}
+                    {messages.map((msg) => (
+                        <div key={msg.id}>
+                          {msg.sender === "user" ? (
+                            <div className="flex justify-end">
+                              <div className="max-w-[620px] bg-[#fcf8f3] border border-[#ebdcd0]/70 rounded-[22px] rounded-br-[6px] p-3.5 sm:p-4 text-[13px] text-[#292524] leading-relaxed shadow-2xs">
+                                <p className="font-medium text-[#1c1917] mb-1">
+                                  {msg.text}
                                 </p>
-                                <p>
-                                  <span className="text-[#a8a29e]">
-                                    音频文件:
-                                  </span>{" "}
-                                  {msg.details.audioFile}
-                                </p>
-                                <p>
-                                  <span className="text-[#a8a29e]">
-                                    输出字幕文件:
-                                  </span>{" "}
-                                  {msg.details.outputFile}
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-3 max-w-full">
-                          {/* Thought Process (Chain of Thought Reasoning) Card */}
-                          {(msg.thought || msg.isThinking) && (
-                            <ThoughtProcessCard
-                              content={msg.thought || ""}
-                              isThinking={msg.isThinking}
-                              thinkingSeconds={thinkingSeconds}
-                              defaultExpanded={true}
-                            />
-                          )}
-
-                          {/* Message Text or Animated Typing Indicator (Matches Screenshot Box 2) */}
-                          {msg.text ? (
-                            <div className="text-[13.5px] text-[#292524] leading-relaxed whitespace-pre-line">
-                              {msg.text}
-                              {isGenerating &&
-                                msg.id === messages[messages.length - 1]?.id &&
-                                generationPhase === "streaming" && (
-                                  <span className="inline-block w-1.5 h-4 ml-0.5 bg-[#c86a28] animate-pulse align-middle" />
+                                {msg.details && (
+                                  <div className="font-mono text-[12px] text-[#57534e] space-y-0.5 bg-[#f7efe5]/60 p-2.5 rounded-xl border border-[#ebdcd0]/60 mt-1.5">
+                                    <p>
+                                      <span className="text-[#a8a29e]">
+                                        模型路径:
+                                      </span>{" "}
+                                      {msg.details.modelPath}
+                                    </p>
+                                    <p>
+                                      <span className="text-[#a8a29e]">
+                                        音频文件:
+                                      </span>{" "}
+                                      {msg.details.audioFile}
+                                    </p>
+                                    <p>
+                                      <span className="text-[#a8a29e]">
+                                        输出字幕文件:
+                                      </span>{" "}
+                                      {msg.details.outputFile}
+                                    </p>
+                                  </div>
                                 )}
+                              </div>
                             </div>
                           ) : (
-                            /* Red Box 2 in Screenshot: Animated Loading Typing Bubble */
-                            isGenerating &&
-                            msg.id === messages[messages.length - 1]?.id && (
-                              <div className="flex items-center space-x-1.5 px-3.5 py-2 bg-[#f4f4f4] border border-black/[0.05] rounded-xl w-fit animate-in fade-in duration-200">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#c86a28] animate-bounce [animation-delay:-0.3s]" />
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#c86a28] animate-bounce [animation-delay:-0.15s]" />
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#c86a28] animate-bounce" />
-                              </div>
-                            )
+                            <div className="space-y-3 max-w-full">
+                              {/* Thought Process (Chain of Thought Reasoning) Card */}
+                              {(msg.thought || msg.isThinking) && (
+                                <ThoughtProcessCard
+                                  content={msg.thought || ""}
+                                  isThinking={msg.isThinking}
+                                  thinkingSeconds={thinkingSeconds}
+                                  defaultExpanded={true}
+                                />
+                              )}
+
+                              {/* Message Text or Animated Typing Indicator (Matches Screenshot Box 2) */}
+                              {msg.text ? (
+                                <div className="text-[13.5px] text-[#292524] leading-relaxed whitespace-pre-line">
+                                  {msg.text}
+                                  {isGenerating &&
+                                    msg.id === messages[messages.length - 1]?.id &&
+                                    generationPhase === "streaming" && (
+                                      <span className="inline-block w-1.5 h-4 ml-0.5 bg-[#c86a28] animate-pulse align-middle" />
+                                    )}
+                                </div>
+                              ) : (
+                                /* Red Box 2 in Screenshot: Animated Loading Typing Bubble */
+                                isGenerating &&
+                                msg.id === messages[messages.length - 1]?.id && (
+                                  <div className="flex items-center space-x-1.5 px-3.5 py-2 bg-[#f4f4f4] border border-black/[0.05] rounded-xl w-fit animate-in fade-in duration-200">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#c86a28] animate-bounce [animation-delay:-0.3s]" />
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#c86a28] animate-bounce [animation-delay:-0.15s]" />
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#c86a28] animate-bounce" />
+                                  </div>
+                                )
+                              )}
+                            </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  ))}
+                      ))}
 
-                  {/* Workflow Execution Log Container (Collapsible, Unified with Thought Process style) */}
-                  <div className="bg-[#f4f4f4] border border-[#e5e5e5] rounded-xl transition-all select-text overflow-hidden">
-                    {!isWorkflowExpanded ? (
-                      /* Collapsed State: Slim single line bar matching thought process collapsed style */
-                      <button
-                        type="button"
-                        onClick={() => setIsWorkflowExpanded(true)}
-                        className="w-full flex items-center justify-between px-3.5 py-1 text-left cursor-pointer select-none group hover:bg-[#ededed] transition-colors focus:outline-none min-h-[26px]"
-                      >
-                        <div className="flex items-center space-x-2 min-w-0 flex-1 mr-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] flex-shrink-0" />
-                          <span className="text-[12px] sm:text-[12.5px] text-[#8e8e93] truncate font-normal leading-tight">
-                            工作流执行完成 · 已探索 12 项 · 运行 9 条命令 · 任务
-                            1/1 (用时 2分18秒)
-                          </span>
-                        </div>
-                        <ChevronDown className="w-3.5 h-3.5 text-[#78716c] group-hover:text-[#1c1917] transition-colors flex-shrink-0 stroke-[1.8]" />
-                      </button>
-                    ) : (
-                      /* Expanded State: Header with metrics and chevron up + step-by-step timeline content */
-                      <div className="p-4 sm:p-5 space-y-3.5">
-                        <button
-                          type="button"
-                          onClick={() => setIsWorkflowExpanded(false)}
-                          className="w-full flex items-center justify-between text-left cursor-pointer select-none group focus:outline-none"
-                        >
-                          <div className="flex items-center space-x-2 sm:space-x-6">
-                            <div className="flex items-center space-x-2">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] inline-block" />
-                              <span className="text-[13.5px] font-medium text-[#262626] group-hover:text-[#000000] transition-colors">
-                                工作流执行
+                      {/* Workflow Execution Log Container (Collapsible, Unified with Thought Process style) */}
+                      <div className="bg-[#f4f4f4] border border-[#e5e5e5] rounded-xl transition-all select-text overflow-hidden">
+                        {!isWorkflowExpanded ? (
+                          /* Collapsed State: Slim single line bar matching thought process collapsed style */
+                          <button
+                            type="button"
+                            onClick={() => setIsWorkflowExpanded(true)}
+                            className="w-full flex items-center justify-between px-3.5 py-1 text-left cursor-pointer select-none group hover:bg-[#ededed] transition-colors focus:outline-none min-h-[26px]"
+                          >
+                            <div className="flex items-center space-x-2 min-w-0 flex-1 mr-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] flex-shrink-0" />
+                              <span className="text-[12px] sm:text-[12.5px] text-[#8e8e93] truncate font-normal leading-tight">
+                                工作流执行完成 · 已探索 12 项 · 运行 9 条命令 · 任务
+                                1/1 (用时 2分18秒)
                               </span>
                             </div>
-                            <div className="hidden sm:flex items-center space-x-4 text-[11.5px] text-[#78716c]">
-                              <span>
-                                已工作{" "}
-                                <strong className="text-[#1c1917] font-semibold ml-0.5">
-                                  2分18秒
-                                </strong>
-                              </span>
-                              <span>
-                                已探索{" "}
-                                <strong className="text-[#1c1917] font-semibold ml-0.5">
-                                  12 项
-                                </strong>
-                              </span>
-                              <span>
-                                已运行{" "}
-                                <strong className="text-[#1c1917] font-semibold ml-0.5">
-                                  9 条命令
-                                </strong>
-                              </span>
-                              <span className="text-[#16a34a] font-semibold">
-                                1/1 完成
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="text-[#737373] group-hover:text-[#1c1917] transition-colors p-0.5">
-                            <ChevronUp className="w-4 h-4 stroke-[1.8]" />
-                          </div>
-                        </button>
-
-                        {/* Timeline Items on unified light gray background */}
-                        <div className="space-y-2.5 text-[12.5px] pl-1 relative pt-1 animate-in fade-in duration-200">
-                          <div className="absolute left-[7px] top-[14px] bottom-[14px] w-[1px] bg-[#dfdeda]" />
-
-                          {/* Step 1: Start */}
-                          <div className="flex items-start space-x-2.5 relative z-10">
-                            <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
-                            </div>
-                            <span className="text-[#a8a29e] font-mono text-[11.5px]">
-                              10:21
-                            </span>
-                            <span className="text-[#1c1917]">
-                              开始任务: 使用{" "}
-                              <span className="font-mono text-[#8b5229] font-medium">
-                                faster-whisper
-                              </span>{" "}
-                              转录音频并生成带时间戳字幕
-                            </span>
-                          </div>
-
-                          {/* Step 2: Explore */}
-                          <div className="flex items-start space-x-2.5 relative z-10">
-                            <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
-                            </div>
-                            <span className="text-[#a8a29e] font-mono text-[11.5px]">
-                              10:21
-                            </span>
-                            <div className="flex items-center space-x-1.5 text-[#292524]">
-                              <Folder className="w-3.5 h-3.5 text-[#78716c]" />
-                              <span>探索文件夹</span>
-                              <span className="font-mono text-[#57534e]">
-                                C:\Projects\subtitle\
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Step 3: Read config */}
-                          <div className="flex items-start space-x-2.5 relative z-10">
-                            <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
-                            </div>
-                            <span className="text-[#a8a29e] font-mono text-[11.5px]">
-                              10:21
-                            </span>
-                            <div className="flex items-center space-x-1.5 text-[#292524]">
-                              <FileText className="w-3.5 h-3.5 text-[#78716c]" />
-                              <span>读取文件</span>
-                              <span className="font-mono text-[#1c1917] font-medium">
-                                config.yaml
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Step 4: Python command */}
-                          <div className="flex items-start space-x-2.5 relative z-10">
-                            <div className="w-3.5 h-3.5 rounded-full bg-[#22c55e]/20 border border-[#22c55e] flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <Check className="w-2.5 h-2.5 text-[#16a34a]" />
-                            </div>
-                            <span className="text-[#a8a29e] font-mono text-[11.5px]">
-                              10:22
-                            </span>
-                            <div className="space-y-0.5">
-                              <div className="flex items-center space-x-1.5 text-[#292524]">
-                                <span>运行命令</span>
-                                <span className="font-mono text-[#0284c7]">
-                                  python -V
-                                </span>
-                              </div>
-                              <div className="text-[11.5px] font-mono text-[#78716c] pl-3">
-                                ↳ Python 3.10.11
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Step 5: pip command */}
-                          <div className="flex items-start space-x-2.5 relative z-10">
-                            <div className="w-3.5 h-3.5 rounded-full bg-[#22c55e]/20 border border-[#22c55e] flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <Check className="w-2.5 h-2.5 text-[#16a34a]" />
-                            </div>
-                            <span className="text-[#a8a29e] font-mono text-[11.5px]">
-                              10:22
-                            </span>
-                            <div className="space-y-0.5">
-                              <div className="flex items-center space-x-1.5 text-[#292524]">
-                                <span>运行命令</span>
-                                <span className="font-mono text-[#0284c7]">
-                                  pip show faster-whisper
-                                </span>
-                              </div>
-                              <div className="text-[11.5px] font-mono text-[#78716c] pl-3">
-                                ↳ faster-whisper 1.1.1
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Step 6: Script running */}
-                          <div className="flex items-start space-x-2.5 relative z-10">
-                            <div className="w-3.5 h-3.5 rounded-full bg-[#f7efe5] border border-[#ebdcd0] flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
-                            </div>
-                            <span className="text-[#a8a29e] font-mono text-[11.5px]">
-                              10:23
-                            </span>
-                            <div className="flex-1 space-y-1">
-                              <div className="flex items-center space-x-1.5 text-[#292524]">
-                                <FileCode className="w-3.5 h-3.5 text-[#c86a28]" />
-                                <span>运行脚本</span>
-                                <span className="font-mono text-[#8b5229] font-medium">
-                                  transcribe.py
-                                </span>
-                                <span className="font-mono text-[#78716c] text-[11.5px]">
-                                  --model large-v3-turbo --file
-                                  C:\Data\audio.mp3
-                                </span>
-                              </div>
-                              <div className="text-[11.5px] text-[#78716c] pl-5 flex items-center space-x-2">
-                                <span>↳ 正在转录音频 (分段模式)</span>
-                                <span className="font-mono text-[#8b5229] font-semibold">
-                                  42%
-                                </span>
-                                <div className="w-24 h-1.5 bg-[#dfded8] rounded-full overflow-hidden inline-block">
-                                  <div className="h-full bg-[#c86a28] rounded-full w-[42%]" />
+                            <ChevronDown className="w-3.5 h-3.5 text-[#78716c] group-hover:text-[#1c1917] transition-colors flex-shrink-0 stroke-[1.8]" />
+                          </button>
+                        ) : (
+                          /* Expanded State: Header with metrics and chevron up + step-by-step timeline content */
+                          <div className="p-4 sm:p-5 space-y-3.5">
+                            <button
+                              type="button"
+                              onClick={() => setIsWorkflowExpanded(false)}
+                              className="w-full flex items-center justify-between text-left cursor-pointer select-none group focus:outline-none"
+                            >
+                              <div className="flex items-center space-x-2 sm:space-x-6">
+                                <div className="flex items-center space-x-2">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] inline-block" />
+                                  <span className="text-[13.5px] font-medium text-[#262626] group-hover:text-[#000000] transition-colors">
+                                    工作流执行
+                                  </span>
                                 </div>
-                                <span className="text-[11px] text-[#a8a29e] font-mono">
-                                  (剩余 00:01:32)
+                                <div className="hidden sm:flex items-center space-x-4 text-[11.5px] text-[#78716c]">
+                                  <span>
+                                    已工作{" "}
+                                    <strong className="text-[#1c1917] font-semibold ml-0.5">
+                                      2分18秒
+                                    </strong>
+                                  </span>
+                                  <span>
+                                    已探索{" "}
+                                    <strong className="text-[#1c1917] font-semibold ml-0.5">
+                                      12 项
+                                    </strong>
+                                  </span>
+                                  <span>
+                                    已运行{" "}
+                                    <strong className="text-[#1c1917] font-semibold ml-0.5">
+                                      9 条命令
+                                    </strong>
+                                  </span>
+                                  <span className="text-[#16a34a] font-semibold">
+                                    1/1 完成
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="text-[#737373] group-hover:text-[#1c1917] transition-colors p-0.5">
+                                <ChevronUp className="w-4 h-4 stroke-[1.8]" />
+                              </div>
+                            </button>
+
+                            {/* Timeline Items on unified light gray background */}
+                            <div className="space-y-2.5 text-[12.5px] pl-1 relative pt-1 animate-in fade-in duration-200">
+                              <div className="absolute left-[7px] top-[14px] bottom-[14px] w-[1px] bg-[#dfdeda]" />
+
+                              {/* Step 1: Start */}
+                              <div className="flex items-start space-x-2.5 relative z-10">
+                                <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
+                                </div>
+                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                  10:21
                                 </span>
+                                <span className="text-[#1c1917]">
+                                  开始任务: 使用{" "}
+                                  <span className="font-mono text-[#8b5229] font-medium">
+                                    faster-whisper
+                                  </span>{" "}
+                                  转录音频并生成带时间戳字幕
+                                </span>
+                              </div>
+
+                              {/* Step 2: Explore */}
+                              <div className="flex items-start space-x-2.5 relative z-10">
+                                <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
+                                </div>
+                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                  10:21
+                                </span>
+                                <div className="flex items-center space-x-1.5 text-[#292524]">
+                                  <Folder className="w-3.5 h-3.5 text-[#78716c]" />
+                                  <span>探索文件夹</span>
+                                  <span className="font-mono text-[#57534e]">
+                                    C:\Projects\subtitle\
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Step 3: Read config */}
+                              <div className="flex items-start space-x-2.5 relative z-10">
+                                <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
+                                </div>
+                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                  10:21
+                                </span>
+                                <div className="flex items-center space-x-1.5 text-[#292524]">
+                                  <FileText className="w-3.5 h-3.5 text-[#78716c]" />
+                                  <span>读取文件</span>
+                                  <span className="font-mono text-[#1c1917] font-medium">
+                                    config.yaml
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Step 4: Python command */}
+                              <div className="flex items-start space-x-2.5 relative z-10">
+                                <div className="w-3.5 h-3.5 rounded-full bg-[#22c55e]/20 border border-[#22c55e] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <Check className="w-2.5 h-2.5 text-[#16a34a]" />
+                                </div>
+                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                  10:22
+                                </span>
+                                <div className="space-y-0.5">
+                                  <div className="flex items-center space-x-1.5 text-[#292524]">
+                                    <span>运行命令</span>
+                                    <span className="font-mono text-[#0284c7]">
+                                      python -V
+                                    </span>
+                                  </div>
+                                  <div className="text-[11.5px] font-mono text-[#78716c] pl-3">
+                                    ↳ Python 3.10.11
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Step 5: pip command */}
+                              <div className="flex items-start space-x-2.5 relative z-10">
+                                <div className="w-3.5 h-3.5 rounded-full bg-[#22c55e]/20 border border-[#22c55e] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <Check className="w-2.5 h-2.5 text-[#16a34a]" />
+                                </div>
+                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                  10:22
+                                </span>
+                                <div className="space-y-0.5">
+                                  <div className="flex items-center space-x-1.5 text-[#292524]">
+                                    <span>运行命令</span>
+                                    <span className="font-mono text-[#0284c7]">
+                                      pip show faster-whisper
+                                    </span>
+                                  </div>
+                                  <div className="text-[11.5px] font-mono text-[#78716c] pl-3">
+                                    ↳ faster-whisper 1.1.1
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Step 6: Script running */}
+                              <div className="flex items-start space-x-2.5 relative z-10">
+                                <div className="w-3.5 h-3.5 rounded-full bg-[#f7efe5] border border-[#ebdcd0] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
+                                </div>
+                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                  10:23
+                                </span>
+                                <div className="flex-1 space-y-1">
+                                  <div className="flex items-center space-x-1.5 text-[#292524]">
+                                    <FileCode className="w-3.5 h-3.5 text-[#c86a28]" />
+                                    <span>运行脚本</span>
+                                    <span className="font-mono text-[#8b5229] font-medium">
+                                      transcribe.py
+                                    </span>
+                                    <span className="font-mono text-[#78716c] text-[11.5px]">
+                                      --model large-v3-turbo --file
+                                      C:\Data\audio.mp3
+                                    </span>
+                                  </div>
+                                  <div className="text-[11.5px] text-[#78716c] pl-5 flex items-center space-x-2">
+                                    <span>↳ 正在转录音频 (分段模式)</span>
+                                    <span className="font-mono text-[#8b5229] font-semibold">
+                                      42%
+                                    </span>
+                                    <div className="w-24 h-1.5 bg-[#dfded8] rounded-full overflow-hidden inline-block">
+                                      <div className="h-full bg-[#c86a28] rounded-full w-[42%]" />
+                                    </div>
+                                    <span className="text-[11px] text-[#a8a29e] font-mono">
+                                      (剩余 00:01:32)
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Step 7: Output file */}
+                              <div className="flex items-start space-x-2.5 relative z-10">
+                                <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
+                                </div>
+                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                  10:24
+                                </span>
+                                <div className="flex items-center space-x-1.5 text-[#292524]">
+                                  <FileText className="w-3.5 h-3.5 text-[#78716c]" />
+                                  <span>生成文件</span>
+                                  <span className="font-mono text-[#1c1917] font-medium">
+                                    output.srt
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Step 8: Done */}
+                              <div className="flex items-start space-x-2.5 relative z-10">
+                                <div className="w-3.5 h-3.5 rounded-full bg-[#22c55e]/20 border border-[#22c55e] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-[#16a34a]" />
+                                </div>
+                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                  10:24
+                                </span>
+                                <div className="text-[12.5px]">
+                                  <span className="font-semibold text-[#166534]">
+                                    任务已完成
+                                  </span>
+                                  <span className="text-[#57534e] ml-2">
+                                    字幕文件已生成:{" "}
+                                    <span className="font-mono text-[#166534] font-medium">
+                                      output.srt
+                                    </span>{" "}
+                                    (共 96 条字幕)
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
-
-                          {/* Step 7: Output file */}
-                          <div className="flex items-start space-x-2.5 relative z-10">
-                            <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
-                            </div>
-                            <span className="text-[#a8a29e] font-mono text-[11.5px]">
-                              10:24
-                            </span>
-                            <div className="flex items-center space-x-1.5 text-[#292524]">
-                              <FileText className="w-3.5 h-3.5 text-[#78716c]" />
-                              <span>生成文件</span>
-                              <span className="font-mono text-[#1c1917] font-medium">
-                                output.srt
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Step 8: Done */}
-                          <div className="flex items-start space-x-2.5 relative z-10">
-                            <div className="w-3.5 h-3.5 rounded-full bg-[#22c55e]/20 border border-[#22c55e] flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-[#16a34a]" />
-                            </div>
-                            <span className="text-[#a8a29e] font-mono text-[11.5px]">
-                              10:24
-                            </span>
-                            <div className="text-[12.5px]">
-                              <span className="font-semibold text-[#166534]">
-                                任务已完成
-                              </span>
-                              <span className="text-[#57534e] ml-2">
-                                字幕文件已生成:{" "}
-                                <span className="font-mono text-[#166534] font-medium">
-                                  output.srt
-                                </span>{" "}
-                                (共 96 条字幕)
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
-                </div>
               )
             ) : (
               /* HIGH FIDELITY TRAJECTORY TRACE VIEW */
