@@ -3481,6 +3481,13 @@ export default function App() {
                   Tokmon
                 </span>
               </div>
+              <button
+                onClick={() => setLeftSidebarOpen(false)}
+                title="折叠侧边栏"
+                className="w-7 h-7 flex items-center justify-center hover:bg-[#eae6dc] rounded-md text-[#747f78] hover:text-[#1a211c] transition-colors cursor-pointer"
+              >
+                <PanelLeftClose className="w-4 h-4" />
+              </button>
             </div>
 
             {/* Scrollable Tree Navigation & Content Area (Fills entire window height, zero horizontal scrollbar) */}
@@ -3740,21 +3747,6 @@ export default function App() {
                   }`}
                 />
               </div>
-
-              {/* Floating Border Toggle Pill Button (Sibling, does not trigger line hover) */}
-              <button
-                onMouseDown={(e) => e.stopPropagation()}
-                onMouseUp={(e) => e.stopPropagation()}
-                onClick={(e) => {
-                  e.stopPropagation()
-
-                  setLeftSidebarOpen(false)
-                }}
-                title="折叠侧边栏"
-                className="absolute top-2.5 -left-2 z-50 w-6 h-6 rounded-md bg-white border border-[#eae6dc] shadow-2xs hover:shadow-md hover:border-[#2d5a43] hover:bg-[#ffffff] text-[#747f78] hover:text-[#2d5a43] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
-              >
-                <PanelLeftClose className="w-3.5 h-3.5" />
-              </button>
             </div>
           )}
 
@@ -3763,20 +3755,12 @@ export default function App() {
           {/* ========================================================= */}
           {!isRightPanelFullscreen && (
             <main
-              style={{
-                width:
-                  isMaximized && !rightPanelOpen
-                    ? undefined
-                    : `${effectiveMainWidth}px`,
-              }}
-            className={`${
-              isMaximized && !rightPanelOpen ? "flex-1" : "flex-shrink-0"
-            } flex flex-col bg-[#ffffff] overflow-hidden relative ${
-              isDragging
-                ? "transition-none"
-                : "transition-[width] duration-150 ease-out"
-            }`}
-          >
+              className={`flex-1 min-w-0 flex flex-col bg-[#ffffff] overflow-hidden relative ${
+                isDragging
+                  ? "transition-none"
+                  : "transition-[flex] duration-150 ease-out"
+              }`}
+            >
             {/* Middle Column Top Header Bar (Height aligned with Left & Right sidebars: 46px) */}
             <div className="h-[46px] flex-shrink-0 border-b border-[#eae6dc]/60 bg-[#ffffff] flex items-center justify-between px-3.5 text-[12.5px] select-none z-30">
               {/* Left Section: Sidebar Toggle + Title + Workspace Badge */}
@@ -5452,7 +5436,7 @@ export default function App() {
                   handleToggleRightPanel()
                 }}
                 title="折叠代码审阅"
-                className="absolute top-2.5 -left-[28px] z-50 w-6 h-6 rounded-md bg-white border border-[#eae6dc] shadow-2xs hover:shadow-md hover:border-[#2d5a43] hover:bg-[#ffffff] text-[#747f78] hover:text-[#2d5a43] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
+                className="absolute top-2.5 -left-[28px] z-50 w-6 h-6 rounded-md bg-white shadow-2xs hover:bg-[#f5f4ef] text-[#747f78] hover:text-[#2d5a43] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
               >
                 <PanelRightClose className="w-3.5 h-3.5" />
               </button>
@@ -6330,21 +6314,6 @@ export default function App() {
                   }`}
                 />
               </div>
-
-              {/* Floating Border Toggle Pill Button (Exact same physical position, unclipped) */}
-              <button
-                onMouseDown={(e) => e.stopPropagation()}
-                onMouseUp={(e) => e.stopPropagation()}
-                onClick={(e) => {
-                  e.stopPropagation()
-
-                  handleToggleRightPanel()
-                }}
-                title="展开代码审阅"
-                className="absolute top-2.5 right-1.5 z-50 w-6 h-6 rounded-md bg-[#edf4ec] border border-[#eae5da] shadow-2xs hover:shadow-md hover:border-[#2d5a43] hover:bg-[#edf4ec] text-[#2d5a43] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 pointer-events-auto"
-              >
-                <PanelRightOpen className="w-3.5 h-3.5 text-[#2d5a43]" />
-              </button>
             </div>
           )}
         </div>
