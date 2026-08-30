@@ -213,7 +213,11 @@ function WindowControls({
         title={isMaximized ? "向下还原" : "最大化"}
         className="w-7 h-7 flex items-center justify-center hover:bg-[#e7e5e4] rounded-md text-[#57534e] transition-colors cursor-pointer"
       >
-        <Square className="w-3 h-3" />
+        {isMaximized ? (
+          <Copy className="w-3 h-3 rotate-180" />
+        ) : (
+          <Square className="w-3 h-3" />
+        )}
       </button>
       <button
         type="button"
@@ -3772,12 +3776,50 @@ export default function App() {
                 : "transition-[width] duration-150 ease-out"
             }`}
           >
+            {/* Middle Column Top Header Bar (Height aligned with Left & Right sidebars: 46px) */}
+            <div className="h-[46px] flex-shrink-0 border-b border-[#e7e5e4]/60 bg-[#fafaf9] flex items-center justify-between px-3.5 text-[12.5px] select-none z-30">
+              <div className="flex items-center space-x-2 min-w-0">
+                {!leftSidebarOpen && (
+                  <button
+                    onClick={() => setLeftSidebarOpen(true)}
+                    title="展开侧边栏"
+                    className="w-7 h-7 flex items-center justify-center hover:bg-[#e7e5e4] rounded-md text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer mr-1"
+                  >
+                    <PanelLeftOpen className="w-4 h-4" />
+                  </button>
+                )}
+                <span className="font-semibold text-[13.5px] text-[#1c1917] truncate">
+                  {selectedConversation || "生成音频时间轴字幕"}
+                </span>
+                <span className="text-[11px] font-mono text-[#a8a29e] bg-[#f5f5f4] px-2 py-0.5 rounded-full border border-[#e7e5e4]/60 flex items-center space-x-1 flex-shrink-0">
+                  <Folder className="w-3 h-3 text-[#78716c]" />
+                  <span>{activeWorkspace.name}</span>
+                </span>
+              </div>
+
+              {!rightPanelOpen && (
+                <div className="flex items-center space-x-1">
+                  <button
+                    onClick={handleToggleRightPanel}
+                    title="展开代码审阅"
+                    className="w-7 h-7 flex items-center justify-center hover:bg-[#e7e5e4] rounded-md text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer mr-1"
+                  >
+                    <PanelRightOpen className="w-4 h-4" />
+                  </button>
+                  <WindowControls
+                    isMaximized={isMaximized}
+                    onToggleMaximize={() => setIsMaximized(!isMaximized)}
+                  />
+                </div>
+              )}
+            </div>
+
             {/* ========================================================================= */}
             {/* FLOATING ENVIRONMENT PANEL / APPLE ASSISTIVETOUCH (Anchored to Top-Right) */}
             {/* ========================================================================= */}
             <div
               ref={envPanelRef}
-              className="absolute top-[48px] right-4 z-40 select-none pointer-events-auto"
+              className="absolute top-[56px] right-4 z-40 select-none pointer-events-auto"
             >
               {/* Collapsed State: Apple iPhone AssistiveTouch Floating Button */}
               <div
@@ -5405,8 +5447,8 @@ export default function App() {
                 </div>
               )}
 
-              {/* TOP TABS BAR (MATCHES SCREENSHOTS 1 & 2) */}
-              <div className="h-[40px] flex-shrink-0 border-b border-[#e7e5e4]/60 bg-[#fafaf9] flex items-center justify-between px-2.5 text-[12.5px] select-none">
+              {/* TOP TABS BAR (Height 46px aligned with Left Sidebar and Middle Column) */}
+              <div className="h-[46px] flex-shrink-0 border-b border-[#e7e5e4]/60 bg-[#fafaf9] flex items-center justify-between px-3 text-[12.5px] select-none">
                 <div className="flex items-center space-x-1.5 h-full overflow-x-auto no-scrollbar">
                   {openTabs.map((tab) => {
                     const isActive = rightPanelTab === tab.id
@@ -5457,30 +5499,11 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Right panel window controls */}
-                <div className="flex items-center space-x-1 text-[#78716c]">
-                  <button
-                    onClick={() => setIsRightPanelFullscreen(!isRightPanelFullscreen)}
-                    title={isRightPanelFullscreen ? "还原右侧栏 (退出全屏)" : "全屏占满界面窗口"}
-                    className="w-6 h-6 flex items-center justify-center hover:bg-black/[0.05] dark:hover:bg-white/[0.06] rounded-full text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer"
-                  >
-                    {isRightPanelFullscreen ? (
-                      <Minimize2 className="w-3.5 h-3.5" />
-                    ) : (
-                      <Maximize2 className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setIsRightPanelFullscreen(false)
-                      setRightPanelOpen(false)
-                    }}
-                    title="关闭面板"
-                    className="w-6 h-6 flex items-center justify-center hover:bg-[#ef4444] hover:text-white rounded-full text-[#78716c] transition-colors cursor-pointer"
-                  >
-                    <PanelRightClose className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                {/* Standard Window Controls (最小化, 窗口化, 关闭) */}
+                <WindowControls
+                  isMaximized={isMaximized}
+                  onToggleMaximize={() => setIsMaximized(!isMaximized)}
+                />
               </div>
 
               {/* ========================================================================= */}
