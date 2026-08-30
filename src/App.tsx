@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react"
 import tokmonBrandImg from "./imports/tokmon-brand-2048.png"
 
 import {
+  Activity,
   ChevronDown,
   ChevronRight,
   Plus,
@@ -3778,12 +3779,13 @@ export default function App() {
           >
             {/* Middle Column Top Header Bar (Height aligned with Left & Right sidebars: 46px) */}
             <div className="h-[46px] flex-shrink-0 border-b border-[#eae6dc]/60 bg-[#ffffff] flex items-center justify-between px-3.5 text-[12.5px] select-none z-30">
-              <div className="flex items-center space-x-2 min-w-0">
+              {/* Left Section: Sidebar Toggle + Title + Workspace Badge */}
+              <div className="flex items-center space-x-2.5 min-w-0">
                 {!leftSidebarOpen && (
                   <button
                     onClick={() => setLeftSidebarOpen(true)}
                     title="展开侧边栏"
-                    className="w-7 h-7 flex items-center justify-center hover:bg-[#eae6dc] rounded-md text-[#747f78] hover:text-[#1a211c] transition-colors cursor-pointer mr-1"
+                    className="w-7 h-7 flex items-center justify-center hover:bg-[#eae6dc] rounded-md text-[#747f78] hover:text-[#1a211c] transition-colors cursor-pointer mr-1 flex-shrink-0"
                   >
                     <PanelLeftOpen className="w-4 h-4" />
                   </button>
@@ -3791,27 +3793,63 @@ export default function App() {
                 <span className="font-semibold text-[13.5px] text-[#1a211c] truncate">
                   {selectedConversation || "生成音频时间轴字幕"}
                 </span>
-                <span className="text-[11px] font-mono text-[#949e97] bg-[#f7f5ef] px-2 py-0.5 rounded-full border border-[#eae6dc]/60 flex items-center space-x-1 flex-shrink-0">
+                <span className="text-[11px] font-mono text-[#747f78] bg-[#f7f5ef] px-2 py-0.5 rounded-full border border-[#eae6dc]/60 flex items-center space-x-1 flex-shrink-0">
                   <Folder className="w-3 h-3 text-[#747f78]" />
                   <span>{activeWorkspace.name}</span>
                 </span>
               </div>
 
-              {!rightPanelOpen && (
-                <div className="flex items-center space-x-1">
-                  <button
-                    onClick={handleToggleRightPanel}
-                    title="展开代码审阅"
-                    className="w-7 h-7 flex items-center justify-center hover:bg-[#eae6dc] rounded-md text-[#747f78] hover:text-[#1a211c] transition-colors cursor-pointer mr-1"
-                  >
-                    <PanelRightOpen className="w-4 h-4" />
-                  </button>
-                  <WindowControls
-                    isMaximized={isMaximized}
-                    onToggleMaximize={() => setIsMaximized(!isMaximized)}
-                  />
-                </div>
-              )}
+              {/* Right Section: Sleek Integrated Header Tabs (对话 / 轨迹) + Window Controls */}
+              <div className="flex items-center h-full space-x-1">
+                <button
+                  onClick={() => setMainViewMode("chat")}
+                  className={`relative h-[46px] px-3 flex items-center space-x-1.5 text-[12.5px] transition-colors cursor-pointer select-none ${
+                    mainViewMode === "chat"
+                      ? "text-[#2d5a43] font-semibold"
+                      : "text-[#747f78] hover:text-[#1a211c] font-medium"
+                  }`}
+                >
+                  <MessageSquare className={`w-3.5 h-3.5 ${mainViewMode === "chat" ? "text-[#2d5a43]" : "text-[#949e97]"}`} />
+                  <span>对话</span>
+                  {mainViewMode === "chat" && (
+                    <span className="absolute bottom-0 left-2 right-2 h-[2px] bg-[#2d5a43] rounded-t-full" />
+                  )}
+                </button>
+
+                <button
+                  onClick={() => setMainViewMode("trajectory")}
+                  className={`relative h-[46px] px-3 flex items-center space-x-1.5 text-[12.5px] transition-colors cursor-pointer select-none ${
+                    mainViewMode === "trajectory"
+                      ? "text-[#2d5a43] font-semibold"
+                      : "text-[#747f78] hover:text-[#1a211c] font-medium"
+                  }`}
+                >
+                  <Activity className={`w-3.5 h-3.5 ${mainViewMode === "trajectory" ? "text-[#2d5a43]" : "text-[#949e97]"}`} />
+                  <span>轨迹</span>
+                  {mainViewMode === "trajectory" && (
+                    <span className="absolute bottom-0 left-2 right-2 h-[2px] bg-[#2d5a43] rounded-t-full" />
+                  )}
+                </button>
+
+                {/* Rightmost Controls (only when right panel is closed) */}
+                {!rightPanelOpen ? (
+                  <div className="flex items-center space-x-1 pl-2 ml-1 border-l border-[#eae6dc]/60">
+                    <button
+                      onClick={handleToggleRightPanel}
+                      title="展开代码审阅"
+                      className="w-7 h-7 flex items-center justify-center hover:bg-[#eae6dc] rounded-md text-[#747f78] hover:text-[#1a211c] transition-colors cursor-pointer mr-1"
+                    >
+                      <PanelRightOpen className="w-4 h-4" />
+                    </button>
+                    <WindowControls
+                      isMaximized={isMaximized}
+                      onToggleMaximize={() => setIsMaximized(!isMaximized)}
+                    />
+                  </div>
+                ) : (
+                  <div className="w-4" />
+                )}
+              </div>
             </div>
 
             {/* ========================================================================= */}
