@@ -4966,7 +4966,7 @@ export default function App() {
               <div className="w-full max-w-[874px] mx-auto">
                 {/* Embedded Backing Workspace Tab (Seamlessly docked directly behind the top edge with zero gap) */}
                 <div className="flex items-center ml-5 relative z-0 -mb-[1px]">
-                  <div className="inline-flex items-center space-x-2 px-3.5 pt-1.5 pb-1 bg-[#f3f1ea] hover:bg-[#ece8df] rounded-t-xl border-t border-l border-r border-black/[0.07] text-[11.5px] text-[#5c6760] select-none transition-colors shadow-2xs">
+                  <div className="inline-flex items-center space-x-2 px-3.5 pt-1.5 pb-1 bg-[#f6f9f5] hover:bg-[#ebf4ea] rounded-t-xl text-[11.5px] text-[#5c6760] select-none transition-colors shadow-2xs">
                     <div
                       onClick={() => {
                         if (messages.length === 0) {
