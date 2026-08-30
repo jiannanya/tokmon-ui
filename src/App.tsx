@@ -128,7 +128,7 @@ function PanesIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
   )
 }
 
-// Tokmon Brand Logo Image in Warm Terracotta/Sand (#c86a28)
+// Tokmon Brand Logo Image in Warm Terracotta/Sand (#2d5a43)
 
 function TokmonLogo({ size = 24 }: { size?: number }) {
   return (
@@ -145,19 +145,19 @@ function TokmonLogo({ size = 24 }: { size?: number }) {
       >
         <path
           d="M9 7V25"
-          stroke="#c86a28"
+          stroke="#2d5a43"
           strokeWidth="3.5"
           strokeLinecap="round"
         />
         <path
           d="M9 16H20"
-          stroke="#c86a28"
+          stroke="#2d5a43"
           strokeWidth="3.5"
           strokeLinecap="round"
         />
-        <circle cx="9" cy="7" r="4" fill="#c86a28" />
-        <circle cx="9" cy="25" r="4" fill="#c86a28" />
-        <circle cx="20" cy="16" r="4" fill="#c86a28" />
+        <circle cx="9" cy="7" r="4" fill="#2d5a43" />
+        <circle cx="9" cy="25" r="4" fill="#2d5a43" />
+        <circle cx="20" cy="16" r="4" fill="#2d5a43" />
       </svg>
     </div>
   )
@@ -177,7 +177,7 @@ function ToggleSwitch({
       type="button"
       onClick={() => onChange(!checked)}
       className={`w-[44px] h-[24px] flex items-center rounded-full p-[2px] cursor-pointer transition-colors duration-200 ease-in-out ${
-        checked ? "bg-[#c86a28]" : "bg-[#e5e2da]"
+        checked ? "bg-[#2d5a43]" : "bg-[#eae6dc]"
       }`}
     >
       <div
@@ -199,11 +199,11 @@ function WindowControls({
   onToggleMaximize?: () => void
 }) {
   return (
-    <div className="flex items-center space-x-0.5 text-[#78716c]">
+    <div className="flex items-center space-x-0.5 text-[#747f78]">
       <button
         type="button"
         title="最小化"
-        className="w-7 h-7 flex items-center justify-center hover:bg-[#e7e5e4] rounded-md text-[#57534e] transition-colors cursor-pointer"
+        className="w-7 h-7 flex items-center justify-center hover:bg-[#eae6dc] rounded-md text-[#5c6760] transition-colors cursor-pointer"
       >
         <Minus className="w-3.5 h-3.5" />
       </button>
@@ -211,7 +211,7 @@ function WindowControls({
         type="button"
         onClick={onToggleMaximize}
         title={isMaximized ? "向下还原" : "最大化"}
-        className="w-7 h-7 flex items-center justify-center hover:bg-[#e7e5e4] rounded-md text-[#57534e] transition-colors cursor-pointer"
+        className="w-7 h-7 flex items-center justify-center hover:bg-[#eae6dc] rounded-md text-[#5c6760] transition-colors cursor-pointer"
       >
         {isMaximized ? (
           <Copy className="w-3 h-3 rotate-180" />
@@ -222,7 +222,7 @@ function WindowControls({
       <button
         type="button"
         title="关闭"
-        className="w-7 h-7 flex items-center justify-center hover:bg-[#ef4444] hover:text-white rounded-md text-[#57534e] transition-colors cursor-pointer"
+        className="w-7 h-7 flex items-center justify-center hover:bg-[#ef4444] hover:text-white rounded-md text-[#5c6760] transition-colors cursor-pointer"
       >
         <X className="w-3.5 h-3.5" />
       </button>
@@ -266,7 +266,7 @@ function ThoughtProcessCard({
     .filter(Boolean)
 
   return (
-    <div className="bg-[#f4f4f4] border border-[#e5e5e5] rounded-xl transition-all select-text overflow-hidden">
+    <div className="bg-[#faf9f5] border border-[#ece8df] rounded-xl transition-all select-text overflow-hidden">
       {!isExpanded ? (
         /* Collapsed State: Slim single line bar with dot, truncated preview text and chevron down (matches screenshot 2) */
         <button
@@ -276,20 +276,20 @@ function ThoughtProcessCard({
         >
           <div className="flex items-center space-x-2 min-w-0 flex-1 mr-2">
             {isThinking ? (
-              <div className="w-2.5 h-2.5 rounded-full border-2 border-[#c86a28]/30 border-t-[#c86a28] animate-spin flex-shrink-0" />
+              <div className="w-2.5 h-2.5 rounded-full border-2 border-[#2d5a43]/30 border-t-[#2d5a43] animate-spin flex-shrink-0" />
             ) : (
-              <span className="w-1.5 h-1.5 rounded-full bg-[#78716c] flex-shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#747f78] flex-shrink-0" />
             )}
-            <span className="text-[12px] sm:text-[12.5px] text-[#8e8e93] truncate font-normal leading-tight flex items-center space-x-1.5">
+            <span className="text-[12px] sm:text-[12.5px] text-[#8c968f] truncate font-normal leading-tight flex items-center space-x-1.5">
               <span>{firstLine}</span>
               {isThinking && thinkingSeconds > 0 && (
-                <span className="text-[11px] text-[#c86a28] font-mono">
+                <span className="text-[11px] text-[#2d5a43] font-mono">
                   {thinkingSeconds}s
                 </span>
               )}
             </span>
           </div>
-          <ChevronDown className="w-3.5 h-3.5 text-[#78716c] group-hover:text-[#1c1917] transition-colors flex-shrink-0 stroke-[1.8]" />
+          <ChevronDown className="w-3.5 h-3.5 text-[#747f78] group-hover:text-[#1a211c] transition-colors flex-shrink-0 stroke-[1.8]" />
         </button>
       ) : (
         /* Expanded State: Header with "正在思考..." or "思考过程" and chevron up (matches screenshot 1 & user request) */
@@ -302,37 +302,37 @@ function ThoughtProcessCard({
             <div className="flex items-center space-x-2.5">
               {isThinking ? (
                 <div className="relative flex items-center justify-center">
-                  <div className="w-3 h-3 rounded-full border-2 border-[#c86a28]/30 border-t-[#c86a28] animate-spin" />
+                  <div className="w-3 h-3 rounded-full border-2 border-[#2d5a43]/30 border-t-[#2d5a43] animate-spin" />
                 </div>
               ) : (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#78716c] inline-block" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#747f78] inline-block" />
               )}
               <div className="flex items-center space-x-2">
                 <span
                   className={`text-[13.5px] font-medium transition-colors ${
                     isThinking
-                      ? "text-[#c86a28]"
+                      ? "text-[#2d5a43]"
                       : "text-[#262626] group-hover:text-[#000000]"
                   }`}
                 >
                   {isThinking ? "正在思考..." : "思考过程"}
                 </span>
                 {isThinking && thinkingSeconds > 0 && (
-                  <span className="text-[11px] font-mono text-[#c86a28] bg-[#c86a28]/10 px-1.5 py-0.2 rounded font-medium">
+                  <span className="text-[11px] font-mono text-[#2d5a43] bg-[#2d5a43]/10 px-1.5 py-0.2 rounded font-medium">
                     {thinkingSeconds}s
                   </span>
                 )}
               </div>
             </div>
-            <div className="text-[#737373] group-hover:text-[#1c1917] transition-colors p-0.5">
+            <div className="text-[#747f78] group-hover:text-[#1a211c] transition-colors p-0.5">
               <ChevronUp className="w-4 h-4 stroke-[1.8]" />
             </div>
           </button>
 
           <div className="mt-3.5 space-y-3.5 text-[13px] sm:text-[13.5px] text-[#4b5563] leading-[1.7] font-normal animate-in fade-in duration-200">
             {paragraphs.length === 0 && isThinking && (
-              <div className="flex items-center space-x-2 text-[#a8a29e] text-[12.5px] py-1">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#c86a28] animate-ping" />
+              <div className="flex items-center space-x-2 text-[#949e97] text-[12.5px] py-1">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#2d5a43] animate-ping" />
                 <span>分析任务意图与工作空间上下文...</span>
               </div>
             )}
@@ -405,7 +405,7 @@ function ThoughtProcessCard({
               )
             })}
             {isThinking && (
-              <span className="inline-block w-1.5 h-3.5 ml-0.5 bg-[#c86a28] animate-pulse align-middle" />
+              <span className="inline-block w-1.5 h-3.5 ml-0.5 bg-[#2d5a43] animate-pulse align-middle" />
             )}
           </div>
         </div>
@@ -2366,7 +2366,7 @@ export default function App() {
         {
           type: "add" as const,
           newNum: 159,
-          text: '  return <div className="bg-[#f4f4f4] border border-[#e5e5e5] rounded-xl ...">',
+          text: '  return <div className="bg-[#faf9f5] border border-[#ece8df] rounded-xl ...">',
         },
         {
           type: "context" as const,
@@ -2742,10 +2742,10 @@ export default function App() {
   })()
 
   const renderEnvCard = () => (
-    <div className="w-[278px] bg-white/95 backdrop-blur-2xl rounded-2xl border border-[#e5e5e5] shadow-[0_16px_40px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] p-3 text-[#292524] space-y-1 relative">
+    <div className="w-[278px] bg-white/95 backdrop-blur-2xl rounded-2xl border border-[#ece8df] shadow-[0_16px_40px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] p-3 text-[#252d27] space-y-1 relative">
       {/* Card Section 1: 环境信息 Header */}
       <div className="flex items-center justify-between px-1 pb-1">
-        <span className="text-[13px] font-medium text-[#44403c] tracking-tight">
+        <span className="text-[13px] font-medium text-[#4a534c] tracking-tight">
           环境信息
         </span>
         <div className="flex items-center space-x-1">
@@ -2759,9 +2759,9 @@ export default function App() {
                 )
               }
               title="快捷操作"
-              className={`w-6 h-6 rounded-md flex items-center justify-center text-[#78716c] hover:text-[#1c1917] hover:bg-[#f5f5f4] transition-colors cursor-pointer ${
+              className={`w-6 h-6 rounded-md flex items-center justify-center text-[#747f78] hover:text-[#1a211c] hover:bg-[#f7f5ef] transition-colors cursor-pointer ${
                 envDropdown === "plus"
-                  ? "bg-[#f5f5f4] text-[#1c1917]"
+                  ? "bg-[#f7f5ef] text-[#1a211c]"
                   : ""
               }`}
             >
@@ -2770,14 +2770,14 @@ export default function App() {
 
             {/* Plus Dropdown Menu */}
             {envDropdown === "plus" && (
-              <div className="absolute right-0 top-7 w-48 bg-white border border-[#e7e5e4] rounded-xl shadow-xl py-1.5 z-50 text-[12px] space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute right-0 top-7 w-48 bg-white border border-[#eae6dc] rounded-xl shadow-xl py-1.5 z-50 text-[12px] space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
                 <button
                   type="button"
                   onClick={() => {
                     setShowNewBranchInput(true)
                     setEnvDropdown("branch")
                   }}
-                  className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
+                  className="w-full px-3 py-1.5 text-left text-[#4a534c] hover:bg-[#edf4ec] hover:text-[#2d5a43] flex items-center space-x-2 transition-colors cursor-pointer"
                 >
                   <GitBranch className="w-3.5 h-3.5" />
                   <span>新建 Git 分支</span>
@@ -2788,7 +2788,7 @@ export default function App() {
                     setEnvDropdown("none")
                     handleBrowseNativeDirectory("changeWorkspace")
                   }}
-                  className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
+                  className="w-full px-3 py-1.5 text-left text-[#4a534c] hover:bg-[#edf4ec] hover:text-[#2d5a43] flex items-center space-x-2 transition-colors cursor-pointer"
                 >
                   <FolderOpen className="w-3.5 h-3.5" />
                   <span>浏览本地目录</span>
@@ -2801,12 +2801,12 @@ export default function App() {
                       "已重新扫描工作空间 (142 文件就绪)",
                     )
                   }}
-                  className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
+                  className="w-full px-3 py-1.5 text-left text-[#4a534c] hover:bg-[#edf4ec] hover:text-[#2d5a43] flex items-center space-x-2 transition-colors cursor-pointer"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   <span>重新扫描工作空间</span>
                 </button>
-                <div className="my-1 border-t border-[#f0eee6]" />
+                <div className="my-1 border-t border-[#eae6dc]" />
                 <button
                   type="button"
                   onClick={() => {
@@ -2814,7 +2814,7 @@ export default function App() {
                     setShowSettingsModal(true)
                     setActiveSettingsTab("workspace")
                   }}
-                  className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
+                  className="w-full px-3 py-1.5 text-left text-[#4a534c] hover:bg-[#edf4ec] hover:text-[#2d5a43] flex items-center space-x-2 transition-colors cursor-pointer"
                 >
                   <Settings className="w-3.5 h-3.5" />
                   <span>工作空间偏好设置</span>
@@ -2833,10 +2833,10 @@ export default function App() {
               setEnvDropdown("none")
             }}
             title="收起为悬浮按钮"
-            className="w-6 h-6 rounded-md flex items-center justify-center text-[#78716c] hover:text-[#c86a28] hover:bg-[#fef8f4] transition-colors cursor-pointer group/min"
+            className="w-6 h-6 rounded-md flex items-center justify-center text-[#747f78] hover:text-[#2d5a43] hover:bg-[#edf4ec] transition-colors cursor-pointer group/min"
           >
             <svg
-              className="w-3.5 h-3.5 text-[#78716c] group-hover/min:text-[#c86a28] transition-colors"
+              className="w-3.5 h-3.5 text-[#747f78] group-hover/min:text-[#2d5a43] transition-colors"
               viewBox="0 0 16 16"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -2879,10 +2879,10 @@ export default function App() {
                 envDropdown === "changes" ? "none" : "changes",
               )
             }
-            className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#1c1917] transition-colors cursor-pointer"
+            className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f7f5ef] text-[#1a211c] transition-colors cursor-pointer"
           >
             <div className="flex items-center space-x-2.5">
-              <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#57534e]">
+              <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#5c6760]">
                 <svg
                   className="w-4 h-4"
                   viewBox="0 0 16 16"
@@ -2912,8 +2912,8 @@ export default function App() {
 
           {/* Changes Dropdown */}
           {envDropdown === "changes" && (
-            <div className="mt-1 p-2 bg-[#fafaf9] rounded-xl border border-[#e7e5e4] text-[11.5px] space-y-1.5 animate-in fade-in duration-150">
-              <div className="flex items-center justify-between text-[10.5px] text-[#a8a29e] px-1">
+            <div className="mt-1 p-2 bg-[#ffffff] rounded-xl border border-[#eae6dc] text-[11.5px] space-y-1.5 animate-in fade-in duration-150">
+              <div className="flex items-center justify-between text-[10.5px] text-[#949e97] px-1">
                 <span>未提交的改动 ({envModifiedFiles.length} 个文件)</span>
                 <span className="text-emerald-600 font-mono">
                   +146 -9
@@ -2933,7 +2933,7 @@ export default function App() {
                       setActiveTab("code")
                       if (!rightPanelOpen) setRightPanelOpen(true)
                     }}
-                    className="flex items-center justify-between px-2 py-1 rounded bg-white hover:bg-[#fef8f4] border border-[#ebdcd0]/60 text-[#44403c] cursor-pointer transition-colors"
+                    className="flex items-center justify-between px-2 py-1 rounded bg-white hover:bg-[#edf4ec] border border-[#eae5da]/60 text-[#4a534c] cursor-pointer transition-colors"
                   >
                     <span className="font-mono truncate max-w-[140px] text-[11px]">
                       {file.name}
@@ -2962,14 +2962,14 @@ export default function App() {
                 envDropdown === "local" ? "none" : "local",
               )
             }
-            className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#1c1917] transition-colors cursor-pointer"
+            className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f7f5ef] text-[#1a211c] transition-colors cursor-pointer"
           >
             <div className="flex items-center space-x-2.5 min-w-0">
-              <Laptop className="w-4 h-4 text-[#57534e] flex-shrink-0" />
+              <Laptop className="w-4 h-4 text-[#5c6760] flex-shrink-0" />
               <span className="font-normal text-[12.5px]">本地</span>
             </div>
             <ChevronDown
-              className={`w-3.5 h-3.5 text-[#a8a29e] transition-transform ${
+              className={`w-3.5 h-3.5 text-[#949e97] transition-transform ${
                 envDropdown === "local" ? "rotate-180" : ""
               }`}
             />
@@ -2977,8 +2977,8 @@ export default function App() {
 
           {/* Local Workspace Dropdown */}
           {envDropdown === "local" && (
-            <div className="mt-1 p-1.5 bg-[#fafaf9] rounded-xl border border-[#e7e5e4] text-[11.5px] space-y-1 animate-in fade-in duration-150">
-              <div className="text-[10px] font-medium text-[#a8a29e] px-1.5 py-0.5">
+            <div className="mt-1 p-1.5 bg-[#ffffff] rounded-xl border border-[#eae6dc] text-[11.5px] space-y-1 animate-in fade-in duration-150">
+              <div className="text-[10px] font-medium text-[#949e97] px-1.5 py-0.5">
                 切换工作空间项目
               </div>
               <div className="space-y-0.5 max-h-32 overflow-y-auto custom-scrollbar">
@@ -3010,18 +3010,18 @@ export default function App() {
                       }}
                       className={`w-full flex items-center justify-between px-2 py-1 rounded-lg text-left transition-colors cursor-pointer ${
                         activeWorkspace.name === p.name
-                          ? "bg-[#fef8f4] text-[#c86a28] font-medium border border-[#f5d9c3]"
-                          : "hover:bg-white text-[#44403c]"
+                          ? "bg-[#edf4ec] text-[#2d5a43] font-medium border border-[#cddcd0]"
+                          : "hover:bg-white text-[#4a534c]"
                       }`}
                     >
                       <span className="truncate">{p.name}</span>
                       {activeWorkspace.name === p.name && (
-                        <Check className="w-3 h-3 text-[#c86a28]" />
+                        <Check className="w-3 h-3 text-[#2d5a43]" />
                       )}
                     </button>
                   ))}
               </div>
-              <div className="border-t border-[#e7e5e4] my-1" />
+              <div className="border-t border-[#eae6dc] my-1" />
               <button
                 type="button"
                 onClick={() => {
@@ -3029,9 +3029,9 @@ export default function App() {
                   setChangeWorkspacePathInput(activeWorkspace.path)
                   setShowChangeWorkspaceModal(true)
                 }}
-                className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-lg text-[10.5px] text-[#c86a28] hover:bg-[#fef8f4] font-medium transition-colors cursor-pointer"
+                className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-lg text-[10.5px] text-[#2d5a43] hover:bg-[#edf4ec] font-medium transition-colors cursor-pointer"
               >
-                <FolderOpen className="w-3 h-3 text-[#c86a28]" />
+                <FolderOpen className="w-3 h-3 text-[#2d5a43]" />
                 <span>更换物理目录...</span>
               </button>
             </div>
@@ -3047,16 +3047,16 @@ export default function App() {
                 envDropdown === "branch" ? "none" : "branch",
               )
             }
-            className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#1c1917] transition-colors cursor-pointer"
+            className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f7f5ef] text-[#1a211c] transition-colors cursor-pointer"
           >
             <div className="flex items-center space-x-2.5 min-w-0">
-              <GitBranch className="w-4 h-4 text-[#57534e] flex-shrink-0" />
+              <GitBranch className="w-4 h-4 text-[#5c6760] flex-shrink-0" />
               <span className="font-mono text-[12.5px]">
                 {activeWorkspace.branch}
               </span>
             </div>
             <ChevronDown
-              className={`w-3.5 h-3.5 text-[#a8a29e] transition-transform ${
+              className={`w-3.5 h-3.5 text-[#949e97] transition-transform ${
                 envDropdown === "branch" ? "rotate-180" : ""
               }`}
             />
@@ -3064,8 +3064,8 @@ export default function App() {
 
           {/* Git Branch Dropdown */}
           {envDropdown === "branch" && (
-            <div className="mt-1 p-1.5 bg-[#fafaf9] rounded-xl border border-[#e7e5e4] text-[11.5px] space-y-1 animate-in fade-in duration-150">
-              <div className="text-[10px] font-medium text-[#a8a29e] px-1.5 py-0.5">
+            <div className="mt-1 p-1.5 bg-[#ffffff] rounded-xl border border-[#eae6dc] text-[11.5px] space-y-1 animate-in fade-in duration-150">
+              <div className="text-[10px] font-medium text-[#949e97] px-1.5 py-0.5">
                 Git 分支列表
               </div>
               <div className="space-y-0.5">
@@ -3083,13 +3083,13 @@ export default function App() {
                     }}
                     className={`w-full flex items-center justify-between px-2 py-1 rounded-lg text-left font-mono text-[11.5px] transition-colors cursor-pointer ${
                       activeWorkspace.branch === br
-                        ? "bg-[#fef8f4] text-[#c86a28] font-medium border border-[#f5d9c3]"
-                        : "hover:bg-white text-[#44403c]"
+                        ? "bg-[#edf4ec] text-[#2d5a43] font-medium border border-[#cddcd0]"
+                        : "hover:bg-white text-[#4a534c]"
                     }`}
                   >
                     <span>{br}</span>
                     {activeWorkspace.branch === br && (
-                      <Check className="w-3 h-3 text-[#c86a28]" />
+                      <Check className="w-3 h-3 text-[#2d5a43]" />
                     )}
                   </button>
                 ))}
@@ -3125,7 +3125,7 @@ export default function App() {
                         )
                       }
                     }}
-                    className="flex-1 px-1.5 py-0.5 text-[11px] font-mono bg-white border border-[#c86a28] rounded-md focus:outline-none"
+                    className="flex-1 px-1.5 py-0.5 text-[11px] font-mono bg-white border border-[#2d5a43] rounded-md focus:outline-none"
                   />
                   <button
                     type="button"
@@ -3145,7 +3145,7 @@ export default function App() {
                         )
                       }
                     }}
-                    className="px-2 py-0.5 bg-[#c86a28] text-white text-[11px] rounded-md hover:bg-[#b45309] cursor-pointer"
+                    className="px-2 py-0.5 bg-[#2d5a43] text-white text-[11px] rounded-md hover:bg-[#234937] cursor-pointer"
                   >
                     创建
                   </button>
@@ -3154,9 +3154,9 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setShowNewBranchInput(true)}
-                  className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-lg text-[10.5px] text-[#c86a28] hover:bg-[#fef8f4] font-medium transition-colors cursor-pointer"
+                  className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-lg text-[10.5px] text-[#2d5a43] hover:bg-[#edf4ec] font-medium transition-colors cursor-pointer"
                 >
-                  <Plus className="w-3 h-3 text-[#c86a28]" />
+                  <Plus className="w-3 h-3 text-[#2d5a43]" />
                   <span>新建分支...</span>
                 </button>
               )}
@@ -3174,10 +3174,10 @@ export default function App() {
                   activeWorkspace.branch,
               )
             }}
-            className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#1c1917] transition-colors cursor-pointer group"
+            className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f7f5ef] text-[#1a211c] transition-colors cursor-pointer group"
           >
             <div className="flex items-center space-x-2.5">
-              <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#57534e]">
+              <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#5c6760]">
                 <svg
                   className="w-4 h-4"
                   viewBox="0 0 16 16"
@@ -3215,9 +3215,9 @@ export default function App() {
                 "PR 状态: 未检测到关联的 GitHub Pull Request",
               )
             }}
-            className="w-full flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#57534e] hover:text-[#1c1917] transition-colors cursor-pointer text-left"
+            className="w-full flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-[#f7f5ef] text-[#5c6760] hover:text-[#1a211c] transition-colors cursor-pointer text-left"
           >
-            <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#57534e] flex-shrink-0">
+            <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#5c6760] flex-shrink-0">
               <svg
                 className="w-4 h-4"
                 viewBox="0 0 16 16"
@@ -3244,10 +3244,10 @@ export default function App() {
               openReviewTab()
               showEnvToastMessage("正在比较分支差异...")
             }}
-            className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#57534e] hover:text-[#1c1917] transition-colors cursor-pointer text-left"
+            className="w-full flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-[#f7f5ef] text-[#5c6760] hover:text-[#1a211c] transition-colors cursor-pointer text-left"
           >
             <div className="flex items-center space-x-2.5 min-w-0">
-              <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#57534e] flex-shrink-0">
+              <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#5c6760] flex-shrink-0">
                 <svg
                   className="w-4 h-4"
                   viewBox="0 0 16 16"
@@ -3270,11 +3270,11 @@ export default function App() {
       </div>
 
       {/* Divider Line */}
-      <div className="border-t border-[#f0eee6] my-1" />
+      <div className="border-t border-[#eae6dc] my-1" />
 
       {/* Card Section 2: 来源 Header */}
       <div className="flex items-center justify-between px-1 pb-1">
-        <span className="text-[13px] font-medium text-[#78716c] tracking-tight">
+        <span className="text-[13px] font-medium text-[#747f78] tracking-tight">
           来源
         </span>
         <div className="relative">
@@ -3288,9 +3288,9 @@ export default function App() {
               )
             }
             title="添加来源"
-            className={`w-6 h-6 rounded-md flex items-center justify-center text-[#78716c] hover:text-[#1c1917] hover:bg-[#f5f5f4] transition-colors cursor-pointer ${
+            className={`w-6 h-6 rounded-md flex items-center justify-center text-[#747f78] hover:text-[#1a211c] hover:bg-[#f7f5ef] transition-colors cursor-pointer ${
               envDropdown === "sourcesPlus"
-                ? "bg-[#f5f5f4] text-[#1c1917]"
+                ? "bg-[#f7f5ef] text-[#1a211c]"
                 : ""
             }`}
           >
@@ -3299,14 +3299,14 @@ export default function App() {
 
           {/* Sources Plus Menu */}
           {envDropdown === "sourcesPlus" && (
-            <div className="absolute right-0 top-7 w-44 bg-white border border-[#e7e5e4] rounded-xl shadow-xl py-1.5 z-50 text-[12px] space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
+            <div className="absolute right-0 top-7 w-44 bg-white border border-[#eae6dc] rounded-xl shadow-xl py-1.5 z-50 text-[12px] space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
               <button
                 type="button"
                 onClick={() => {
                   setEnvDropdown("none")
                   showEnvToastMessage("已从系统剪贴板导入新来源")
                 }}
-                className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
+                className="w-full px-3 py-1.5 text-left text-[#4a534c] hover:bg-[#edf4ec] hover:text-[#2d5a43] flex items-center space-x-2 transition-colors cursor-pointer"
               >
                 <Paperclip className="w-3.5 h-3.5" />
                 <span>粘贴剪贴板内容</span>
@@ -3317,7 +3317,7 @@ export default function App() {
                   setEnvDropdown("none")
                   showEnvToastMessage("已选择本地文件作为上下文来源")
                 }}
-                className="w-full px-3 py-1.5 text-left text-[#44403c] hover:bg-[#fef8f4] hover:text-[#c86a28] flex items-center space-x-2 transition-colors cursor-pointer"
+                className="w-full px-3 py-1.5 text-left text-[#4a534c] hover:bg-[#edf4ec] hover:text-[#2d5a43] flex items-center space-x-2 transition-colors cursor-pointer"
               >
                 <FolderOpen className="w-3.5 h-3.5" />
                 <span>选择本地文件...</span>
@@ -3338,9 +3338,9 @@ export default function App() {
             )
           }}
           title="codex-clipboard-3898a4b2-63b3-4a71-9df9-c3d52368c12b"
-          className="w-full flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#4b5563] hover:text-[#1c1917] transition-colors cursor-pointer text-left group"
+          className="w-full flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-[#f7f5ef] text-[#4b5563] hover:text-[#1a211c] transition-colors cursor-pointer text-left group"
         >
-          <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#9ca3af] group-hover:text-[#57534e] flex-shrink-0">
+          <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#9ca3af] group-hover:text-[#5c6760] flex-shrink-0">
             <svg
               className="w-4 h-4"
               viewBox="0 0 16 16"
@@ -3358,7 +3358,7 @@ export default function App() {
               />
             </svg>
           </div>
-          <span className="font-mono text-[11.5px] truncate text-[#4b5563] group-hover:text-[#1c1917]">
+          <span className="font-mono text-[11.5px] truncate text-[#4b5563] group-hover:text-[#1a211c]">
             codex-clipboard-3898a4b2-63b3-4a71...
           </span>
         </button>
@@ -3372,9 +3372,9 @@ export default function App() {
             )
           }}
           title="codex-clipboard-506c9f2d-3b7a-4de4-859a-302efd978a59.png"
-          className="w-full flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#4b5563] hover:text-[#1c1917] transition-colors cursor-pointer text-left group"
+          className="w-full flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-[#f7f5ef] text-[#4b5563] hover:text-[#1a211c] transition-colors cursor-pointer text-left group"
         >
-          <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#9ca3af] group-hover:text-[#57534e] flex-shrink-0">
+          <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#9ca3af] group-hover:text-[#5c6760] flex-shrink-0">
             <svg
               className="w-4 h-4"
               viewBox="0 0 16 16"
@@ -3400,7 +3400,7 @@ export default function App() {
               />
             </svg>
           </div>
-          <span className="font-mono text-[11.5px] truncate text-[#4b5563] group-hover:text-[#1c1917]">
+          <span className="font-mono text-[11.5px] truncate text-[#4b5563] group-hover:text-[#1a211c]">
             codex-clipboard-506c9f2d-3b7a-4de4...
           </span>
         </button>
@@ -3413,12 +3413,12 @@ export default function App() {
               "已展开当前会话全部 2 项上下文来源",
             )
           }}
-          className="w-full flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-[#f5f5f4] text-[#57534e] hover:text-[#1c1917] transition-colors cursor-pointer text-left group"
+          className="w-full flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-[#f7f5ef] text-[#5c6760] hover:text-[#1a211c] transition-colors cursor-pointer text-left group"
         >
-          <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#78716c] group-hover:text-[#c86a28] flex-shrink-0">
+          <div className="w-4.5 h-4.5 rounded flex items-center justify-center text-[#747f78] group-hover:text-[#2d5a43] flex-shrink-0">
             <Link2 className="w-4 h-4" />
           </div>
-          <span className="text-[12.5px] text-[#57534e] group-hover:text-[#1c1917] font-normal">
+          <span className="text-[12.5px] text-[#5c6760] group-hover:text-[#1a211c] font-normal">
             查看全部
           </span>
         </button>
@@ -3436,7 +3436,7 @@ export default function App() {
     <div
       data-theme={settingThemeMode === "深色" ? "dark" : "light"}
       className={`w-screen h-screen ${
-        settingThemeMode === "深色" ? "dark bg-[#100e0c]" : "bg-[#eceae5]"
+        settingThemeMode === "深色" ? "dark bg-[#100e0c]" : "bg-[#f4f2ec]"
       } flex items-center justify-start overflow-x-auto overflow-y-hidden select-none font-sans`}
     >
       {/* Tokmon Agent Desktop Window */}
@@ -3444,14 +3444,14 @@ export default function App() {
         style={{
           width: isMaximized || isRightPanelFullscreen ? "100vw" : `${totalWindowWidth}px`,
         }}
-        className={`h-full flex flex-col bg-[#fafaf9] text-[#1c1917] overflow-hidden relative ${
+        className={`h-full flex flex-col bg-[#ffffff] text-[#1a211c] overflow-hidden relative ${
           isDragging
             ? "transition-none"
             : "transition-[width] duration-150 ease-out"
         } ${
           isMaximized || isRightPanelFullscreen
             ? "w-screen rounded-none"
-            : "border-r border-[#d4d1c8] shadow-2xl"
+            : "border-r border-[#e2ded4] shadow-2xl"
         }`}
       >
         {/* App Main Layout Grid */}
@@ -3464,8 +3464,8 @@ export default function App() {
               width: isRightPanelFullscreen || !leftSidebarOpen ? "0px" : `${leftSidebarWidth}px`,
               display: isRightPanelFullscreen ? "none" : undefined,
             }}
-            className={`h-full flex-shrink-0 bg-[#f9f9f8] ${
-              !isRightPanelFullscreen && leftSidebarOpen ? "border-r border-[#e7e5e4]/70" : "border-r-0 hidden"
+            className={`h-full flex-shrink-0 bg-[#ffffff] ${
+              !isRightPanelFullscreen && leftSidebarOpen ? "border-r border-[#eae6dc]/70" : "border-r-0 hidden"
             } flex flex-col justify-between overflow-hidden ${
               isDragging
                 ? "transition-none"
@@ -3473,40 +3473,40 @@ export default function App() {
             }`}
           >
             {/* Header with Tokmon Logo (Pinned outside scrollable tree) */}
-            <div className="h-[46px] min-w-[240px] flex-shrink-0 px-4 border-b border-[#e7e5e4]/60 flex items-center justify-between bg-[#f9f9f8]">
+            <div className="h-[46px] min-w-[240px] flex-shrink-0 px-4 border-b border-[#eae6dc]/60 flex items-center justify-between bg-[#ffffff]">
               <div className="flex items-center space-x-2 cursor-pointer">
                 <TokmonLogo />
-                <span className="text-[17px] font-bold tracking-tight text-[#1c1917]">
+                <span className="text-[17px] font-bold tracking-tight text-[#1a211c]">
                   Tokmon
                 </span>
               </div>
             </div>
 
             {/* Scrollable Tree Navigation & Content Area (Fills entire window height, zero horizontal scrollbar) */}
-            <div className="flex-1 min-h-0 min-w-[240px] overflow-y-auto overflow-x-hidden p-3 space-y-3 custom-scrollbar">
+            <div className="flex-1 min-h-0 min-w-[240px] overflow-y-auto overflow-x-hidden p-3 space-y-3 custom-scrollbar bg-[#ffffff]">
               {/* New Conversation Button */}
               <button
                 onClick={handleOpenNewConvModal}
-                className="flex items-center justify-center space-x-1.5 w-full py-2.5 px-4 rounded-xl bg-[#f2ece2] hover:bg-[#eae2d5] text-[#7c431b] font-medium text-[13px] active:scale-98 transition-all cursor-pointer"
+                className="flex items-center justify-center space-x-1.5 w-full py-2.5 px-4 rounded-xl bg-[#f0f6ef] hover:bg-[#e4efe2] text-[#2d5a43] font-medium text-[13px] border border-[#d6e3d5] active:scale-98 transition-all cursor-pointer shadow-2xs"
               >
-                <Plus className="w-4 h-4 text-[#7c431b]" strokeWidth={2.2} />
+                <Plus className="w-4 h-4 text-[#2d5a43]" strokeWidth={2.2} />
                 <span>新建会话</span>
               </button>
 
               {/* Search Input Box */}
               <div className="relative">
-                <Search className="w-4 h-4 text-[#a8a29e] absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-[#949e97] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="搜索会话、项目或分组..."
-                  className="w-full bg-[#edebe4]/70 border-0 rounded-xl pl-9 pr-8 py-1.5 text-[12.5px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#c86a28]/40 transition-all"
+                  className="w-full bg-[#f8f7f4] border border-[#eeebe3] rounded-xl pl-9 pr-8 py-1.5 text-[12.5px] text-[#1a211c] placeholder-[#949e97] focus:outline-none focus:bg-white focus:border-[#2d5a43] focus:ring-1 focus:ring-[#2d5a43]/20 transition-all"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 hover:bg-[#e2e0d8] rounded text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 hover:bg-[#f0ede6] rounded text-[#747f78] hover:text-[#1a211c] transition-colors cursor-pointer"
                     title="清空搜索"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -3516,10 +3516,10 @@ export default function App() {
 
               {/* 3-Level Dynamic Tree Navigation (分组 Group -> 项目 Project -> 会话 Conversation) */}
               <div className="pt-1 space-y-1">
-                <div className="flex items-center justify-between px-2 py-1 text-[11.5px] text-[#78716c] font-medium tracking-wider">
+                <div className="flex items-center justify-between px-2 py-1 text-[11.5px] text-[#747f78] font-medium tracking-wider">
                   <span>分组 / 项目 / 会话</span>
                   {searchQuery.trim() && (
-                    <span className="text-[10px] bg-[#fef8f4] text-[#c86a28] border border-[#f5d9c3] px-1.5 py-0.2 rounded font-medium">
+                    <span className="text-[10px] bg-[#edf4ec] text-[#2d5a43] border border-[#cddcd0] px-1.5 py-0.2 rounded font-medium">
                       找到{" "}
                       {filteredTreeData.reduce(
                         (acc, g) =>
@@ -3537,15 +3537,15 @@ export default function App() {
 
                 {filteredTreeData.length === 0 ? (
                   <div className="py-8 px-2 text-center space-y-2">
-                    <div className="w-9 h-9 mx-auto rounded-full bg-[#f5f5f4] flex items-center justify-center text-[#a8a29e]">
+                    <div className="w-9 h-9 mx-auto rounded-full bg-[#f8f7f4] flex items-center justify-center text-[#949e97]">
                       <Search className="w-4 h-4" />
                     </div>
-                    <div className="text-[12.5px] text-[#78716c] font-medium">
+                    <div className="text-[12.5px] text-[#747f78] font-medium">
                       未找到匹配的会话、项目或分组
                     </div>
                     <button
                       onClick={() => setSearchQuery("")}
-                      className="text-[11.5px] text-[#c86a28] hover:underline font-medium cursor-pointer"
+                      className="text-[11.5px] text-[#2d5a43] hover:underline font-medium cursor-pointer"
                     >
                       清除搜索条件
                     </button>
@@ -3554,7 +3554,7 @@ export default function App() {
                   filteredTreeData.map((group) => (
                     <div key={group.id} className="space-y-0.5 text-[13px]">
                       {/* Group Header Row */}
-                      <div className="flex items-center justify-between pl-2 pr-1 py-1 rounded-md hover:bg-[#f3f2eb] text-[#292524] transition-colors group/group">
+                      <div className="flex items-center justify-between pl-2 pr-1 py-1 rounded-md hover:bg-[#f7f6f2] text-[#252d27] transition-colors group/group">
                         <button
                           onClick={() => {
                             setTreeData((prev) =>
@@ -3568,11 +3568,11 @@ export default function App() {
                           className="flex items-center space-x-1.5 font-semibold text-left flex-1 min-w-0 cursor-pointer"
                         >
                           {group.isOpen || !!searchQuery.trim() ? (
-                            <ChevronDown className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
+                            <ChevronDown className="w-3.5 h-3.5 text-[#747f78] flex-shrink-0" />
                           ) : (
-                            <ChevronRight className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
+                            <ChevronRight className="w-3.5 h-3.5 text-[#747f78] flex-shrink-0" />
                           )}
-                          <Folder className="w-4 h-4 text-[#c86a28] flex-shrink-0" />
+                          <Folder className="w-4 h-4 text-[#2d5a43] flex-shrink-0" />
                           <span className="truncate">
                             {renderHighlightedText(group.name, searchQuery)}
                           </span>
@@ -3585,7 +3585,7 @@ export default function App() {
 
                             handleQuickCreateInGroup(group.name)
                           }}
-                          className="w-5.5 h-5.5 rounded-md hover:bg-[#e4e2da] text-[#78716c] hover:text-[#c86a28] flex items-center justify-center opacity-0 group-hover/group:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                          className="w-5.5 h-5.5 rounded-md hover:bg-[#f0ece3] text-[#747f78] hover:text-[#2d5a43] flex items-center justify-center opacity-0 group-hover/group:opacity-100 transition-all cursor-pointer flex-shrink-0"
                           title={`在「${group.name}」快速新建会话`}
                         >
                           <Plus className="w-3.5 h-3.5" />
@@ -3594,11 +3594,11 @@ export default function App() {
 
                       {/* Group Projects */}
                       {(group.isOpen || !!searchQuery.trim()) && (
-                        <div className="pl-3.5 space-y-1 border-l-2 border-[#f0eee6] ml-3.5">
+                        <div className="pl-3.5 space-y-1 border-l-2 border-[#eae6dc] ml-3.5">
                           {group.projects.map((project) => (
                             <div key={project.id}>
                               {/* Project Header Row */}
-                              <div className="flex items-center justify-between pl-1.5 pr-1 py-1 rounded-md hover:bg-[#f3f2eb] text-[#44403c] transition-colors group/proj">
+                              <div className="flex items-center justify-between pl-1.5 pr-1 py-1 rounded-md hover:bg-[#f7f6f2] text-[#4a534c] transition-colors group/proj">
                                 <button
                                   onClick={() => {
                                     setTreeData((prev) =>
@@ -3620,11 +3620,11 @@ export default function App() {
                                   className="flex items-center space-x-1.5 font-medium text-[12.5px] text-left flex-1 min-w-0 cursor-pointer"
                                 >
                                   {project.isOpen || !!searchQuery.trim() ? (
-                                    <ChevronDown className="w-3 h-3 text-[#a8a29e] flex-shrink-0" />
+                                    <ChevronDown className="w-3 h-3 text-[#949e97] flex-shrink-0" />
                                   ) : (
-                                    <ChevronRight className="w-3 h-3 text-[#a8a29e] flex-shrink-0" />
+                                    <ChevronRight className="w-3 h-3 text-[#949e97] flex-shrink-0" />
                                   )}
-                                  <Box className="w-3.5 h-3.5 text-[#a8a29e] flex-shrink-0" />
+                                  <Box className="w-3.5 h-3.5 text-[#949e97] flex-shrink-0" />
                                   <span className="truncate">
                                     {renderHighlightedText(
                                       project.name,
@@ -3643,7 +3643,7 @@ export default function App() {
                                       project.name,
                                     )
                                   }}
-                                  className="w-5.5 h-5.5 rounded-md hover:bg-[#e4e2da] text-[#78716c] hover:text-[#c86a28] flex items-center justify-center opacity-0 group-hover/proj:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                                  className="w-5.5 h-5.5 rounded-md hover:bg-[#f0ece3] text-[#747f78] hover:text-[#2d5a43] flex items-center justify-center opacity-0 group-hover/proj:opacity-100 transition-all cursor-pointer flex-shrink-0"
                                   title={`在项目「${project.name}」新建会话`}
                                 >
                                   <Plus className="w-3.5 h-3.5" />
@@ -3665,15 +3665,15 @@ export default function App() {
                                       }
                                       className={`cursor-pointer flex items-center space-x-2 px-2.5 py-1.5 rounded-xl text-[12px] transition-all ${
                                         selectedConversation === item
-                                          ? "bg-[#f7efe5] text-[#8b5229] font-semibold shadow-2xs"
-                                          : "text-[#57534e] hover:bg-[#f3f2eb]"
+                                          ? "bg-[#edf5ec] text-[#2d5a43] font-semibold border border-[#d0ded0] shadow-2xs"
+                                          : "text-[#5c6760] hover:bg-[#f7f6f2]"
                                       }`}
                                     >
                                       <MessageSquare
                                         className={`w-3.5 h-3.5 flex-shrink-0 ${
                                           selectedConversation === item
-                                            ? "text-[#c86a28]"
-                                            : "text-[#a8a29e]"
+                                            ? "text-[#2d5a43]"
+                                            : "text-[#949e97]"
                                         }`}
                                       />
                                       <span className="truncate">
@@ -3697,12 +3697,12 @@ export default function App() {
             </div>
 
             {/* Settings at Bottom (Pinned at bottom) */}
-            <div className="p-3 min-w-[240px] border-t border-[#e7e5e4] flex-shrink-0 bg-[#f9f9f8]">
+            <div className="p-3 min-w-[240px] border-t border-[#eae6dc]/70 flex-shrink-0 bg-[#ffffff]">
               <button
                 onClick={() => setShowSettingsModal(true)}
-                className="w-full flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#efeee8] text-[13.5px] text-[#44403c] font-medium transition-colors text-left cursor-pointer"
+                className="w-full flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#f7f6f2] text-[13.5px] text-[#4a534c] font-medium transition-colors text-left cursor-pointer"
               >
-                <Settings className="w-4 h-4 text-[#78716c]" />
+                <Settings className="w-4 h-4 text-[#747f78]" />
                 <span>设置</span>
               </button>
             </div>
@@ -3734,8 +3734,8 @@ export default function App() {
                 <div
                   className={`w-[2px] h-full transition-colors duration-150 ${
                     isDraggingLeft
-                      ? "bg-[#c86a28]/80"
-                      : "bg-transparent group-hover/line:bg-[#c86a28]/80"
+                      ? "bg-[#2d5a43]/80"
+                      : "bg-transparent group-hover/line:bg-[#2d5a43]/80"
                   }`}
                 />
               </div>
@@ -3750,7 +3750,7 @@ export default function App() {
                   setLeftSidebarOpen(false)
                 }}
                 title="折叠侧边栏"
-                className="absolute top-2.5 -left-2 z-50 w-6 h-6 rounded-md bg-white border border-[#e5e2da] shadow-2xs hover:shadow-md hover:border-[#c86a28] hover:bg-[#fafaf9] text-[#78716c] hover:text-[#c86a28] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
+                className="absolute top-2.5 -left-2 z-50 w-6 h-6 rounded-md bg-white border border-[#eae6dc] shadow-2xs hover:shadow-md hover:border-[#2d5a43] hover:bg-[#ffffff] text-[#747f78] hover:text-[#2d5a43] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
               >
                 <PanelLeftClose className="w-3.5 h-3.5" />
               </button>
@@ -3770,29 +3770,29 @@ export default function App() {
               }}
             className={`${
               isMaximized && !rightPanelOpen ? "flex-1" : "flex-shrink-0"
-            } flex flex-col bg-[#fafaf9] overflow-hidden relative ${
+            } flex flex-col bg-[#ffffff] overflow-hidden relative ${
               isDragging
                 ? "transition-none"
                 : "transition-[width] duration-150 ease-out"
             }`}
           >
             {/* Middle Column Top Header Bar (Height aligned with Left & Right sidebars: 46px) */}
-            <div className="h-[46px] flex-shrink-0 border-b border-[#e7e5e4]/60 bg-[#fafaf9] flex items-center justify-between px-3.5 text-[12.5px] select-none z-30">
+            <div className="h-[46px] flex-shrink-0 border-b border-[#eae6dc]/60 bg-[#ffffff] flex items-center justify-between px-3.5 text-[12.5px] select-none z-30">
               <div className="flex items-center space-x-2 min-w-0">
                 {!leftSidebarOpen && (
                   <button
                     onClick={() => setLeftSidebarOpen(true)}
                     title="展开侧边栏"
-                    className="w-7 h-7 flex items-center justify-center hover:bg-[#e7e5e4] rounded-md text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer mr-1"
+                    className="w-7 h-7 flex items-center justify-center hover:bg-[#eae6dc] rounded-md text-[#747f78] hover:text-[#1a211c] transition-colors cursor-pointer mr-1"
                   >
                     <PanelLeftOpen className="w-4 h-4" />
                   </button>
                 )}
-                <span className="font-semibold text-[13.5px] text-[#1c1917] truncate">
+                <span className="font-semibold text-[13.5px] text-[#1a211c] truncate">
                   {selectedConversation || "生成音频时间轴字幕"}
                 </span>
-                <span className="text-[11px] font-mono text-[#a8a29e] bg-[#f5f5f4] px-2 py-0.5 rounded-full border border-[#e7e5e4]/60 flex items-center space-x-1 flex-shrink-0">
-                  <Folder className="w-3 h-3 text-[#78716c]" />
+                <span className="text-[11px] font-mono text-[#949e97] bg-[#f7f5ef] px-2 py-0.5 rounded-full border border-[#eae6dc]/60 flex items-center space-x-1 flex-shrink-0">
+                  <Folder className="w-3 h-3 text-[#747f78]" />
                   <span>{activeWorkspace.name}</span>
                 </span>
               </div>
@@ -3802,7 +3802,7 @@ export default function App() {
                   <button
                     onClick={handleToggleRightPanel}
                     title="展开代码审阅"
-                    className="w-7 h-7 flex items-center justify-center hover:bg-[#e7e5e4] rounded-md text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer mr-1"
+                    className="w-7 h-7 flex items-center justify-center hover:bg-[#eae6dc] rounded-md text-[#747f78] hover:text-[#1a211c] transition-colors cursor-pointer mr-1"
                   >
                     <PanelRightOpen className="w-4 h-4" />
                   </button>
@@ -3837,11 +3837,11 @@ export default function App() {
                       setEnvDropdown("none")
                     }}
                     title="环境信息 (点击展开)"
-                    className="w-12 h-12 rounded-[18px] bg-gradient-to-b from-white/95 via-white/90 to-[#f6f5f0]/90 hover:from-white hover:to-[#fcfbfa] active:scale-95 text-[#292524] backdrop-blur-2xl border border-white/90 shadow-[0_12px_28px_-4px_rgba(0,0,0,0.1),0_4px_12px_-2px_rgba(0,0,0,0.05),inset_0_1px_1px_rgba(255,255,255,1)] flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 ring-1 ring-[#e5e2da]/70 select-none"
+                    className="w-12 h-12 rounded-[18px] bg-gradient-to-b from-white/95 via-white/90 to-[#f7f5ef]/90 hover:from-white hover:to-[#fcfbfa] active:scale-95 text-[#252d27] backdrop-blur-2xl border border-white/90 shadow-[0_12px_28px_-4px_rgba(0,0,0,0.1),0_4px_12px_-2px_rgba(0,0,0,0.05),inset_0_1px_1px_rgba(255,255,255,1)] flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 ring-1 ring-[#eae6dc]/70 select-none"
                   >
                     {/* Authentic Apple AssistiveTouch Geometric Vector Glyph */}
                     <svg
-                      className="w-7.5 h-7.5 text-[#383533] group-hover:text-[#c86a28] transition-colors duration-200"
+                      className="w-7.5 h-7.5 text-[#343d37] group-hover:text-[#2d5a43] transition-colors duration-200"
                       viewBox="0 0 32 32"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
@@ -3890,10 +3890,10 @@ export default function App() {
                   </button>
 
                   {/* Tooltip on Hover */}
-                  <div className="absolute right-0 top-14 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0 whitespace-nowrap bg-[#1c1917]/90 text-white text-[11px] font-medium px-2.5 py-1 rounded-xl shadow-xl backdrop-blur-md border border-white/10 z-50 flex items-center space-x-1.5">
+                  <div className="absolute right-0 top-14 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0 whitespace-nowrap bg-[#1a211c]/90 text-white text-[11px] font-medium px-2.5 py-1 rounded-xl shadow-xl backdrop-blur-md border border-white/10 z-50 flex items-center space-x-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     <span>环境信息 · {activeWorkspace.name}</span>
-                    <span className="text-[#a8a29e] font-mono">
+                    <span className="text-[#949e97] font-mono">
                       ({activeWorkspace.branch})
                     </span>
                   </div>
@@ -3913,7 +3913,7 @@ export default function App() {
 
               {/* Floating Toast Notification (when collapsed) */}
               {!isEnvPanelOpen && envToast && (
-                <div className="absolute right-0 top-14 whitespace-nowrap bg-white text-[#292524] text-[11.5px] font-medium px-3 py-1.5 rounded-xl shadow-xl border border-[#e7e5e4] z-50 animate-in fade-in slide-in-from-top-1 duration-150 flex items-center space-x-1.5">
+                <div className="absolute right-0 top-14 whitespace-nowrap bg-white text-[#252d27] text-[11.5px] font-medium px-3 py-1.5 rounded-xl shadow-xl border border-[#eae6dc] z-50 animate-in fade-in slide-in-from-top-1 duration-150 flex items-center space-x-1.5">
                   <Check className="w-3.5 h-3.5 text-emerald-500" />
                   <span>{envToast}</span>
                 </div>
@@ -3930,16 +3930,16 @@ export default function App() {
                   <div className="w-full max-w-[874px] mx-auto flex flex-col items-center justify-center text-center select-none animate-in fade-in duration-300">
                       {/* 1. Tokmon Brand SVG Logo (matching top-left logo) */}
                       <div className="relative mb-5 group cursor-pointer">
-                        <div className="w-16 h-16 rounded-3xl bg-gradient-to-b from-[#fef8f4] to-[#fbf1e7] border border-[#f5d9c3] shadow-xs flex items-center justify-center group-hover:scale-105 group-hover:shadow-md transition-all duration-300">
+                        <div className="w-16 h-16 rounded-3xl bg-gradient-to-b from-[#edf4ec] to-[#f0f5ee] border border-[#cddcd0] shadow-xs flex items-center justify-center group-hover:scale-105 group-hover:shadow-md transition-all duration-300">
                           <TokmonLogo size={36} />
                         </div>
                         {/* Subtle breathing ring */}
-                        <div className="absolute -inset-1 bg-[#c86a28]/10 rounded-[26px] -z-10 blur-xs group-hover:bg-[#c86a28]/20 transition-colors" />
+                        <div className="absolute -inset-1 bg-[#2d5a43]/10 rounded-[26px] -z-10 blur-xs group-hover:bg-[#2d5a43]/20 transition-colors" />
                       </div>
 
                       {/* 2. Main Question Heading */}
                       <div className="space-y-2 mb-8 max-w-[680px]">
-                        <h2 className="text-[23px] sm:text-[25px] font-semibold text-[#1c1917] tracking-tight leading-snug">
+                        <h2 className="text-[23px] sm:text-[25px] font-semibold text-[#1a211c] tracking-tight leading-snug">
                           你想让我们在{" "}
                           <button
                             type="button"
@@ -3949,15 +3949,15 @@ export default function App() {
                               setShowChangeWorkspaceModal(true)
                             }}
                             title="点击切换或更换工作空间目录"
-                            className="inline-flex items-center font-semibold text-[#1c1917] hover:text-[#c86a28] border-b-2 border-dashed border-[#a8a29e] hover:border-[#c86a28] pb-0.5 transition-colors cursor-pointer"
+                            className="inline-flex items-center font-semibold text-[#1a211c] hover:text-[#2d5a43] border-b-2 border-dashed border-[#949e97] hover:border-[#2d5a43] pb-0.5 transition-colors cursor-pointer"
                           >
                             <span>{activeWorkspace.name}</span>
                           </button>{" "}
                           中构建什么？
                         </h2>
-                        <p className="text-[13px] text-[#78716c]">
+                        <p className="text-[13px] text-[#747f78]">
                           智能体已就绪，当前关联工作空间{" "}
-                          <span className="font-mono text-[#c86a28] font-medium bg-[#fef8f4] px-1.5 py-0.5 rounded border border-[#f5d9c3]">
+                          <span className="font-mono text-[#2d5a43] font-medium bg-[#edf4ec] px-1.5 py-0.5 rounded border border-[#cddcd0]">
                             {activeWorkspace.shortPath}
                           </span>
                         </p>
@@ -3976,9 +3976,9 @@ export default function App() {
                               textareaRef.current.focus()
                             }
                           }}
-                          className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-sky-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                          className="bg-white hover:bg-[#f9fbf8] border border-[#eae6dc] hover:border-[#4a7860] shadow-2xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
                         >
-                          <div className="w-8 h-8 rounded-xl bg-sky-50 flex items-center justify-center text-sky-500 group-hover:scale-110 group-hover:bg-sky-100 transition-all">
+                          <div className="w-8 h-8 rounded-xl bg-[#edf4ec] flex items-center justify-center text-[#2d5a43] group-hover:scale-110 group-hover:bg-[#e2ede0] transition-all">
                             {/* Custom Telescope / Code Explorer SVG */}
                             <svg
                               className="w-4.5 h-4.5"
@@ -3997,10 +3997,10 @@ export default function App() {
                             </svg>
                           </div>
                           <div>
-                            <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-sky-600 transition-colors leading-snug">
+                            <h4 className="text-[13px] font-semibold text-[#1a211c] group-hover:text-[#2d5a43] transition-colors leading-snug">
                               探索并理解代码
                             </h4>
-                            <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">
+                            <p className="text-[11px] text-[#949e97] mt-0.5 line-clamp-1">
                               梳理架构、依赖与核心逻辑
                             </p>
                           </div>
@@ -4017,9 +4017,9 @@ export default function App() {
                               textareaRef.current.focus()
                             }
                           }}
-                          className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-purple-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                          className="bg-white hover:bg-[#f9fbf8] border border-[#eae6dc] hover:border-[#4a7860] shadow-2xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
                         >
-                          <div className="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center text-purple-500 group-hover:scale-110 group-hover:bg-purple-100 transition-all">
+                          <div className="w-8 h-8 rounded-xl bg-[#edf4ec] flex items-center justify-center text-[#2d5a43] group-hover:scale-110 group-hover:bg-[#e2ede0] transition-all">
                             {/* Custom Builder / Hammer SVG */}
                             <svg
                               className="w-4.5 h-4.5"
@@ -4044,10 +4044,10 @@ export default function App() {
                             </svg>
                           </div>
                           <div>
-                            <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-purple-600 transition-colors leading-snug">
+                            <h4 className="text-[13px] font-semibold text-[#1a211c] group-hover:text-[#2d5a43] transition-colors leading-snug">
                               构建新功能或应用
                             </h4>
-                            <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">
+                            <p className="text-[11px] text-[#949e97] mt-0.5 line-clamp-1">
                               规划方案并编写实现代码
                             </p>
                           </div>
@@ -4064,9 +4064,9 @@ export default function App() {
                               textareaRef.current.focus()
                             }
                           }}
-                          className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-emerald-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                          className="bg-white hover:bg-[#f9fbf8] border border-[#eae6dc] hover:border-[#4a7860] shadow-2xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
                         >
-                          <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500 group-hover:scale-110 group-hover:bg-emerald-100 transition-all">
+                          <div className="w-8 h-8 rounded-xl bg-[#edf4ec] flex items-center justify-center text-[#2d5a43] group-hover:scale-110 group-hover:bg-[#e2ede0] transition-all">
                             {/* Custom Code Audit / Checkmark Refresh SVG */}
                             <svg
                               className="w-4.5 h-4.5"
@@ -4097,10 +4097,10 @@ export default function App() {
                             </svg>
                           </div>
                           <div>
-                            <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-emerald-600 transition-colors leading-snug">
+                            <h4 className="text-[13px] font-semibold text-[#1a211c] group-hover:text-[#2d5a43] transition-colors leading-snug">
                               审查代码并提建议
                             </h4>
-                            <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">
+                            <p className="text-[11px] text-[#949e97] mt-0.5 line-clamp-1">
                               排查隐患与提升代码规范
                             </p>
                           </div>
@@ -4117,9 +4117,9 @@ export default function App() {
                               textareaRef.current.focus()
                             }
                           }}
-                          className="bg-white hover:bg-[#fefcfb] border border-black/[0.06] hover:border-orange-400/50 shadow-xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
+                          className="bg-white hover:bg-[#f9fbf8] border border-[#eae6dc] hover:border-[#4a7860] shadow-2xs hover:shadow-md rounded-2xl p-4 flex flex-col justify-between h-[126px] cursor-pointer transition-all duration-200 hover:-translate-y-1 group"
                         >
-                          <div className="w-8 h-8 rounded-xl bg-orange-50 flex items-center justify-center text-[#c86a28] group-hover:scale-110 group-hover:bg-orange-100 transition-all">
+                          <div className="w-8 h-8 rounded-xl bg-[#edf4ec] flex items-center justify-center text-[#2d5a43] group-hover:scale-110 group-hover:bg-[#e2ede0] transition-all">
                             {/* Custom Bug / Diagnostic SVG */}
                             <svg
                               className="w-4.5 h-4.5"
@@ -4155,10 +4155,10 @@ export default function App() {
                             </svg>
                           </div>
                           <div>
-                            <h4 className="text-[13px] font-semibold text-[#1c1917] group-hover:text-[#c86a28] transition-colors leading-snug">
+                            <h4 className="text-[13px] font-semibold text-[#1a211c] group-hover:text-[#2d5a43] transition-colors leading-snug">
                               修复问题和失败
                             </h4>
-                            <p className="text-[11px] text-[#a8a29e] mt-0.5 line-clamp-1">
+                            <p className="text-[11px] text-[#949e97] mt-0.5 line-clamp-1">
                               诊断报错堆栈并修复异常
                             </p>
                           </div>
@@ -4176,7 +4176,7 @@ export default function App() {
                   <div className="w-full max-w-[874px] mx-auto space-y-6">
                     {/* Timestamp tag */}
                     <div className="text-center">
-                      <span className="text-[11.5px] text-[#a8a29e] font-medium">
+                      <span className="text-[11.5px] text-[#949e97] font-medium">
                         10:20
                       </span>
                     </div>
@@ -4186,33 +4186,33 @@ export default function App() {
                         <div key={msg.id}>
                           {msg.sender === "user" ? (
                             <div className="flex justify-end">
-                              <div className="max-w-[713px] bg-[#fcf8f3] dark:bg-[#251d16] border border-[#ebdcd0]/70 dark:border-[#e88d43]/15 rounded-[22px] rounded-br-[6px] p-3.5 sm:p-4 text-[13px] text-[#292524] dark:text-[#ede5da] leading-relaxed shadow-2xs">
-                                <p className="font-medium text-[#1c1917] dark:text-[#f5ece3] mb-1">
+                              <div className="max-w-[713px] bg-[#f8f6f0] dark:bg-[#251d16] border border-[#eae5da]/70 dark:border-[#e88d43]/15 rounded-[22px] rounded-br-[6px] p-3.5 sm:p-4 text-[13px] text-[#252d27] dark:text-[#ede5da] leading-relaxed shadow-2xs">
+                                <p className="font-medium text-[#1a211c] dark:text-[#f5ece3] mb-1">
                                   {msg.text}
                                 </p>
                                 {msg.details && (
-                                  <div className="font-mono text-[12px] text-[#57534e] dark:text-[#dcd3c6] space-y-1 bg-[#f7efe5]/60 dark:bg-[#1a140e]/95 p-2.5 rounded-xl border border-[#ebdcd0]/60 dark:border-white/[0.04] mt-2">
+                                  <div className="font-mono text-[12px] text-[#5c6760] dark:text-[#dcd3c6] space-y-1 bg-[#eaf1e8]/60 dark:bg-[#1a140e]/95 p-2.5 rounded-xl border border-[#eae5da]/60 dark:border-white/[0.04] mt-2">
                                     <p className="flex items-center space-x-1.5">
-                                      <span className="text-[#a8a29e] dark:text-[#9c9282]">
+                                      <span className="text-[#949e97] dark:text-[#9c9282]">
                                         模型路径:
                                       </span>{" "}
-                                      <span className="text-[#57534e] dark:text-[#e88d43] font-medium">
+                                      <span className="text-[#5c6760] dark:text-[#e88d43] font-medium">
                                         {msg.details.modelPath}
                                       </span>
                                     </p>
                                     <p className="flex items-center space-x-1.5">
-                                      <span className="text-[#a8a29e] dark:text-[#9c9282]">
+                                      <span className="text-[#949e97] dark:text-[#9c9282]">
                                         音频文件:
                                       </span>{" "}
-                                      <span className="text-[#57534e] dark:text-[#dcd3c6]">
+                                      <span className="text-[#5c6760] dark:text-[#dcd3c6]">
                                         {msg.details.audioFile}
                                       </span>
                                     </p>
                                     <p className="flex items-center space-x-1.5">
-                                      <span className="text-[#a8a29e] dark:text-[#9c9282]">
+                                      <span className="text-[#949e97] dark:text-[#9c9282]">
                                         输出字幕文件:
                                       </span>{" "}
-                                      <span className="text-[#57534e] dark:text-[#dcd3c6]">
+                                      <span className="text-[#5c6760] dark:text-[#dcd3c6]">
                                         {msg.details.outputFile}
                                       </span>
                                     </p>
@@ -4234,22 +4234,22 @@ export default function App() {
 
                               {/* Message Text or Animated Typing Indicator (Matches Screenshot Box 2) */}
                               {msg.text ? (
-                                <div className="text-[13.5px] text-[#292524] leading-relaxed whitespace-pre-line">
+                                <div className="text-[13.5px] text-[#252d27] leading-relaxed whitespace-pre-line">
                                   {msg.text}
                                   {isGenerating &&
                                     msg.id === messages[messages.length - 1]?.id &&
                                     generationPhase === "streaming" && (
-                                      <span className="inline-block w-1.5 h-4 ml-0.5 bg-[#c86a28] animate-pulse align-middle" />
+                                      <span className="inline-block w-1.5 h-4 ml-0.5 bg-[#2d5a43] animate-pulse align-middle" />
                                     )}
                                 </div>
                               ) : (
                                 /* Red Box 2 in Screenshot: Animated Loading Typing Bubble */
                                 isGenerating &&
                                 msg.id === messages[messages.length - 1]?.id && (
-                                  <div className="flex items-center space-x-1.5 px-3.5 py-2 bg-[#f4f4f4] border border-black/[0.05] rounded-xl w-fit animate-in fade-in duration-200">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-[#c86a28] animate-bounce [animation-delay:-0.3s]" />
-                                    <span className="w-1.5 h-1.5 rounded-full bg-[#c86a28] animate-bounce [animation-delay:-0.15s]" />
-                                    <span className="w-1.5 h-1.5 rounded-full bg-[#c86a28] animate-bounce" />
+                                  <div className="flex items-center space-x-1.5 px-3.5 py-2 bg-[#faf9f5] border border-black/[0.05] rounded-xl w-fit animate-in fade-in duration-200">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#2d5a43] animate-bounce [animation-delay:-0.3s]" />
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#2d5a43] animate-bounce [animation-delay:-0.15s]" />
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#2d5a43] animate-bounce" />
                                   </div>
                                 )
                               )}
@@ -4259,7 +4259,7 @@ export default function App() {
                       ))}
 
                       {/* Workflow Execution Log Container (Collapsible, Unified with Thought Process style) */}
-                      <div className="bg-[#f4f4f4] border border-[#e5e5e5] rounded-xl transition-all select-text overflow-hidden">
+                      <div className="bg-[#faf9f5] border border-[#ece8df] rounded-xl transition-all select-text overflow-hidden">
                         {!isWorkflowExpanded ? (
                           /* Collapsed State: Slim single line bar matching thought process collapsed style */
                           <button
@@ -4269,12 +4269,12 @@ export default function App() {
                           >
                             <div className="flex items-center space-x-2 min-w-0 flex-1 mr-2">
                               <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] flex-shrink-0" />
-                              <span className="text-[12px] sm:text-[12.5px] text-[#8e8e93] truncate font-normal leading-tight">
+                              <span className="text-[12px] sm:text-[12.5px] text-[#8c968f] truncate font-normal leading-tight">
                                 工作流执行完成 · 已探索 12 项 · 运行 9 条命令 · 任务
                                 1/1 (用时 2分18秒)
                               </span>
                             </div>
-                            <ChevronDown className="w-3.5 h-3.5 text-[#78716c] group-hover:text-[#1c1917] transition-colors flex-shrink-0 stroke-[1.8]" />
+                            <ChevronDown className="w-3.5 h-3.5 text-[#747f78] group-hover:text-[#1a211c] transition-colors flex-shrink-0 stroke-[1.8]" />
                           </button>
                         ) : (
                           /* Expanded State: Header with metrics and chevron up + step-by-step timeline content */
@@ -4291,22 +4291,22 @@ export default function App() {
                                     工作流执行
                                   </span>
                                 </div>
-                                <div className="hidden sm:flex items-center space-x-4 text-[11.5px] text-[#78716c]">
+                                <div className="hidden sm:flex items-center space-x-4 text-[11.5px] text-[#747f78]">
                                   <span>
                                     已工作{" "}
-                                    <strong className="text-[#1c1917] font-semibold ml-0.5">
+                                    <strong className="text-[#1a211c] font-semibold ml-0.5">
                                       2分18秒
                                     </strong>
                                   </span>
                                   <span>
                                     已探索{" "}
-                                    <strong className="text-[#1c1917] font-semibold ml-0.5">
+                                    <strong className="text-[#1a211c] font-semibold ml-0.5">
                                       12 项
                                     </strong>
                                   </span>
                                   <span>
                                     已运行{" "}
-                                    <strong className="text-[#1c1917] font-semibold ml-0.5">
+                                    <strong className="text-[#1a211c] font-semibold ml-0.5">
                                       9 条命令
                                     </strong>
                                   </span>
@@ -4316,26 +4316,26 @@ export default function App() {
                                 </div>
                               </div>
 
-                              <div className="text-[#737373] group-hover:text-[#1c1917] transition-colors p-0.5">
+                              <div className="text-[#747f78] group-hover:text-[#1a211c] transition-colors p-0.5">
                                 <ChevronUp className="w-4 h-4 stroke-[1.8]" />
                               </div>
                             </button>
 
                             {/* Timeline Items on unified light gray background */}
                             <div className="space-y-2.5 text-[12.5px] pl-1 relative pt-1 animate-in fade-in duration-200">
-                              <div className="absolute left-[7px] top-[14px] bottom-[14px] w-[1px] bg-[#dfdeda]" />
+                              <div className="absolute left-[7px] top-[14px] bottom-[14px] w-[1px] bg-[#eae6dc]" />
 
                               {/* Step 1: Start */}
                               <div className="flex items-start space-x-2.5 relative z-10">
                                 <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#2d5a43]" />
                                 </div>
-                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                <span className="text-[#949e97] font-mono text-[11.5px]">
                                   10:21
                                 </span>
-                                <span className="text-[#1c1917]">
+                                <span className="text-[#1a211c]">
                                   开始任务: 使用{" "}
-                                  <span className="font-mono text-[#8b5229] font-medium">
+                                  <span className="font-mono text-[#2d5a43] font-medium">
                                     faster-whisper
                                   </span>{" "}
                                   转录音频并生成带时间戳字幕
@@ -4345,15 +4345,15 @@ export default function App() {
                               {/* Step 2: Explore */}
                               <div className="flex items-start space-x-2.5 relative z-10">
                                 <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#2d5a43]" />
                                 </div>
-                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                <span className="text-[#949e97] font-mono text-[11.5px]">
                                   10:21
                                 </span>
-                                <div className="flex items-center space-x-1.5 text-[#292524]">
-                                  <Folder className="w-3.5 h-3.5 text-[#78716c]" />
+                                <div className="flex items-center space-x-1.5 text-[#252d27]">
+                                  <Folder className="w-3.5 h-3.5 text-[#747f78]" />
                                   <span>探索文件夹</span>
-                                  <span className="font-mono text-[#57534e]">
+                                  <span className="font-mono text-[#5c6760]">
                                     C:\Projects\subtitle\
                                   </span>
                                 </div>
@@ -4362,15 +4362,15 @@ export default function App() {
                               {/* Step 3: Read config */}
                               <div className="flex items-start space-x-2.5 relative z-10">
                                 <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#2d5a43]" />
                                 </div>
-                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                <span className="text-[#949e97] font-mono text-[11.5px]">
                                   10:21
                                 </span>
-                                <div className="flex items-center space-x-1.5 text-[#292524]">
-                                  <FileText className="w-3.5 h-3.5 text-[#78716c]" />
+                                <div className="flex items-center space-x-1.5 text-[#252d27]">
+                                  <FileText className="w-3.5 h-3.5 text-[#747f78]" />
                                   <span>读取文件</span>
-                                  <span className="font-mono text-[#1c1917] font-medium">
+                                  <span className="font-mono text-[#1a211c] font-medium">
                                     config.yaml
                                   </span>
                                 </div>
@@ -4381,17 +4381,17 @@ export default function App() {
                                 <div className="w-3.5 h-3.5 rounded-full bg-[#22c55e]/20 border border-[#22c55e] flex items-center justify-center flex-shrink-0 mt-0.5">
                                   <Check className="w-2.5 h-2.5 text-[#16a34a]" />
                                 </div>
-                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                <span className="text-[#949e97] font-mono text-[11.5px]">
                                   10:22
                                 </span>
                                 <div className="space-y-0.5">
-                                  <div className="flex items-center space-x-1.5 text-[#292524]">
+                                  <div className="flex items-center space-x-1.5 text-[#252d27]">
                                     <span>运行命令</span>
                                     <span className="font-mono text-[#0284c7]">
                                       python -V
                                     </span>
                                   </div>
-                                  <div className="text-[11.5px] font-mono text-[#78716c] pl-3">
+                                  <div className="text-[11.5px] font-mono text-[#747f78] pl-3">
                                     ↳ Python 3.10.11
                                   </div>
                                 </div>
@@ -4402,17 +4402,17 @@ export default function App() {
                                 <div className="w-3.5 h-3.5 rounded-full bg-[#22c55e]/20 border border-[#22c55e] flex items-center justify-center flex-shrink-0 mt-0.5">
                                   <Check className="w-2.5 h-2.5 text-[#16a34a]" />
                                 </div>
-                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                <span className="text-[#949e97] font-mono text-[11.5px]">
                                   10:22
                                 </span>
                                 <div className="space-y-0.5">
-                                  <div className="flex items-center space-x-1.5 text-[#292524]">
+                                  <div className="flex items-center space-x-1.5 text-[#252d27]">
                                     <span>运行命令</span>
                                     <span className="font-mono text-[#0284c7]">
                                       pip show faster-whisper
                                     </span>
                                   </div>
-                                  <div className="text-[11.5px] font-mono text-[#78716c] pl-3">
+                                  <div className="text-[11.5px] font-mono text-[#747f78] pl-3">
                                     ↳ faster-whisper 1.1.1
                                   </div>
                                 </div>
@@ -4420,33 +4420,33 @@ export default function App() {
 
                               {/* Step 6: Script running */}
                               <div className="flex items-start space-x-2.5 relative z-10">
-                                <div className="w-3.5 h-3.5 rounded-full bg-[#f7efe5] border border-[#ebdcd0] flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
+                                <div className="w-3.5 h-3.5 rounded-full bg-[#eaf1e8] border border-[#eae5da] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#2d5a43]" />
                                 </div>
-                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                <span className="text-[#949e97] font-mono text-[11.5px]">
                                   10:23
                                 </span>
                                 <div className="flex-1 space-y-1">
-                                  <div className="flex items-center space-x-1.5 text-[#292524]">
-                                    <FileCode className="w-3.5 h-3.5 text-[#c86a28]" />
+                                  <div className="flex items-center space-x-1.5 text-[#252d27]">
+                                    <FileCode className="w-3.5 h-3.5 text-[#2d5a43]" />
                                     <span>运行脚本</span>
-                                    <span className="font-mono text-[#8b5229] font-medium">
+                                    <span className="font-mono text-[#2d5a43] font-medium">
                                       transcribe.py
                                     </span>
-                                    <span className="font-mono text-[#78716c] text-[11.5px]">
+                                    <span className="font-mono text-[#747f78] text-[11.5px]">
                                       --model large-v3-turbo --file
                                       C:\Data\audio.mp3
                                     </span>
                                   </div>
-                                  <div className="text-[11.5px] text-[#78716c] pl-5 flex items-center space-x-2">
+                                  <div className="text-[11.5px] text-[#747f78] pl-5 flex items-center space-x-2">
                                     <span>↳ 正在转录音频 (分段模式)</span>
-                                    <span className="font-mono text-[#8b5229] font-semibold">
+                                    <span className="font-mono text-[#2d5a43] font-semibold">
                                       42%
                                     </span>
-                                    <div className="w-24 h-1.5 bg-[#dfded8] rounded-full overflow-hidden inline-block">
-                                      <div className="h-full bg-[#c86a28] rounded-full w-[42%]" />
+                                    <div className="w-24 h-1.5 bg-[#eae6dc] rounded-full overflow-hidden inline-block">
+                                      <div className="h-full bg-[#2d5a43] rounded-full w-[42%]" />
                                     </div>
-                                    <span className="text-[11px] text-[#a8a29e] font-mono">
+                                    <span className="text-[11px] text-[#949e97] font-mono">
                                       (剩余 00:01:32)
                                     </span>
                                   </div>
@@ -4456,15 +4456,15 @@ export default function App() {
                               {/* Step 7: Output file */}
                               <div className="flex items-start space-x-2.5 relative z-10">
                                 <div className="w-3.5 h-3.5 rounded-full bg-[#e8e6e0] border border-[#d8d6ce] flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-[#c86a28]" />
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#2d5a43]" />
                                 </div>
-                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                <span className="text-[#949e97] font-mono text-[11.5px]">
                                   10:24
                                 </span>
-                                <div className="flex items-center space-x-1.5 text-[#292524]">
-                                  <FileText className="w-3.5 h-3.5 text-[#78716c]" />
+                                <div className="flex items-center space-x-1.5 text-[#252d27]">
+                                  <FileText className="w-3.5 h-3.5 text-[#747f78]" />
                                   <span>生成文件</span>
-                                  <span className="font-mono text-[#1c1917] font-medium">
+                                  <span className="font-mono text-[#1a211c] font-medium">
                                     output.srt
                                   </span>
                                 </div>
@@ -4475,14 +4475,14 @@ export default function App() {
                                 <div className="w-3.5 h-3.5 rounded-full bg-[#22c55e]/20 border border-[#22c55e] flex items-center justify-center flex-shrink-0 mt-0.5">
                                   <CheckCircle2 className="w-3.5 h-3.5 text-[#16a34a]" />
                                 </div>
-                                <span className="text-[#a8a29e] font-mono text-[11.5px]">
+                                <span className="text-[#949e97] font-mono text-[11.5px]">
                                   10:24
                                 </span>
                                 <div className="text-[12.5px]">
                                   <span className="font-semibold text-[#166534]">
                                     任务已完成
                                   </span>
-                                  <span className="text-[#57534e] ml-2">
+                                  <span className="text-[#5c6760] ml-2">
                                     字幕文件已生成:{" "}
                                     <span className="font-mono text-[#166534] font-medium">
                                       output.srt
@@ -4501,60 +4501,60 @@ export default function App() {
             ) : (
               /* HIGH FIDELITY TRAJECTORY TRACE VIEW */
 
-              <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar bg-[#fafaf9]">
+              <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar bg-[#ffffff]">
                 {/* Top Metrics Metrics Bar */}
-                <div className="bg-white border border-[#e7e5e4] rounded-2xl p-3.5 flex items-center justify-between shadow-2xs text-[12px] text-[#57534e]">
+                <div className="bg-white border border-[#eae6dc] rounded-2xl p-3.5 flex items-center justify-between shadow-2xs text-[12px] text-[#5c6760]">
                   <div className="flex items-center space-x-6">
                     <div className="flex items-center space-x-1.5">
-                      <span className="text-[#a8a29e]">🕒</span>
+                      <span className="text-[#949e97]">🕒</span>
                       <span>
                         Duration{" "}
-                        <strong className="text-[#1c1917] font-semibold ml-1">
+                        <strong className="text-[#1a211c] font-semibold ml-1">
                           4m 18.7s
                         </strong>
                       </span>
                     </div>
                     <div className="flex items-center space-x-1.5">
-                      <span className="text-[#a8a29e]">💬</span>
+                      <span className="text-[#949e97]">💬</span>
                       <span>
                         Turns{" "}
-                        <strong className="text-[#1c1917] font-semibold ml-1">
+                        <strong className="text-[#1a211c] font-semibold ml-1">
                           1
                         </strong>
                       </span>
                     </div>
                     <div className="flex items-center space-x-1.5">
-                      <span className="text-[#a8a29e]">⚙️</span>
+                      <span className="text-[#949e97]">⚙️</span>
                       <span>
                         Calls{" "}
-                        <strong className="text-[#1c1917] font-semibold ml-1">
+                        <strong className="text-[#1a211c] font-semibold ml-1">
                           1
                         </strong>
                       </span>
                     </div>
                     <div className="flex items-center space-x-1.5">
-                      <span className="text-[#a8a29e]">📊</span>
+                      <span className="text-[#949e97]">📊</span>
                       <span>
                         Total Tokens{" "}
-                        <strong className="text-[#1c1917] font-semibold ml-1">
+                        <strong className="text-[#1a211c] font-semibold ml-1">
                           8,456
                         </strong>
                       </span>
                     </div>
                     <div className="flex items-center space-x-1.5">
-                      <span className="text-[#a8a29e]">📥</span>
+                      <span className="text-[#949e97]">📥</span>
                       <span>
                         Prompt{" "}
-                        <strong className="text-[#1c1917] font-semibold ml-1">
+                        <strong className="text-[#1a211c] font-semibold ml-1">
                           1,324 (15.7%)
                         </strong>
                       </span>
                     </div>
                     <div className="flex items-center space-x-1.5">
-                      <span className="text-[#a8a29e]">📤</span>
+                      <span className="text-[#949e97]">📤</span>
                       <span>
                         Completion{" "}
-                        <strong className="text-[#1c1917] font-semibold ml-1">
+                        <strong className="text-[#1a211c] font-semibold ml-1">
                           7,132 (84.3%)
                         </strong>
                       </span>
@@ -4563,21 +4563,21 @@ export default function App() {
 
                   {/* Search Box in Trajectory */}
                   <div className="relative w-[220px]">
-                    <Search className="w-3.5 h-3.5 text-[#a8a29e] absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    <Search className="w-3.5 h-3.5 text-[#949e97] absolute left-2.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="text"
                       value={trajectorySearch}
                       onChange={(e) => setTrajectorySearch(e.target.value)}
                       placeholder="搜索轨迹..."
-                      className="w-full bg-[#f9f9f8] border border-[#e7e5e4] rounded-lg pl-8 pr-3 py-1 text-[11.5px] text-[#1c1917] focus:outline-none focus:border-[#f5a623]"
+                      className="w-full bg-[#faf9f6] border border-[#eae6dc] rounded-lg pl-8 pr-3 py-1 text-[11.5px] text-[#1a211c] focus:outline-none focus:border-[#4a7860]"
                     />
                   </div>
                 </div>
 
                 {/* Waterfall Execution Timeline (Gantt Chart) */}
-                <div className="bg-white border border-[#e7e5e4] rounded-2xl p-4 shadow-2xs space-y-3">
+                <div className="bg-white border border-[#eae6dc] rounded-2xl p-4 shadow-2xs space-y-3">
                   {/* Time Scale Ticks */}
-                  <div className="flex justify-between pl-16 pr-4 text-[11px] text-[#a8a29e] font-mono border-b border-[#f5f5f4] pb-1.5">
+                  <div className="flex justify-between pl-16 pr-4 text-[11px] text-[#949e97] font-mono border-b border-[#f7f5ef] pb-1.5">
                     <span>0s</span>
                     <span>48s</span>
                     <span>1m 36s</span>
@@ -4588,13 +4588,13 @@ export default function App() {
                   </div>
 
                   {/* Timeline Rows */}
-                  <div className="space-y-2 text-[12px] font-medium text-[#78716c]">
+                  <div className="space-y-2 text-[12px] font-medium text-[#747f78]">
                     {/* Row 1: Input */}
                     <div className="flex items-center space-x-3">
                       <span className="w-12 text-right text-[11.5px]">
                         Input
                       </span>
-                      <div className="flex-1 h-3 bg-[#f5f5f4] rounded-full relative overflow-hidden">
+                      <div className="flex-1 h-3 bg-[#f7f5ef] rounded-full relative overflow-hidden">
                         <div
                           className="absolute left-[2%] width-[12%] h-full bg-[#6b7280] rounded-full"
                           style={{ width: "12%" }}
@@ -4615,7 +4615,7 @@ export default function App() {
                       <span className="w-12 text-right text-[11.5px]">
                         Model
                       </span>
-                      <div className="flex-1 h-3 bg-[#f5f5f4] rounded-full relative overflow-hidden">
+                      <div className="flex-1 h-3 bg-[#f7f5ef] rounded-full relative overflow-hidden">
                         <div
                           className="absolute left-[50%] width-[10%] h-full bg-[#a855f7] rounded-full"
                           style={{ width: "10%" }}
@@ -4636,7 +4636,7 @@ export default function App() {
                       <span className="w-12 text-right text-[11.5px]">
                         Tools
                       </span>
-                      <div className="flex-1 h-3 bg-[#f5f5f4] rounded-full relative overflow-hidden">
+                      <div className="flex-1 h-3 bg-[#f7f5ef] rounded-full relative overflow-hidden">
                         <div
                           className="absolute left-[61%] width-[12%] h-full bg-[#f97316] rounded-full"
                           style={{ width: "12%" }}
@@ -4650,7 +4650,7 @@ export default function App() {
                   </div>
 
                   {/* Legend Bar */}
-                  <div className="flex items-center space-x-6 text-[11.5px] text-[#78716c] pt-2 border-t border-[#f5f5f4] font-medium">
+                  <div className="flex items-center space-x-6 text-[11.5px] text-[#747f78] pt-2 border-t border-[#f7f5ef] font-medium">
                     <div className="flex items-center space-x-1.5">
                       <span className="w-2.5 h-2.5 rounded-sm bg-[#6b7280]" />
                       <span>Input</span>
@@ -4677,19 +4677,19 @@ export default function App() {
                 {/* Grid Split: Events Table & Event Detail Inspector */}
                 <div className="grid grid-cols-12 gap-4">
                   {/* Left 8 Cols: Events List Table */}
-                  <div className="col-span-8 bg-white border border-[#e7e5e4] rounded-2xl p-4 shadow-2xs flex flex-col justify-between space-y-3">
+                  <div className="col-span-8 bg-white border border-[#eae6dc] rounded-2xl p-4 shadow-2xs flex flex-col justify-between space-y-3">
                     <div>
                       {/* Header */}
-                      <div className="flex items-center justify-between pb-3 border-b border-[#f5f5f4]">
-                        <span className="font-bold text-[#1c1917] text-[13.5px]">
+                      <div className="flex items-center justify-between pb-3 border-b border-[#f7f5ef]">
+                        <span className="font-bold text-[#1a211c] text-[13.5px]">
                           事件列表 (8)
                         </span>
                         <div className="flex items-center space-x-2">
-                          <button className="flex items-center space-x-1 px-2.5 py-1 bg-[#fafaf9] hover:bg-[#f5f5f4] border border-[#e7e5e4] rounded-lg text-[11.5px] text-[#57534e]">
+                          <button className="flex items-center space-x-1 px-2.5 py-1 bg-[#ffffff] hover:bg-[#f7f5ef] border border-[#eae6dc] rounded-lg text-[11.5px] text-[#5c6760]">
                             <Sliders className="w-3 h-3" />
                             <span>筛选</span>
                           </button>
-                          <button className="flex items-center space-x-1 px-2.5 py-1 bg-[#fafaf9] hover:bg-[#f5f5f4] border border-[#e7e5e4] rounded-lg text-[11.5px] text-[#57534e]">
+                          <button className="flex items-center space-x-1 px-2.5 py-1 bg-[#ffffff] hover:bg-[#f7f5ef] border border-[#eae6dc] rounded-lg text-[11.5px] text-[#5c6760]">
                             <Download className="w-3 h-3" />
                             <span>导出</span>
                           </button>
@@ -4700,7 +4700,7 @@ export default function App() {
                       <div className="overflow-x-auto">
                         <table className="w-full text-left text-[12px]">
                           <thead>
-                            <tr className="border-b border-[#f5f5f4] text-[#a8a29e] font-medium text-[11.5px]">
+                            <tr className="border-b border-[#f7f5ef] text-[#949e97] font-medium text-[11.5px]">
                               <th className="py-2 px-1">#</th>
                               <th className="py-2 px-2">时间</th>
                               <th className="py-2 px-2">类型</th>
@@ -4710,7 +4710,7 @@ export default function App() {
                               <th className="py-2 px-2 text-right">Tokens</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-[#f5f5f4]">
+                          <tbody className="divide-y divide-[#f7f5ef]">
                             {[
                               {
                                 id: 1,
@@ -4760,7 +4760,7 @@ export default function App() {
                                 id: 5,
                                 time: "00:02.101",
                                 type: "TOOL",
-                                typeBg: "bg-[#fef3d6] text-[#b45309]",
+                                typeBg: "bg-[#edf4ec] text-[#234937]",
                                 role: "write_file",
                                 content: "write result.txt",
                                 duration: "312ms",
@@ -4782,7 +4782,7 @@ export default function App() {
                                 id: 7,
                                 time: "00:03.102",
                                 type: "TOOL",
-                                typeBg: "bg-[#fef3d6] text-[#b45309]",
+                                typeBg: "bg-[#edf4ec] text-[#234937]",
                                 role: "bash",
                                 content: "bash printf 'DSH_HARNESS_BASH_OK'",
                                 duration: "521ms",
@@ -4807,14 +4807,14 @@ export default function App() {
                                 }
                                 className={`cursor-pointer transition-colors ${
                                   selectedTrajectoryEvent === item.id
-                                    ? "bg-[#fef3d6]/60 font-medium"
-                                    : "hover:bg-[#fafaf9]"
+                                    ? "bg-[#edf4ec]/60 font-medium"
+                                    : "hover:bg-[#ffffff]"
                                 }`}
                               >
-                                <td className="py-2 px-1 text-[#78716c] font-mono">
+                                <td className="py-2 px-1 text-[#747f78] font-mono">
                                   {item.id}
                                 </td>
-                                <td className="py-2 px-2 text-[#78716c] font-mono text-[11.5px]">
+                                <td className="py-2 px-2 text-[#747f78] font-mono text-[11.5px]">
                                   {item.time}
                                 </td>
                                 <td className="py-2 px-2">
@@ -4824,16 +4824,16 @@ export default function App() {
                                     {item.type}
                                   </span>
                                 </td>
-                                <td className="py-2 px-2 text-[#44403c]">
+                                <td className="py-2 px-2 text-[#4a534c]">
                                   {item.role}
                                 </td>
-                                <td className="py-2 px-2 text-[#1c1917] font-mono truncate max-w-[180px]">
+                                <td className="py-2 px-2 text-[#1a211c] font-mono truncate max-w-[180px]">
                                   {item.content}
                                 </td>
-                                <td className="py-2 px-2 text-right font-mono text-[#78716c]">
+                                <td className="py-2 px-2 text-right font-mono text-[#747f78]">
                                   {item.duration}
                                 </td>
-                                <td className="py-2 px-2 text-right font-mono text-[#78716c]">
+                                <td className="py-2 px-2 text-right font-mono text-[#747f78]">
                                   {item.tokens}
                                 </td>
                               </tr>
@@ -4844,21 +4844,21 @@ export default function App() {
                     </div>
 
                     {/* Pagination */}
-                    <div className="flex items-center justify-between pt-3 border-t border-[#f5f5f4] text-[11.5px] text-[#78716c]">
+                    <div className="flex items-center justify-between pt-3 border-t border-[#f7f5ef] text-[11.5px] text-[#747f78]">
                       <span>显示 1-8 条，共 8 条</span>
                       <div className="flex items-center space-x-3">
                         <div className="flex items-center space-x-1">
-                          <button className="p-1 hover:bg-[#f5f5f4] rounded text-[#a8a29e]">
+                          <button className="p-1 hover:bg-[#f7f5ef] rounded text-[#949e97]">
                             <ChevronRight className="w-3.5 h-3.5 rotate-180" />
                           </button>
-                          <span className="w-6 h-6 flex items-center justify-center bg-[#fef3d6] text-[#855702] border border-[#fde68a] rounded font-bold">
+                          <span className="w-6 h-6 flex items-center justify-center bg-[#edf4ec] text-[#2d5a43] border border-[#fde68a] rounded font-bold">
                             1
                           </span>
-                          <button className="p-1 hover:bg-[#f5f5f4] rounded text-[#a8a29e]">
+                          <button className="p-1 hover:bg-[#f7f5ef] rounded text-[#949e97]">
                             <ChevronRight className="w-3.5 h-3.5" />
                           </button>
                         </div>
-                        <select className="bg-[#fafaf9] border border-[#e7e5e4] rounded px-2 py-0.5 text-[11px] font-medium text-[#44403c]">
+                        <select className="bg-[#ffffff] border border-[#eae6dc] rounded px-2 py-0.5 text-[11px] font-medium text-[#4a534c]">
                           <option>20 条/页</option>
                           <option>50 条/页</option>
                         </select>
@@ -4867,25 +4867,25 @@ export default function App() {
                   </div>
 
                   {/* Right 4 Cols: Event Detail Inspector Panel */}
-                  <div className="col-span-4 bg-white border border-[#e7e5e4] rounded-2xl p-4 shadow-2xs space-y-4 text-[12.5px]">
+                  <div className="col-span-4 bg-white border border-[#eae6dc] rounded-2xl p-4 shadow-2xs space-y-4 text-[12.5px]">
                     {/* Header */}
-                    <div className="flex items-center justify-between border-b border-[#f5f5f4] pb-2.5">
+                    <div className="flex items-center justify-between border-b border-[#f7f5ef] pb-2.5">
                       <div className="flex items-center space-x-2">
-                        <span className="w-2 h-2 rounded-full bg-[#1c1917]" />
-                        <span className="font-bold text-[#1c1917]">
+                        <span className="w-2 h-2 rounded-full bg-[#1a211c]" />
+                        <span className="font-bold text-[#1a211c]">
                           Request #{selectedTrajectoryEvent || 1}
                         </span>
-                        <span className="px-2 py-0.5 bg-[#f5f5f4] text-[#57534e] text-[11px] rounded-full font-mono">
+                        <span className="px-2 py-0.5 bg-[#f7f5ef] text-[#5c6760] text-[11px] rounded-full font-mono">
                           Turn 1
                         </span>
                       </div>
-                      <button className="p-1 text-[#a8a29e] hover:text-[#1c1917]">
+                      <button className="p-1 text-[#949e97] hover:text-[#1a211c]">
                         <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
 
                     {/* Inspector Tabs */}
-                    <div className="flex items-center space-x-4 border-b border-[#f5f5f4] text-[12px] font-medium text-[#78716c] pb-2">
+                    <div className="flex items-center space-x-4 border-b border-[#f7f5ef] text-[12px] font-medium text-[#747f78] pb-2">
                       {(["Summary", "Options", "Usage", "Timing"] as const).map(
                         (tab) => (
                           <button
@@ -4893,8 +4893,8 @@ export default function App() {
                             onClick={() => setTrajectoryDetailTab(tab)}
                             className={`transition-colors ${
                               trajectoryDetailTab === tab
-                                ? "text-[#d97706] font-bold border-b-2 border-[#d97706] pb-1"
-                                : "hover:text-[#1c1917]"
+                                ? "text-[#2d5a43] font-bold border-b-2 border-[#2d5a43] pb-1"
+                                : "hover:text-[#1a211c]"
                             }`}
                           >
                             {tab}
@@ -4906,30 +4906,30 @@ export default function App() {
                     {/* Summary Details */}
                     <div className="space-y-2.5 text-[12px]">
                       <div className="flex justify-between items-center">
-                        <span className="text-[#78716c]">Status</span>
+                        <span className="text-[#747f78]">Status</span>
                         <span className="px-2 py-0.5 bg-[#dcfce7] text-[#166534] font-semibold rounded text-[11px]">
                           Completed
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-[#78716c]">Provider</span>
-                        <span className="font-mono text-[#1c1917]">
+                        <span className="text-[#747f78]">Provider</span>
+                        <span className="font-mono text-[#1a211c]">
                           deepseek-official
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-[#78716c]">Model</span>
-                        <span className="font-mono text-[#1c1917]">
+                        <span className="text-[#747f78]">Model</span>
+                        <span className="font-mono text-[#1a211c]">
                           deepseek-v4-flash
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-[#78716c]">Tool calls</span>
-                        <span className="font-mono text-[#1c1917]">1</span>
+                        <span className="text-[#747f78]">Tool calls</span>
+                        <span className="font-mono text-[#1a211c]">1</span>
                       </div>
-                      <div className="flex justify-between items-center cursor-pointer hover:bg-[#fafaf9] p-1 rounded">
-                        <span className="text-[#78716c]">Result</span>
-                        <span className="text-[#d97706] font-medium flex items-center space-x-1">
+                      <div className="flex justify-between items-center cursor-pointer hover:bg-[#ffffff] p-1 rounded">
+                        <span className="text-[#747f78]">Result</span>
+                        <span className="text-[#2d5a43] font-medium flex items-center space-x-1">
                           <span>Assistant Message</span>
                           <ChevronRight className="w-3.5 h-3.5" />
                         </span>
@@ -4937,18 +4937,18 @@ export default function App() {
                     </div>
 
                     {/* Collapsible Accordions */}
-                    <div className="border-t border-[#f5f5f4] pt-2 space-y-2 text-[12px] text-[#57534e]">
-                      <div className="flex justify-between items-center cursor-pointer p-1.5 hover:bg-[#fafaf9] rounded">
+                    <div className="border-t border-[#f7f5ef] pt-2 space-y-2 text-[12px] text-[#5c6760]">
+                      <div className="flex justify-between items-center cursor-pointer p-1.5 hover:bg-[#ffffff] rounded">
                         <span>Options</span>
-                        <ChevronRight className="w-3.5 h-3.5 text-[#a8a29e]" />
+                        <ChevronRight className="w-3.5 h-3.5 text-[#949e97]" />
                       </div>
-                      <div className="flex justify-between items-center cursor-pointer p-1.5 hover:bg-[#fafaf9] rounded">
+                      <div className="flex justify-between items-center cursor-pointer p-1.5 hover:bg-[#ffffff] rounded">
                         <span>Usage</span>
-                        <ChevronRight className="w-3.5 h-3.5 text-[#a8a29e]" />
+                        <ChevronRight className="w-3.5 h-3.5 text-[#949e97]" />
                       </div>
-                      <div className="flex justify-between items-center cursor-pointer p-1.5 hover:bg-[#fafaf9] rounded">
+                      <div className="flex justify-between items-center cursor-pointer p-1.5 hover:bg-[#ffffff] rounded">
                         <span>Timing</span>
-                        <ChevronRight className="w-3.5 h-3.5 text-[#a8a29e]" />
+                        <ChevronRight className="w-3.5 h-3.5 text-[#949e97]" />
                       </div>
                     </div>
                   </div>
@@ -4959,14 +4959,14 @@ export default function App() {
             {/* Bottom Input Box Area - Floating cleanly on background */}
             {/* Bottom Input Box Area - Floating cleanly on background */}
             <div
-              className={`flex-shrink-0 px-6 pb-4 pt-1 bg-[#fafaf9] z-30 transition-all duration-150 ${
+              className={`flex-shrink-0 px-6 pb-4 pt-1 bg-[#ffffff] z-30 transition-all duration-150 ${
                 isSideBySide ? "pr-[308px]" : ""
               }`}
             >
               <div className="w-full max-w-[874px] mx-auto">
                 {/* Embedded Backing Workspace Tab (Seamlessly docked directly behind the top edge with zero gap) */}
                 <div className="flex items-center ml-5 relative z-0 -mb-[1px]">
-                  <div className="inline-flex items-center space-x-2 px-3.5 pt-1.5 pb-1 bg-[#edebe4] hover:bg-[#e4e2da] rounded-t-xl border-t border-l border-r border-black/[0.07] text-[11.5px] text-[#57534e] select-none transition-colors shadow-2xs">
+                  <div className="inline-flex items-center space-x-2 px-3.5 pt-1.5 pb-1 bg-[#f3f1ea] hover:bg-[#ece8df] rounded-t-xl border-t border-l border-r border-black/[0.07] text-[11.5px] text-[#5c6760] select-none transition-colors shadow-2xs">
                     <div
                       onClick={() => {
                         if (messages.length === 0) {
@@ -4977,7 +4977,7 @@ export default function App() {
                       }}
                       className={`flex items-center space-x-1.5 ${
                         messages.length === 0
-                          ? "hover:text-[#c86a28] cursor-pointer"
+                          ? "hover:text-[#2d5a43] cursor-pointer"
                           : "cursor-default"
                       } transition-colors`}
                       title={
@@ -4986,19 +4986,19 @@ export default function App() {
                           : `工作空间: ${activeWorkspace.path}`
                       }
                     >
-                      <FolderOpen className="w-3.5 h-3.5 text-[#c86a28]" />
-                      <span className="font-semibold text-[#1c1917]">
+                      <FolderOpen className="w-3.5 h-3.5 text-[#2d5a43]" />
+                      <span className="font-semibold text-[#1a211c]">
                         {activeWorkspace.name}
                       </span>
                     </div>
-                    <span className="text-[#a8a29e]">·</span>
+                    <span className="text-[#949e97]">·</span>
                     <div className="flex items-center space-x-1">
-                      <Laptop className="w-3.5 h-3.5 text-[#57534e]" />
+                      <Laptop className="w-3.5 h-3.5 text-[#5c6760]" />
                       <span>本地</span>
                     </div>
-                    <span className="text-[#a8a29e]">·</span>
-                    <div className="flex items-center space-x-1 font-mono text-[#c86a28]">
-                      <GitBranch className="w-3.5 h-3.5 text-[#c86a28]" />
+                    <span className="text-[#949e97]">·</span>
+                    <div className="flex items-center space-x-1 font-mono text-[#2d5a43]">
+                      <GitBranch className="w-3.5 h-3.5 text-[#2d5a43]" />
                       <span className="font-medium">
                         {activeWorkspace.branch}
                       </span>
@@ -5007,7 +5007,7 @@ export default function App() {
                 </div>
 
                 {/* Main White Input Dialog Box Card (Seamlessly lays over the tab with zero gap) */}
-                <div className="bg-white border border-black/[0.08] hover:border-black/[0.12] focus-within:border-[#c86a28]/40 focus-within:ring-4 focus-within:ring-[#c86a28]/5 rounded-[24px] shadow-[0_6px_24px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.02)] p-3.5 sm:p-4 pointer-events-auto space-y-2.5 relative z-10 transition-all duration-200">
+                <div className="bg-white border border-black/[0.08] hover:border-black/[0.12] focus-within:border-[#2d5a43]/40 focus-within:ring-4 focus-within:ring-[#2d5a43]/5 rounded-[24px] shadow-[0_6px_24px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.02)] p-3.5 sm:p-4 pointer-events-auto space-y-2.5 relative z-10 transition-all duration-200">
                   <textarea
                     ref={textareaRef}
                     value={inputMessage}
@@ -5026,16 +5026,16 @@ export default function App() {
                     }
                     rows={1}
                     style={{ minHeight: "38px" }}
-                    className="w-full bg-transparent border-0 resize-none overflow-hidden text-[13.5px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none px-1 py-0.5 leading-relaxed transition-all"
+                    className="w-full bg-transparent border-0 resize-none overflow-hidden text-[13.5px] text-[#1a211c] placeholder-[#949e97] focus:outline-none px-1 py-0.5 leading-relaxed transition-all"
                   />
 
                   {/* Bottom Toolbar Row with Rounded Badge Buttons */}
                   <div className="flex items-center justify-between pt-1 text-[12.5px]">
                     {/* Left Group: Attachments, Web Search, Access Level */}
-                    <div className="flex items-center space-x-1.5">
+                    <div className="flex items-center space-x-1">
                       <button
                         title="添加附件或上下文"
-                        className="w-7 h-7 rounded-full bg-black/[0.03] hover:bg-black/[0.07] active:scale-95 text-[#57534e] flex items-center justify-center transition-all cursor-pointer"
+                        className="w-7 h-7 rounded-full bg-transparent hover:bg-black/[0.04] active:scale-95 text-[#5c6760] hover:text-[#1a211c] flex items-center justify-center transition-all cursor-pointer"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
@@ -5045,8 +5045,8 @@ export default function App() {
                         onClick={() => setEnableWebSearch(!enableWebSearch)}
                         className={`flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11.5px] font-medium transition-all cursor-pointer select-none active:scale-95 ${
                           enableWebSearch
-                            ? "bg-[#e0f2fe] text-[#0284c7] border border-[#bae6fd] shadow-2xs"
-                            : "bg-black/[0.03] hover:bg-black/[0.06] text-[#78716c]"
+                            ? "bg-transparent text-[#2d5a43] border border-[#2d5a43]/40 shadow-2xs font-semibold"
+                            : "bg-transparent hover:bg-black/[0.04] text-[#747f78] hover:text-[#1a211c]"
                         }`}
                         title="联网搜索开关"
                       >
@@ -5060,11 +5060,11 @@ export default function App() {
                           onClick={() =>
                             setShowAccessDropdown(!showAccessDropdown)
                           }
-                          className="flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11.5px] bg-[#fef8f4] hover:bg-[#fef0e4] text-[#c86a28] font-medium border border-[#f5d9c3]/60 transition-all cursor-pointer select-none active:scale-95"
+                          className="flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11.5px] bg-transparent hover:bg-black/[0.04] text-[#2d5a43] font-medium border border-transparent hover:border-black/[0.06] transition-all cursor-pointer select-none active:scale-95"
                         >
-                          <ShieldAlert className="w-3.5 h-3.5 text-[#c86a28]" />
+                          <ShieldAlert className="w-3.5 h-3.5 text-[#2d5a43]" />
                           <span>{settingAccessLevel}</span>
-                          <ChevronDown className="w-3 h-3 text-[#c86a28]" />
+                          <ChevronDown className="w-3 h-3 text-[#2d5a43]" />
                         </button>
 
                         {showAccessDropdown && (
@@ -5081,15 +5081,15 @@ export default function App() {
 
                                   setShowAccessDropdown(false)
                                 }}
-                                className={`w-full text-left px-3 py-1.5 hover:bg-[#fef3d6] flex items-center justify-between cursor-pointer ${
+                                className={`w-full text-left px-3 py-1.5 hover:bg-[#edf4ec] flex items-center justify-between cursor-pointer ${
                                   settingAccessLevel === level
-                                    ? "text-[#d97706] font-semibold"
-                                    : "text-[#44403c]"
+                                    ? "text-[#2d5a43] font-semibold"
+                                    : "text-[#4a534c]"
                                 }`}
                               >
                                 <span>{level}</span>
                                 {settingAccessLevel === level && (
-                                  <Check className="w-3.5 h-3.5 text-[#d97706]" />
+                                  <Check className="w-3.5 h-3.5 text-[#2d5a43]" />
                                 )}
                               </button>
                             ))}
@@ -5099,7 +5099,7 @@ export default function App() {
                     </div>
 
                     {/* Right Group: Context Gauge, Model Selector, Reasoning Level, Send/Stop */}
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1.5">
                       {/* Context Capacity Gauge Badge */}
                       <div
                         className="relative"
@@ -5110,27 +5110,27 @@ export default function App() {
                           onClick={() =>
                             setShowContextPopover(!showContextPopover)
                           }
-                          className="w-7 h-7 rounded-full bg-black/[0.03] hover:bg-black/[0.06] text-[#78716c] hover:text-[#1c1917] flex items-center justify-center transition-all cursor-pointer active:scale-95"
+                          className="w-7 h-7 rounded-full bg-transparent hover:bg-black/[0.04] text-[#747f78] hover:text-[#1a211c] flex items-center justify-center transition-all cursor-pointer active:scale-95"
                           title="上下文用量"
                         >
-                          <CircleDashed className="w-4 h-4 text-[#78716c]" />
+                          <CircleDashed className="w-4 h-4 text-[#747f78]" />
                         </button>
 
                         {/* Context Capacity Hover Popover Card */}
                         {showContextPopover && (
-                          <div className="absolute right-0 bottom-9 w-[320px] bg-white border border-black/[0.07] rounded-2xl shadow-2xl p-4 text-[12px] z-50 text-[#1c1917] space-y-3 pointer-events-auto animate-in fade-in zoom-in-95 duration-150">
+                          <div className="absolute right-0 bottom-9 w-[320px] bg-white border border-black/[0.07] rounded-2xl shadow-2xl p-4 text-[12px] z-50 text-[#1a211c] space-y-3 pointer-events-auto animate-in fade-in zoom-in-95 duration-150">
                             <div className="flex justify-between items-center">
-                              <span className="font-bold text-[13px] text-[#1c1917]">
+                              <span className="font-bold text-[13px] text-[#1a211c]">
                                 上下文容量
                               </span>
-                              <span className="text-[11.5px] font-mono text-[#78716c]">
+                              <span className="text-[11.5px] font-mono text-[#747f78]">
                                 31.7万/100万 (31.7%)
                               </span>
                             </div>
 
                             {/* Progress Bar */}
                             <div className="w-full h-2 bg-[#f3f4f6] rounded-full overflow-hidden">
-                              <div className="h-full bg-[#f5a623] rounded-full w-[31.7%]" />
+                              <div className="h-full bg-[#4a7860] rounded-full w-[31.7%]" />
                             </div>
 
                             {/* Breakdown List */}
@@ -5140,7 +5140,7 @@ export default function App() {
                                   <span className="w-2 h-2 rounded-full bg-[#3b82f6]" />
                                   <span>消息</span>
                                 </div>
-                                <span className="font-mono font-medium text-[#1c1917]">
+                                <span className="font-mono font-medium text-[#1a211c]">
                                   94.4%
                                 </span>
                               </div>
@@ -5149,7 +5149,7 @@ export default function App() {
                                   <span className="w-2 h-2 rounded-full bg-[#60a5fa]" />
                                   <span>系统工具</span>
                                 </div>
-                                <span className="font-mono text-[#57534e]">
+                                <span className="font-mono text-[#5c6760]">
                                   4.5%
                                 </span>
                               </div>
@@ -5158,7 +5158,7 @@ export default function App() {
                                   <span className="w-2 h-2 rounded-full bg-[#93c5fd]" />
                                   <span>系统提示词</span>
                                 </div>
-                                <span className="font-mono text-[#57534e]">
+                                <span className="font-mono text-[#5c6760]">
                                   0.4%
                                 </span>
                               </div>
@@ -5167,7 +5167,7 @@ export default function App() {
                                   <span className="w-2 h-2 rounded-full bg-[#bfdbfe]" />
                                   <span>技能</span>
                                 </div>
-                                <span className="font-mono text-[#57534e]">
+                                <span className="font-mono text-[#5c6760]">
                                   0.3%
                                 </span>
                               </div>
@@ -5176,7 +5176,7 @@ export default function App() {
                                   <span className="w-2 h-2 rounded-full bg-[#dbeafe]" />
                                   <span>MCP 工具</span>
                                 </div>
-                                <span className="font-mono text-[#57534e]">
+                                <span className="font-mono text-[#5c6760]">
                                   0.3%
                                 </span>
                               </div>
@@ -5185,39 +5185,39 @@ export default function App() {
                                   <span className="w-2 h-2 rounded-full bg-[#e5e7eb]" />
                                   <span>其他</span>
                                 </div>
-                                <span className="font-mono text-[#78716c]">
+                                <span className="font-mono text-[#747f78]">
                                   0%
                                 </span>
                               </div>
                             </div>
 
-                            <div className="border-t border-[#f5f5f4] pt-2 flex justify-between items-center text-[12px]">
-                              <span className="text-[#57534e]">
+                            <div className="border-t border-[#f7f5ef] pt-2 flex justify-between items-center text-[12px]">
+                              <span className="text-[#5c6760]">
                                 平均缓存命中率
                               </span>
-                              <span className="font-mono font-bold text-[#1c1917]">
+                              <span className="font-mono font-bold text-[#1a211c]">
                                 98.6%
                               </span>
                             </div>
 
-                            <div className="border-t border-[#f5f5f4] pt-2 space-y-1.5">
+                            <div className="border-t border-[#f7f5ef] pt-2 space-y-1.5">
                               <div className="flex justify-between items-center">
-                                <span className="font-bold text-[12px] text-[#1c1917]">
+                                <span className="font-bold text-[12px] text-[#1a211c]">
                                   剩余额度
                                 </span>
-                                <span className="text-[11px] text-[#78716c] hover:text-[#1c1917] cursor-pointer">
+                                <span className="text-[11px] text-[#747f78] hover:text-[#1a211c] cursor-pointer">
                                   更多 &gt;
                                 </span>
                               </div>
                               <div className="grid grid-cols-2 gap-3 text-[11px]">
                                 <div>
-                                  <p className="text-[#78716c]">
+                                  <p className="text-[#747f78]">
                                     5 小时{" "}
-                                    <span className="text-[#a8a29e]">
+                                    <span className="text-[#949e97]">
                                       已重置
                                     </span>
                                   </p>
-                                  <p className="font-mono font-semibold text-[#1c1917] mt-0.5">
+                                  <p className="font-mono font-semibold text-[#1a211c] mt-0.5">
                                     15% · 06:28
                                   </p>
                                   <div className="w-full h-1.5 bg-[#f3f4f6] rounded-full overflow-hidden mt-1">
@@ -5225,8 +5225,8 @@ export default function App() {
                                   </div>
                                 </div>
                                 <div>
-                                  <p className="text-[#78716c]">每周</p>
-                                  <p className="font-mono font-semibold text-[#1c1917] mt-0.5">
+                                  <p className="text-[#747f78]">每周</p>
+                                  <p className="font-mono font-semibold text-[#1a211c] mt-0.5">
                                     43% · 8月26日
                                   </p>
                                   <div className="w-full h-1.5 bg-[#f3f4f6] rounded-full overflow-hidden mt-1">
@@ -5247,17 +5247,17 @@ export default function App() {
 
                             setShowReasoningDropdown(false)
                           }}
-                          className="flex items-center space-x-1.5 px-3 py-1 rounded-full text-[11.5px] font-mono bg-black/[0.03] hover:bg-black/[0.06] text-[#44403c] font-medium transition-all cursor-pointer select-none active:scale-95"
+                          className="flex items-center space-x-1 px-2 py-1 rounded-full text-[11.5px] font-mono bg-transparent hover:bg-black/[0.04] text-[#4a534c] hover:text-[#1a211c] font-medium transition-all cursor-pointer select-none active:scale-95"
                         >
                           <span className="truncate max-w-[170px]">
                             {selectedChatModel}
                           </span>
-                          <ChevronDown className="w-3 h-3 text-[#78716c]" />
+                          <ChevronDown className="w-3 h-3 text-[#747f78]" />
                         </button>
 
                         {showModelDropdown && (
                           <div className="absolute right-0 bottom-9 w-56 bg-white border border-black/[0.07] rounded-2xl shadow-xl py-1.5 z-50 text-[12px] font-mono animate-in fade-in zoom-in-95 duration-150">
-                            <div className="px-3 py-1 text-[11px] text-[#a8a29e] font-semibold border-b border-[#f5f5f4] font-sans">
+                            <div className="px-3 py-1 text-[11px] text-[#949e97] font-semibold border-b border-[#f7f5ef] font-sans">
                               选择模型
                             </div>
                             {[
@@ -5276,15 +5276,15 @@ export default function App() {
 
                                   setShowModelDropdown(false)
                                 }}
-                                className={`w-full text-left px-3 py-1.5 hover:bg-[#fef3d6] flex items-center justify-between cursor-pointer ${
+                                className={`w-full text-left px-3 py-1.5 hover:bg-[#edf4ec] flex items-center justify-between cursor-pointer ${
                                   selectedChatModel === model
-                                    ? "text-[#d97706] font-bold"
-                                    : "text-[#44403c]"
+                                    ? "text-[#2d5a43] font-bold"
+                                    : "text-[#4a534c]"
                                 }`}
                               >
                                 <span className="truncate">{model}</span>
                                 {selectedChatModel === model && (
-                                  <Check className="w-3.5 h-3.5 text-[#d97706] flex-shrink-0 ml-1" />
+                                  <Check className="w-3.5 h-3.5 text-[#2d5a43] flex-shrink-0 ml-1" />
                                 )}
                               </button>
                             ))}
@@ -5300,16 +5300,16 @@ export default function App() {
 
                             setShowModelDropdown(false)
                           }}
-                          className="flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11.5px] bg-black/[0.03] hover:bg-black/[0.06] text-[#44403c] font-medium transition-all cursor-pointer select-none active:scale-95"
+                          className="flex items-center space-x-1 px-2 py-1 rounded-full text-[11.5px] bg-transparent hover:bg-black/[0.04] text-[#4a534c] hover:text-[#1a211c] font-medium transition-all cursor-pointer select-none active:scale-95"
                         >
-                          <Brain className="w-3.5 h-3.5 text-[#78716c]" />
+                          <Brain className="w-3.5 h-3.5 text-[#747f78]" />
                           <span>{reasoningLevel}</span>
-                          <ChevronDown className="w-3 h-3 text-[#78716c]" />
+                          <ChevronDown className="w-3 h-3 text-[#747f78]" />
                         </button>
 
                         {showReasoningDropdown && (
                           <div className="absolute right-0 bottom-9 w-32 bg-white border border-black/[0.07] rounded-2xl shadow-xl py-1.5 z-50 text-[12px] animate-in fade-in zoom-in-95 duration-150">
-                            <div className="px-3 py-1 text-[11px] text-[#a8a29e] font-semibold border-b border-[#f5f5f4]">
+                            <div className="px-3 py-1 text-[11px] text-[#949e97] font-semibold border-b border-[#f7f5ef]">
                               推理强度
                             </div>
                             {(["最高", "标准", "低"] as const).map((level) => (
@@ -5320,15 +5320,15 @@ export default function App() {
 
                                   setShowReasoningDropdown(false)
                                 }}
-                                className={`w-full text-left px-3 py-1.5 hover:bg-[#fef3d6] flex items-center justify-between cursor-pointer ${
+                                className={`w-full text-left px-3 py-1.5 hover:bg-[#edf4ec] flex items-center justify-between cursor-pointer ${
                                   reasoningLevel === level
-                                    ? "text-[#d97706] font-semibold"
-                                    : "text-[#44403c]"
+                                    ? "text-[#2d5a43] font-semibold"
+                                    : "text-[#4a534c]"
                                 }`}
                               >
                                 <span>{level}</span>
                                 {reasoningLevel === level && (
-                                  <Check className="w-3.5 h-3.5 text-[#d97706]" />
+                                  <Check className="w-3.5 h-3.5 text-[#2d5a43]" />
                                 )}
                               </button>
                             ))}
@@ -5341,7 +5341,7 @@ export default function App() {
                         <button
                           onClick={handleStopGeneration}
                           title="停止生成"
-                          className="w-8 h-8 rounded-full bg-[#1c1917] hover:bg-red-600 active:scale-95 text-white flex items-center justify-center transition-all cursor-pointer shadow-xs relative group"
+                          className="w-8 h-8 rounded-full bg-[#1a211c] hover:bg-red-600 active:scale-95 text-white flex items-center justify-center transition-all cursor-pointer shadow-xs relative group"
                         >
                           <span className="absolute inset-0 rounded-full border border-white/20 animate-pulse pointer-events-none" />
                           <Square className="w-3.5 h-3.5 fill-current text-white" />
@@ -5357,8 +5357,8 @@ export default function App() {
                           }
                           className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-xs active:scale-95 ${
                             inputMessage.trim()
-                              ? "bg-[#c86a28] hover:bg-[#b85e1f] text-white cursor-pointer shadow-sm"
-                              : "bg-black/[0.05] dark:bg-white/[0.08] text-[#a8a29e] dark:text-[#6d6457] cursor-not-allowed"
+                              ? "bg-[#2d5a43] hover:bg-[#234937] text-white cursor-pointer shadow-sm"
+                              : "bg-black/[0.05] dark:bg-white/[0.08] text-[#949e97] dark:text-[#6d6457] cursor-not-allowed"
                           }`}
                         >
                           <ArrowUp className="w-4 h-4 stroke-[2.5]" />
@@ -5398,8 +5398,8 @@ export default function App() {
                 <div
                   className={`w-[2px] h-full transition-colors duration-150 ${
                     isDraggingRight
-                      ? "bg-[#c86a28]/80"
-                      : "bg-transparent group-hover/line:bg-[#c86a28]/80"
+                      ? "bg-[#2d5a43]/80"
+                      : "bg-transparent group-hover/line:bg-[#2d5a43]/80"
                   }`}
                 />
               </div>
@@ -5414,7 +5414,7 @@ export default function App() {
                   handleToggleRightPanel()
                 }}
                 title="折叠代码审阅"
-                className="absolute top-2.5 -left-[28px] z-50 w-6 h-6 rounded-md bg-white border border-[#e5e2da] shadow-2xs hover:shadow-md hover:border-[#c86a28] hover:bg-[#fafaf9] text-[#78716c] hover:text-[#c86a28] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
+                className="absolute top-2.5 -left-[28px] z-50 w-6 h-6 rounded-md bg-white border border-[#eae6dc] shadow-2xs hover:shadow-md hover:border-[#2d5a43] hover:bg-[#ffffff] text-[#747f78] hover:text-[#2d5a43] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
               >
                 <PanelRightClose className="w-3.5 h-3.5" />
               </button>
@@ -5431,8 +5431,8 @@ export default function App() {
               }}
               className={`${
                 isRightPanelFullscreen ? "flex-1 w-full" : "flex-shrink-0"
-              } bg-[#fafaf9] flex flex-col ${
-                isRightPanelFullscreen ? "border-l-0" : "border-l border-[#e7e5e4]/70"
+              } bg-[#ffffff] flex flex-col ${
+                isRightPanelFullscreen ? "border-l-0" : "border-l border-[#eae6dc]/70"
               } ${
                 isDragging
                   ? "transition-none"
@@ -5441,14 +5441,14 @@ export default function App() {
             >
               {/* TOAST FEEDBACK NOTIFICATION */}
               {toastMessage && (
-                <div className="absolute top-12 left-1/2 -translate-x-1/2 z-50 px-3.5 py-1.5 bg-[#1c1917] text-white text-[12px] rounded-lg shadow-lg flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 duration-150 pointer-events-none">
+                <div className="absolute top-12 left-1/2 -translate-x-1/2 z-50 px-3.5 py-1.5 bg-[#1a211c] text-white text-[12px] rounded-lg shadow-lg flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 duration-150 pointer-events-none">
                   <CheckCircle2 className="w-3.5 h-3.5 text-[#22c55e]" />
                   <span>{toastMessage}</span>
                 </div>
               )}
 
               {/* TOP TABS BAR (Height 46px aligned with Left Sidebar and Middle Column) */}
-              <div className="h-[46px] flex-shrink-0 border-b border-[#e7e5e4]/60 bg-[#fafaf9] flex items-center justify-between px-3 text-[12.5px] select-none">
+              <div className="h-[46px] flex-shrink-0 border-b border-[#eae6dc]/60 bg-[#ffffff] flex items-center justify-between px-3 text-[12.5px] select-none">
                 <div className="flex items-center space-x-1.5 h-full overflow-x-auto no-scrollbar">
                   {openTabs.map((tab) => {
                     const isActive = rightPanelTab === tab.id
@@ -5458,14 +5458,14 @@ export default function App() {
                         onClick={() => setRightPanelTab(tab.id)}
                         className={`h-[28px] px-3 rounded-full flex items-center space-x-1.5 cursor-pointer transition-all ${
                           isActive
-                            ? "bg-white text-[#1c1917] font-medium shadow-2xs border border-black/[0.06]"
-                            : "text-[#78716c] hover:bg-black/[0.04] hover:text-[#1c1917]"
+                            ? "bg-white text-[#1a211c] font-medium shadow-2xs border border-black/[0.06]"
+                            : "text-[#747f78] hover:bg-black/[0.04] hover:text-[#1a211c]"
                         }`}
                       >
                         {tab.id === "review" ? (
-                          <ReviewIcon className="w-3.5 h-3.5 text-[#78716c]" />
+                          <ReviewIcon className="w-3.5 h-3.5 text-[#747f78]" />
                         ) : (
-                          <FileText className="w-3.5 h-3.5 text-[#78716c]" />
+                          <FileText className="w-3.5 h-3.5 text-[#747f78]" />
                         )}
                         <span>{tab.title}</span>
                         <button
@@ -5473,7 +5473,7 @@ export default function App() {
                             e.stopPropagation()
                             closeTab(tab.id)
                           }}
-                          className="p-0.5 hover:bg-black/[0.06] rounded-full text-[#a8a29e] hover:text-[#1c1917] transition-colors"
+                          className="p-0.5 hover:bg-black/[0.06] rounded-full text-[#949e97] hover:text-[#1a211c] transition-colors"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -5493,7 +5493,7 @@ export default function App() {
                       }
                     }}
                     title="添加标签页"
-                    className="w-6 h-6 flex items-center justify-center hover:bg-black/[0.05] rounded-full text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer ml-0.5"
+                    className="w-6 h-6 flex items-center justify-center hover:bg-black/[0.05] rounded-full text-[#747f78] hover:text-[#1a211c] transition-colors cursor-pointer ml-0.5"
                   >
                     <Plus className="w-3.5 h-3.5" />
                   </button>
@@ -5510,30 +5510,30 @@ export default function App() {
               {/* VIEW 1: INITIAL LAUNCHER SCREEN (SCREENSHOT 3)                           */}
               {/* ========================================================================= */}
               {rightPanelTab === "launcher" ? (
-                <div className="flex-1 flex flex-col items-center justify-center select-none bg-[#fafaf9] p-6 animate-in fade-in duration-150">
+                <div className="flex-1 flex flex-col items-center justify-center select-none bg-[#ffffff] p-6 animate-in fade-in duration-150">
                   <div className="w-full max-w-[260px] space-y-2.5">
                     <button
                       onClick={() => openReviewTab()}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-2xl hover:bg-black/[0.04] text-[#292524] transition-all group cursor-pointer border border-transparent hover:border-black/[0.05] shadow-2xs"
+                      className="w-full flex items-center justify-between px-4 py-3 rounded-2xl hover:bg-black/[0.04] text-[#252d27] transition-all group cursor-pointer border border-transparent hover:border-black/[0.05] shadow-2xs"
                     >
                       <div className="flex items-center space-x-3">
-                        <ReviewIcon className="w-4 h-4 text-[#78716c] group-hover:text-[#c86a28] transition-colors" />
+                        <ReviewIcon className="w-4 h-4 text-[#747f78] group-hover:text-[#2d5a43] transition-colors" />
                         <span className="text-[13.5px] font-medium">审查</span>
                       </div>
-                      <kbd className="px-2.5 py-0.5 text-[11px] font-mono text-[#a8a29e] bg-white group-hover:bg-white rounded-full border border-black/[0.07] shadow-2xs">
+                      <kbd className="px-2.5 py-0.5 text-[11px] font-mono text-[#949e97] bg-white group-hover:bg-white rounded-full border border-black/[0.07] shadow-2xs">
                         Ctrl+Shift+G
                       </kbd>
                     </button>
 
                     <button
                       onClick={() => openWorkspaceFileTab()}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-2xl hover:bg-black/[0.04] text-[#292524] transition-all group cursor-pointer border border-transparent hover:border-black/[0.05] shadow-2xs"
+                      className="w-full flex items-center justify-between px-4 py-3 rounded-2xl hover:bg-black/[0.04] text-[#252d27] transition-all group cursor-pointer border border-transparent hover:border-black/[0.05] shadow-2xs"
                     >
                       <div className="flex items-center space-x-3">
-                        <Folder className="w-4 h-4 text-[#78716c] group-hover:text-[#c86a28] transition-colors" />
+                        <Folder className="w-4 h-4 text-[#747f78] group-hover:text-[#2d5a43] transition-colors" />
                         <span className="text-[13.5px] font-medium">文件</span>
                       </div>
-                      <kbd className="px-2.5 py-0.5 text-[11px] font-mono text-[#a8a29e] bg-white group-hover:bg-white rounded-full border border-black/[0.07] shadow-2xs">
+                      <kbd className="px-2.5 py-0.5 text-[11px] font-mono text-[#949e97] bg-white group-hover:bg-white rounded-full border border-black/[0.07] shadow-2xs">
                         Ctrl+P
                       </kbd>
                     </button>
@@ -5543,9 +5543,9 @@ export default function App() {
                 /* ========================================================================= */
                 /* VIEW 2: CODE REVIEW (DIFF) PANEL (SCREENSHOT 1)                           */
                 /* ========================================================================= */
-                <div className="flex-1 flex flex-col min-h-0 bg-[#fafaf9] animate-in fade-in duration-150">
+                <div className="flex-1 flex flex-col min-h-0 bg-[#ffffff] animate-in fade-in duration-150">
                   {/* GIT BRANCH & ACTIONS TOOLBAR */}
-                  <div className="h-[42px] flex-shrink-0 border-b border-[#e7e5e4]/60 px-3 flex items-center justify-between bg-[#fafaf9] text-[12.5px] relative">
+                  <div className="h-[42px] flex-shrink-0 border-b border-[#eae6dc]/60 px-3 flex items-center justify-between bg-[#ffffff] text-[12.5px] relative">
                     {/* Left: Branch selector, Stats badge, Tracking branch */}
                     <div className="flex items-center space-x-2.5">
                       <div className="relative">
@@ -5553,16 +5553,16 @@ export default function App() {
                           onClick={() =>
                             setShowBranchDropdown(!showBranchDropdown)
                           }
-                          className="flex items-center space-x-1 font-medium text-[#1c1917] hover:bg-[#f5f5f4] px-2 py-1 rounded-md transition-colors cursor-pointer"
+                          className="flex items-center space-x-1 font-medium text-[#1a211c] hover:bg-[#f7f5ef] px-2 py-1 rounded-md transition-colors cursor-pointer"
                         >
                           <span>分支</span>
-                          <ChevronDown className="w-3.5 h-3.5 text-[#78716c]" />
+                          <ChevronDown className="w-3.5 h-3.5 text-[#747f78]" />
                         </button>
 
                         {/* Branch Dropdown */}
                         {showBranchDropdown && (
-                          <div className="absolute left-0 top-8 w-48 bg-white border border-[#e7e5e4] rounded-xl shadow-xl py-1 z-50 text-[12px]">
-                            <div className="px-3 py-1 text-[11px] text-[#a8a29e] font-semibold border-b border-[#f5f5f4]">
+                          <div className="absolute left-0 top-8 w-48 bg-white border border-[#eae6dc] rounded-xl shadow-xl py-1 z-50 text-[12px]">
+                            <div className="px-3 py-1 text-[11px] text-[#949e97] font-semibold border-b border-[#f7f5ef]">
                               切换 Git 分支
                             </div>
                             {[
@@ -5578,15 +5578,15 @@ export default function App() {
                                   setShowBranchDropdown(false)
                                   showToast(`已切换至分支: ${branch}`)
                                 }}
-                                className={`w-full text-left px-3 py-1.5 hover:bg-[#fef3d6] flex items-center justify-between cursor-pointer ${
+                                className={`w-full text-left px-3 py-1.5 hover:bg-[#edf4ec] flex items-center justify-between cursor-pointer ${
                                   currentBranch === branch
-                                    ? "text-[#c86a28] font-semibold bg-[#faf5ef]"
-                                    : "text-[#44403c]"
+                                    ? "text-[#2d5a43] font-semibold bg-[#edf4ec]"
+                                    : "text-[#4a534c]"
                                 }`}
                               >
                                 <span className="font-mono">{branch}</span>
                                 {currentBranch === branch && (
-                                  <Check className="w-3.5 h-3.5 text-[#c86a28]" />
+                                  <Check className="w-3.5 h-3.5 text-[#2d5a43]" />
                                 )}
                               </button>
                             ))}
@@ -5601,11 +5601,11 @@ export default function App() {
                       </span>
 
                       {/* Remote Tracking */}
-                      <div className="hidden sm:flex items-center space-x-1 text-[#78716c] text-[11.5px] hover:text-[#1c1917] cursor-pointer">
+                      <div className="hidden sm:flex items-center space-x-1 text-[#747f78] text-[11.5px] hover:text-[#1a211c] cursor-pointer">
                         <span className="font-mono">
                           {currentBranch} → origin/{currentBranch}
                         </span>
-                        <ChevronDown className="w-3 h-3 text-[#a8a29e]" />
+                        <ChevronDown className="w-3 h-3 text-[#949e97]" />
                       </div>
                     </div>
 
@@ -5616,18 +5616,18 @@ export default function App() {
                         <button
                           onClick={() => setShowMoreGitMenu(!showMoreGitMenu)}
                           title="更多操作"
-                          className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-[#f5f5f4] text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer"
+                          className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-[#f7f5ef] text-[#747f78] hover:text-[#1a211c] transition-colors cursor-pointer"
                         >
                           <MoreVertical className="w-3.5 h-3.5" />
                         </button>
                         {showMoreGitMenu && (
-                          <div className="absolute right-0 top-8 w-44 bg-white border border-[#e7e5e4] rounded-xl shadow-xl py-1 z-50 text-[12px]">
+                          <div className="absolute right-0 top-8 w-44 bg-white border border-[#eae6dc] rounded-xl shadow-xl py-1 z-50 text-[12px]">
                             <button
                               onClick={() => {
                                 setShowMoreGitMenu(false)
                                 showToast("已暂存全部更改")
                               }}
-                              className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f4] text-[#44403c] cursor-pointer"
+                              className="w-full text-left px-3 py-1.5 hover:bg-[#f7f5ef] text-[#4a534c] cursor-pointer"
                             >
                               暂存全部更改
                             </button>
@@ -5636,7 +5636,7 @@ export default function App() {
                                 setShowMoreGitMenu(false)
                                 showToast("已刷新 Git 状态")
                               }}
-                              className="w-full text-left px-3 py-1.5 hover:bg-[#f5f5f4] text-[#44403c] cursor-pointer"
+                              className="w-full text-left px-3 py-1.5 hover:bg-[#f7f5ef] text-[#4a534c] cursor-pointer"
                             >
                               刷新审查状态
                             </button>
@@ -5667,8 +5667,8 @@ export default function App() {
                         }`}
                         className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors cursor-pointer ${
                           diffViewMode === "split"
-                            ? "bg-[#faf5ef] text-[#c86a28]"
-                            : "hover:bg-[#f5f5f4] text-[#78716c] hover:text-[#1c1917]"
+                            ? "bg-[#edf4ec] text-[#2d5a43]"
+                            : "hover:bg-[#f7f5ef] text-[#747f78] hover:text-[#1a211c]"
                         }`}
                       >
                         <DiffSplitIcon className="w-3.5 h-3.5" />
@@ -5686,8 +5686,8 @@ export default function App() {
                         }
                         className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors cursor-pointer ${
                           showRightFileSidebar
-                            ? "bg-[#faf5ef] text-[#c86a28]"
-                            : "hover:bg-[#f5f5f4] text-[#78716c] hover:text-[#1c1917]"
+                            ? "bg-[#edf4ec] text-[#2d5a43]"
+                            : "hover:bg-[#f7f5ef] text-[#747f78] hover:text-[#1a211c]"
                         }`}
                       >
                         <PanesIcon className="w-3.5 h-3.5" />
@@ -5697,7 +5697,7 @@ export default function App() {
                       <button
                         onClick={() => showToast("已在工作区中定位该文件")}
                         title="在资源管理器中打开"
-                        className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-[#f5f5f4] text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer"
+                        className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-[#f7f5ef] text-[#747f78] hover:text-[#1a211c] transition-colors cursor-pointer"
                       >
                         <Folder className="w-3.5 h-3.5" />
                       </button>
@@ -5706,29 +5706,29 @@ export default function App() {
                       <div className="relative">
                         <button
                           onClick={() => setShowCommitModal(!showCommitModal)}
-                          className="flex items-center space-x-1.5 px-2.5 py-1 bg-white hover:bg-[#faf5ef] border border-[#e5e5e5] hover:border-[#c86a28] rounded-lg text-[12px] font-medium text-[#292524] transition-all cursor-pointer shadow-2xs"
+                          className="flex items-center space-x-1.5 px-2.5 py-1 bg-white hover:bg-[#edf4ec] border border-[#ece8df] hover:border-[#2d5a43] rounded-lg text-[12px] font-medium text-[#252d27] transition-all cursor-pointer shadow-2xs"
                         >
-                          <CommitPushIcon className="w-3.5 h-3.5 text-[#c86a28]" />
+                          <CommitPushIcon className="w-3.5 h-3.5 text-[#2d5a43]" />
                           <span>提交或推送</span>
-                          <ChevronDown className="w-3 h-3 text-[#78716c]" />
+                          <ChevronDown className="w-3 h-3 text-[#747f78]" />
                         </button>
 
                         {/* Commit & Push Popover Modal */}
                         {showCommitModal && (
-                          <div className="absolute right-0 top-9 w-72 bg-white border border-[#e7e5e4] rounded-2xl shadow-2xl p-3.5 z-50 text-[12px] animate-in fade-in slide-in-from-top-2 duration-150">
+                          <div className="absolute right-0 top-9 w-72 bg-white border border-[#eae6dc] rounded-2xl shadow-2xl p-3.5 z-50 text-[12px] animate-in fade-in slide-in-from-top-2 duration-150">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="font-semibold text-[#1c1917]">
+                              <span className="font-semibold text-[#1a211c]">
                                 提交更改到 {currentBranch}
                               </span>
                               <button
                                 onClick={() => setShowCommitModal(false)}
-                                className="text-[#a8a29e] hover:text-[#1c1917]"
+                                className="text-[#949e97] hover:text-[#1a211c]"
                               >
                                 <X className="w-3.5 h-3.5" />
                               </button>
                             </div>
 
-                            <p className="text-[11.5px] text-[#78716c] mb-2.5">
+                            <p className="text-[11.5px] text-[#747f78] mb-2.5">
                               已暂存 5 个文件 (+134 -11)
                             </p>
 
@@ -5737,17 +5737,17 @@ export default function App() {
                               onChange={(e) => setCommitMessage(e.target.value)}
                               placeholder="输入提交信息 (例如: feat: 更新字幕文本)..."
                               rows={3}
-                              className="w-full bg-[#f9f9f8] border border-[#e5e5e5] rounded-xl p-2.5 text-[12px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:border-[#c86a28] resize-none mb-2.5"
+                              className="w-full bg-[#faf9f6] border border-[#ece8df] rounded-xl p-2.5 text-[12px] text-[#1a211c] placeholder-[#949e97] focus:outline-none focus:border-[#2d5a43] resize-none mb-2.5"
                             />
 
-                            <label className="flex items-center space-x-2 text-[11.5px] text-[#57534e] mb-3 cursor-pointer select-none">
+                            <label className="flex items-center space-x-2 text-[11.5px] text-[#5c6760] mb-3 cursor-pointer select-none">
                               <input
                                 type="checkbox"
                                 checked={pushImmediately}
                                 onChange={(e) =>
                                   setPushImmediately(e.target.checked)
                                 }
-                                className="rounded text-[#c86a28] focus:ring-0"
+                                className="rounded text-[#2d5a43] focus:ring-0"
                               />
                               <span>
                                 提交后立即推送到远程 origin/{currentBranch}
@@ -5757,7 +5757,7 @@ export default function App() {
                             <div className="flex items-center justify-end space-x-2">
                               <button
                                 onClick={() => setShowCommitModal(false)}
-                                className="px-2.5 py-1 rounded-lg border border-[#e5e5e5] hover:bg-[#f5f5f4] text-[#78716c] transition-colors cursor-pointer"
+                                className="px-2.5 py-1 rounded-lg border border-[#ece8df] hover:bg-[#f7f5ef] text-[#747f78] transition-colors cursor-pointer"
                               >
                                 取消
                               </button>
@@ -5771,7 +5771,7 @@ export default function App() {
                                       : "✓ 已成功提交到本地仓库！",
                                   )
                                 }}
-                                className="px-3 py-1 rounded-lg bg-[#c86a28] hover:bg-[#b05c22] text-white font-medium transition-colors cursor-pointer shadow-2xs"
+                                className="px-3 py-1 rounded-lg bg-[#2d5a43] hover:bg-[#b05c22] text-white font-medium transition-colors cursor-pointer shadow-2xs"
                               >
                                 {pushImmediately ? "提交并推送" : "仅提交"}
                               </button>
@@ -5792,12 +5792,12 @@ export default function App() {
                         ) || reviewFiles[0]
 
                       return (
-                        <div className="flex-1 flex flex-col min-w-0 bg-[#fafaf9] overflow-hidden">
+                        <div className="flex-1 flex flex-col min-w-0 bg-[#ffffff] overflow-hidden">
                           {/* File Path Header Bar matching Screenshot 1 */}
-                          <div className="h-[34px] flex-shrink-0 bg-[#fafaf9] border-b border-[#e7e5e4] px-3 flex items-center justify-between text-[12px] font-mono select-text">
+                          <div className="h-[34px] flex-shrink-0 bg-[#ffffff] border-b border-[#eae6dc] px-3 flex items-center justify-between text-[12px] font-mono select-text">
                             <div className="flex items-center space-x-1.5 min-w-0 truncate">
-                              <FileText className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
-                              <span className="text-[#1c1917] truncate font-medium">
+                              <FileText className="w-3.5 h-3.5 text-[#747f78] flex-shrink-0" />
+                              <span className="text-[#1a211c] truncate font-medium">
                                 {currentFile.path}
                               </span>
                             </div>
@@ -5812,7 +5812,7 @@ export default function App() {
                           </div>
 
                           {/* Diff Lines Table */}
-                          <div className="flex-1 overflow-y-auto overflow-x-auto font-mono text-[12px] leading-[20px] custom-scrollbar p-2 bg-[#fafaf9] select-text">
+                          <div className="flex-1 overflow-y-auto overflow-x-auto font-mono text-[12px] leading-[20px] custom-scrollbar p-2 bg-[#ffffff] select-text">
                             {diffViewMode === "unified" ? (
                               /* UNIFIED (INLINE) VIEW */
                               <table className="w-full border-collapse">
@@ -5834,10 +5834,10 @@ export default function App() {
                                                     !isExpanded,
                                                 }))
                                               }
-                                              className="py-1 px-4 my-0.5 bg-[#f4f4f4] hover:bg-[#eaeaea] text-[#78716c] text-[11.5px] rounded-lg text-left select-none cursor-pointer flex items-center justify-between transition-colors border border-[#e5e5e5]"
+                                              className="py-1 px-4 my-0.5 bg-[#faf9f5] hover:bg-[#eaeaea] text-[#747f78] text-[11.5px] rounded-lg text-left select-none cursor-pointer flex items-center justify-between transition-colors border border-[#ece8df]"
                                             >
                                               <span>{line.bannerText}</span>
-                                              <span className="text-[10px] text-[#a8a29e]">
+                                              <span className="text-[10px] text-[#949e97]">
                                                 {isExpanded
                                                   ? "点击折叠"
                                                   : "点击展开上下文"}
@@ -5883,12 +5883,12 @@ export default function App() {
                                     return (
                                       <tr
                                         key={idx}
-                                        className="hover:bg-[#fafaf9]"
+                                        className="hover:bg-[#ffffff]"
                                       >
-                                        <td className="w-12 select-none text-right pr-3 text-[#a8a29e] text-[11px] align-top font-mono">
+                                        <td className="w-12 select-none text-right pr-3 text-[#949e97] text-[11px] align-top font-mono">
                                           {line.oldNum || line.newNum}
                                         </td>
-                                        <td className="pl-3 whitespace-pre text-[#1c1917] align-top font-mono leading-[20px]">
+                                        <td className="pl-3 whitespace-pre text-[#1a211c] align-top font-mono leading-[20px]">
                                           {line.text}
                                         </td>
                                       </tr>
@@ -5900,11 +5900,11 @@ export default function App() {
                               /* SPLIT (SIDE-BY-SIDE) VIEW */
                               <table className="w-full border-collapse">
                                 <thead>
-                                  <tr className="border-b border-[#e7e5e4] text-[11px] text-[#78716c]">
+                                  <tr className="border-b border-[#eae6dc] text-[11px] text-[#747f78]">
                                     <th className="w-1/2 text-left font-normal px-2 py-1 bg-[#fafafa]">
                                       原版本 (Original)
                                     </th>
-                                    <th className="w-1/2 text-left font-normal px-2 py-1 bg-[#fafafa] border-l border-[#e7e5e4]">
+                                    <th className="w-1/2 text-left font-normal px-2 py-1 bg-[#fafafa] border-l border-[#eae6dc]">
                                       修改后 (Modified)
                                     </th>
                                   </tr>
@@ -5915,7 +5915,7 @@ export default function App() {
                                       return (
                                         <tr key={idx}>
                                           <td colSpan={2} className="py-1">
-                                            <div className="py-1 px-4 my-0.5 bg-[#f4f4f4] text-[#78716c] text-[11.5px] rounded-lg text-center select-none border border-[#e5e5e5]">
+                                            <div className="py-1 px-4 my-0.5 bg-[#faf9f5] text-[#747f78] text-[11.5px] rounded-lg text-center select-none border border-[#ece8df]">
                                               {line.bannerText}
                                             </div>
                                           </td>
@@ -5932,7 +5932,7 @@ export default function App() {
                                             </span>
                                             {line.text}
                                           </td>
-                                          <td className="w-1/2 bg-[#f5f5f4]/50 border-l border-[#e7e5e4] px-2 py-0.5" />
+                                          <td className="w-1/2 bg-[#f7f5ef]/50 border-l border-[#eae6dc] px-2 py-0.5" />
                                         </tr>
                                       )
                                     }
@@ -5940,8 +5940,8 @@ export default function App() {
                                     if (line.type === "add") {
                                       return (
                                         <tr key={idx}>
-                                          <td className="w-1/2 bg-[#f5f5f4]/50 px-2 py-0.5" />
-                                          <td className="w-1/2 bg-[#dcfce7]/40 text-[#166534] px-2 py-0.5 whitespace-pre border-l border-[#e7e5e4]">
+                                          <td className="w-1/2 bg-[#f7f5ef]/50 px-2 py-0.5" />
+                                          <td className="w-1/2 bg-[#dcfce7]/40 text-[#166534] px-2 py-0.5 whitespace-pre border-l border-[#eae6dc]">
                                             <span className="text-[#16a34a] font-mono mr-2 text-[11px]">
                                               {line.newNum}
                                             </span>
@@ -5954,16 +5954,16 @@ export default function App() {
                                     return (
                                       <tr
                                         key={idx}
-                                        className="hover:bg-[#fafaf9]"
+                                        className="hover:bg-[#ffffff]"
                                       >
-                                        <td className="w-1/2 px-2 py-0.5 whitespace-pre text-[#1c1917]">
-                                          <span className="text-[#a8a29e] font-mono mr-2 text-[11px]">
+                                        <td className="w-1/2 px-2 py-0.5 whitespace-pre text-[#1a211c]">
+                                          <span className="text-[#949e97] font-mono mr-2 text-[11px]">
                                             {line.oldNum}
                                           </span>
                                           {line.text}
                                         </td>
-                                        <td className="w-1/2 px-2 py-0.5 whitespace-pre text-[#1c1917] border-l border-[#e7e5e4]">
-                                          <span className="text-[#a8a29e] font-mono mr-2 text-[11px]">
+                                        <td className="w-1/2 px-2 py-0.5 whitespace-pre text-[#1a211c] border-l border-[#eae6dc]">
+                                          <span className="text-[#949e97] font-mono mr-2 text-[11px]">
                                             {line.newNum}
                                           </span>
                                           {line.text}
@@ -5981,11 +5981,11 @@ export default function App() {
 
                     {/* RIGHT SUB-SIDEBAR: CHANGED FILES LIST (MATCHES SCREENSHOT 1) */}
                     {showRightFileSidebar && (
-                      <div className="w-48 sm:w-56 flex-shrink-0 border-l border-[#e7e5e4]/60 bg-[#fafaf9] flex flex-col min-h-0 select-none">
+                      <div className="w-48 sm:w-56 flex-shrink-0 border-l border-[#eae6dc]/60 bg-[#ffffff] flex flex-col min-h-0 select-none">
                         {/* Search Input */}
-                        <div className="p-2 bg-[#fafaf9]">
+                        <div className="p-2 bg-[#ffffff]">
                           <div className="relative">
-                            <Search className="w-3.5 h-3.5 text-[#a8a29e] absolute left-2.5 top-1/2 -translate-y-1/2" />
+                            <Search className="w-3.5 h-3.5 text-[#949e97] absolute left-2.5 top-1/2 -translate-y-1/2" />
                             <input
                               type="text"
                               value={reviewFileSearch}
@@ -5993,7 +5993,7 @@ export default function App() {
                                 setReviewFileSearch(e.target.value)
                               }
                               placeholder="筛选文件..."
-                              className="w-full bg-[#edebe4]/70 border-0 rounded-lg pl-7 pr-2 py-1 text-[11.5px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#c86a28]/40 transition-all"
+                              className="w-full bg-[#f3f1ea]/70 border-0 rounded-lg pl-7 pr-2 py-1 text-[11.5px] text-[#1a211c] placeholder-[#949e97] focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#2d5a43]/40 transition-all"
                             />
                           </div>
                         </div>
@@ -6016,7 +6016,7 @@ export default function App() {
                               return (
                                 <div key={file.id} className="space-y-0.5">
                                   {/* Folder Header */}
-                                  <div className="flex items-center justify-between px-2 py-0.5 text-[11px] text-[#78716c] font-mono">
+                                  <div className="flex items-center justify-between px-2 py-0.5 text-[11px] text-[#747f78] font-mono">
                                     <div className="flex items-center space-x-1 min-w-0 truncate">
                                       <ChevronDown className="w-3 h-3 flex-shrink-0" />
                                       <span className="truncate">
@@ -6027,7 +6027,7 @@ export default function App() {
                                       className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
                                         file.status === "added"
                                           ? "bg-[#16a34a]"
-                                          : "bg-[#c86a28]"
+                                          : "bg-[#2d5a43]"
                                       }`}
                                     />
                                   </div>
@@ -6039,12 +6039,12 @@ export default function App() {
                                     }
                                     className={`w-full text-left flex items-center justify-between px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
                                       isSelected
-                                        ? "bg-white text-[#1c1917] font-medium shadow-2xs border border-black/[0.06]"
-                                        : "hover:bg-black/[0.04] text-[#44403c]"
+                                        ? "bg-white text-[#1a211c] font-medium shadow-2xs border border-black/[0.06]"
+                                        : "hover:bg-black/[0.04] text-[#4a534c]"
                                     }`}
                                   >
                                     <div className="flex items-center space-x-1.5 min-w-0 truncate">
-                                      <FileText className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
+                                      <FileText className="w-3.5 h-3.5 text-[#747f78] flex-shrink-0" />
                                       <span className="truncate text-[11.5px] font-mono">
                                         {file.displayName}
                                       </span>
@@ -6053,7 +6053,7 @@ export default function App() {
                                       className={`text-[10px] font-bold font-mono px-1 py-0.2 rounded ${
                                         file.status === "added"
                                           ? "bg-[#dcfce7] text-[#166534]"
-                                          : "bg-[#fef3d6] text-[#b45309]"
+                                          : "bg-[#edf4ec] text-[#234937]"
                                       }`}
                                     >
                                       {file.status === "added" ? "A" : "M"}
@@ -6071,15 +6071,15 @@ export default function App() {
                 /* ========================================================================= */
                 /* VIEW 3: WORKSPACE OPEN FILE PANEL (SCREENSHOT 2)                          */
                 /* ========================================================================= */
-                <div className="flex-1 flex min-h-0 bg-[#fafaf9] animate-in fade-in duration-150">
+                <div className="flex-1 flex min-h-0 bg-[#ffffff] animate-in fade-in duration-150">
                   {/* LEFT / CENTER VIEW */}
-                  <div className="flex-1 flex flex-col min-w-0 bg-[#fafaf9]">
+                  <div className="flex-1 flex flex-col min-w-0 bg-[#ffffff]">
                     {/* Header */}
-                    <div className="h-[34px] flex-shrink-0 bg-[#fafaf9] border-b border-[#e7e5e4]/60 px-3 flex items-center justify-between text-[12px] font-mono text-[#57534e]">
+                    <div className="h-[34px] flex-shrink-0 bg-[#ffffff] border-b border-[#eae6dc]/60 px-3 flex items-center justify-between text-[12px] font-mono text-[#5c6760]">
                       <div className="flex items-center space-x-2 min-w-0 truncate">
-                        <span className="font-semibold text-[#1c1917]">C:</span>
+                        <span className="font-semibold text-[#1a211c]">C:</span>
                         {selectedWorkspaceFile && (
-                          <span className="truncate text-[#1c1917] font-medium">
+                          <span className="truncate text-[#1a211c] font-medium">
                             / {selectedWorkspaceFile}
                           </span>
                         )}
@@ -6098,8 +6098,8 @@ export default function App() {
                         }
                         className={`w-6 h-6 flex items-center justify-center rounded-md transition-colors cursor-pointer ${
                           showWorkspaceTreeSidebar
-                            ? "text-[#c86a28] hover:bg-black/[0.05] dark:hover:bg-white/[0.06]"
-                            : "text-[#78716c] hover:bg-black/[0.05] dark:hover:bg-white/[0.06] hover:text-[#1c1917]"
+                            ? "text-[#2d5a43] hover:bg-black/[0.05] dark:hover:bg-white/[0.06]"
+                            : "text-[#747f78] hover:bg-black/[0.05] dark:hover:bg-white/[0.06] hover:text-[#1a211c]"
                         }`}
                       >
                         <Folder className="w-4 h-4" />
@@ -6108,16 +6108,16 @@ export default function App() {
 
                     {/* Main Workspace File Content / Empty State */}
                     {selectedWorkspaceFile ? (
-                      <div className="flex-1 overflow-y-auto font-mono text-[12px] p-4 bg-[#fafaf9] select-text custom-scrollbar">
-                        <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[#e7e5e4]/60">
-                          <span className="font-semibold text-[#1c1917]">
+                      <div className="flex-1 overflow-y-auto font-mono text-[12px] p-4 bg-[#ffffff] select-text custom-scrollbar">
+                        <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[#eae6dc]/60">
+                          <span className="font-semibold text-[#1a211c]">
                             {selectedWorkspaceFile}
                           </span>
-                          <span className="text-[11px] text-[#78716c]">
+                          <span className="text-[11px] text-[#747f78]">
                             只读模式
                           </span>
                         </div>
-                        <pre className="text-[#292524] whitespace-pre-wrap leading-relaxed">
+                        <pre className="text-[#252d27] whitespace-pre-wrap leading-relaxed">
                           {workspaceTreeItems.find(
                             (item) => item.name === selectedWorkspaceFile,
                           )?.content ||
@@ -6126,13 +6126,13 @@ export default function App() {
                       </div>
                     ) : (
                       <div className="flex-1 flex flex-col items-center justify-center text-center p-8 select-none">
-                        <div className="w-16 h-16 rounded-2xl bg-white border border-black/[0.06] flex items-center justify-center mb-4 text-[#78716c] shadow-2xs">
+                        <div className="w-16 h-16 rounded-2xl bg-white border border-black/[0.06] flex items-center justify-center mb-4 text-[#747f78] shadow-2xs">
                           <FolderOpen className="w-8 h-8 stroke-[1.5]" />
                         </div>
-                        <h3 className="text-[15px] font-semibold text-[#1c1917] mb-1">
+                        <h3 className="text-[15px] font-semibold text-[#1a211c] mb-1">
                           打开文件
                         </h3>
-                        <p className="text-[12.5px] text-[#78716c]">
+                        <p className="text-[12.5px] text-[#747f78]">
                           从工作区目录树中选择文件
                         </p>
                       </div>
@@ -6141,11 +6141,11 @@ export default function App() {
 
                   {/* RIGHT SUB-SIDEBAR: WORKSPACE DIRECTORY TREE (SCREENSHOT 2) */}
                   {showWorkspaceTreeSidebar && (
-                    <div className="w-56 sm:w-64 flex-shrink-0 border-l border-[#e7e5e4]/60 bg-[#fafaf9] flex flex-col min-h-0 select-none animate-in fade-in duration-150">
+                    <div className="w-56 sm:w-64 flex-shrink-0 border-l border-[#eae6dc]/60 bg-[#ffffff] flex flex-col min-h-0 select-none animate-in fade-in duration-150">
                       {/* Search Bar */}
-                      <div className="p-2.5 bg-[#fafaf9]">
+                      <div className="p-2.5 bg-[#ffffff]">
                         <div className="relative">
-                          <Search className="w-3.5 h-3.5 text-[#a8a29e] absolute left-2.5 top-1/2 -translate-y-1/2" />
+                          <Search className="w-3.5 h-3.5 text-[#949e97] absolute left-2.5 top-1/2 -translate-y-1/2" />
                           <input
                             type="text"
                             value={workspaceTreeSearch}
@@ -6153,7 +6153,7 @@ export default function App() {
                               setWorkspaceTreeSearch(e.target.value)
                             }
                             placeholder="筛选文件..."
-                            className="w-full bg-[#edebe4]/70 border-0 rounded-xl pl-8 pr-2.5 py-1 text-[12px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#c86a28]/40 transition-all"
+                            className="w-full bg-[#f3f1ea]/70 border-0 rounded-xl pl-8 pr-2.5 py-1 text-[12px] text-[#1a211c] placeholder-[#949e97] focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#2d5a43]/40 transition-all"
                           />
                         </div>
                       </div>
@@ -6178,12 +6178,12 @@ export default function App() {
                                         [item.name]: !isExpanded,
                                       }))
                                     }
-                                    className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-md hover:bg-[#f5f5f4] text-[#44403c] transition-colors cursor-pointer text-left"
+                                    className="w-full flex items-center space-x-1.5 px-2 py-1 rounded-md hover:bg-[#f7f5ef] text-[#4a534c] transition-colors cursor-pointer text-left"
                                   >
                                     {isExpanded ? (
-                                      <ChevronDown className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
+                                      <ChevronDown className="w-3.5 h-3.5 text-[#747f78] flex-shrink-0" />
                                     ) : (
-                                      <ChevronRight className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
+                                      <ChevronRight className="w-3.5 h-3.5 text-[#747f78] flex-shrink-0" />
                                     )}
                                     <span className="truncate">{item.name}</span>
                                   </button>
@@ -6196,9 +6196,9 @@ export default function App() {
                                           onClick={() =>
                                             setSelectedWorkspaceFile(subItem)
                                           }
-                                          className="w-full flex items-center space-x-1.5 px-2 py-0.5 rounded hover:bg-[#f5f5f4] text-[#78716c] hover:text-[#1c1917] text-[11.5px] transition-colors cursor-pointer text-left truncate"
+                                          className="w-full flex items-center space-x-1.5 px-2 py-0.5 rounded hover:bg-[#f7f5ef] text-[#747f78] hover:text-[#1a211c] text-[11.5px] transition-colors cursor-pointer text-left truncate"
                                         >
-                                          <FileText className="w-3 h-3 text-[#a8a29e] flex-shrink-0" />
+                                          <FileText className="w-3 h-3 text-[#949e97] flex-shrink-0" />
                                           <span className="truncate">
                                             {subItem}
                                           </span>
@@ -6220,11 +6220,11 @@ export default function App() {
                                 }
                                 className={`w-full flex items-center space-x-2 px-2 py-1 rounded-md transition-colors cursor-pointer text-left ${
                                   isFileSelected
-                                    ? "bg-[#faf5ef] text-[#c86a28] font-medium"
-                                    : "hover:bg-[#f5f5f4] text-[#44403c]"
+                                    ? "bg-[#edf4ec] text-[#2d5a43] font-medium"
+                                    : "hover:bg-[#f7f5ef] text-[#4a534c]"
                                 }`}
                               >
-                                <FileText className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
+                                <FileText className="w-3.5 h-3.5 text-[#747f78] flex-shrink-0" />
                                 <span className="truncate">{item.name}</span>
                               </button>
                             )
@@ -6253,8 +6253,8 @@ export default function App() {
                 <div
                   className={`w-[2px] h-full transition-colors duration-150 ${
                     isDraggingMainRight
-                      ? "bg-[#c86a28]/80"
-                      : "bg-transparent group-hover/winline:bg-[#c86a28]/80"
+                      ? "bg-[#2d5a43]/80"
+                      : "bg-transparent group-hover/winline:bg-[#2d5a43]/80"
                   }`}
                 />
               </div>
@@ -6287,8 +6287,8 @@ export default function App() {
                 <div
                   className={`w-[2px] h-full transition-colors duration-150 ${
                     isDraggingMainRight
-                      ? "bg-[#c86a28]/80"
-                      : "bg-transparent group-hover/line:bg-[#c86a28]/80"
+                      ? "bg-[#2d5a43]/80"
+                      : "bg-transparent group-hover/line:bg-[#2d5a43]/80"
                   }`}
                 />
               </div>
@@ -6303,9 +6303,9 @@ export default function App() {
                   handleToggleRightPanel()
                 }}
                 title="展开代码审阅"
-                className="absolute top-2.5 right-1.5 z-50 w-6 h-6 rounded-md bg-[#fef8f4] border border-[#ebdcd0] shadow-2xs hover:shadow-md hover:border-[#c86a28] hover:bg-[#fcf2ea] text-[#c86a28] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 pointer-events-auto"
+                className="absolute top-2.5 right-1.5 z-50 w-6 h-6 rounded-md bg-[#edf4ec] border border-[#eae5da] shadow-2xs hover:shadow-md hover:border-[#2d5a43] hover:bg-[#edf4ec] text-[#2d5a43] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 pointer-events-auto"
               >
-                <PanelRightOpen className="w-3.5 h-3.5 text-[#c86a28]" />
+                <PanelRightOpen className="w-3.5 h-3.5 text-[#2d5a43]" />
               </button>
             </div>
           )}
@@ -6316,20 +6316,20 @@ export default function App() {
         {/* ========================================================= */}
         {showNewConvModal && (
           <div className="fixed inset-0 bg-black/35 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="w-[520px] max-w-[94vw] bg-white border border-[#e7e5e4] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-150">
+            <div className="w-[520px] max-w-[94vw] bg-white border border-[#eae6dc] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-150">
               {/* Modal Header */}
-              <div className="h-[52px] border-b border-[#f0eee8] flex items-center justify-between px-6 flex-shrink-0 bg-[#faf9f6]">
+              <div className="h-[52px] border-b border-[#eae6dc] flex items-center justify-between px-6 flex-shrink-0 bg-[#faf9f6]">
                 <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 rounded-lg bg-[#fef8f4] border border-[#f5d9c3] flex items-center justify-center">
-                    <Sparkles className="w-3.5 h-3.5 text-[#c86a28]" />
+                  <div className="w-6 h-6 rounded-lg bg-[#edf4ec] border border-[#cddcd0] flex items-center justify-center">
+                    <Sparkles className="w-3.5 h-3.5 text-[#2d5a43]" />
                   </div>
-                  <h3 className="text-[15px] font-bold text-[#1c1917]">
+                  <h3 className="text-[15px] font-bold text-[#1a211c]">
                     新建会话设置
                   </h3>
                 </div>
                 <button
                   onClick={() => setShowNewConvModal(false)}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-[#78716c] hover:bg-[#eae8e1] transition-colors cursor-pointer"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center text-[#747f78] hover:bg-[#eae8e1] transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -6339,7 +6339,7 @@ export default function App() {
               <div className="p-6 space-y-4 text-[13px]">
                 {/* 会话名称 */}
                 <div className="space-y-1.5">
-                  <label className="block text-[12px] font-medium text-[#44403c]">
+                  <label className="block text-[12px] font-medium text-[#4a534c]">
                     会话名称
                   </label>
                   <input
@@ -6347,24 +6347,24 @@ export default function App() {
                     value={newConvTitle}
                     onChange={(e) => setNewConvTitle(e.target.value)}
                     placeholder="请输入会话名称..."
-                    className="w-full bg-[#f9f9f8] border border-[#e7e5e4] focus:border-[#c86a28] focus:bg-white rounded-xl px-3.5 py-2 text-[13px] text-[#1c1917] outline-none transition-all"
+                    className="w-full bg-[#faf9f6] border border-[#eae6dc] focus:border-[#2d5a43] focus:bg-white rounded-xl px-3.5 py-2 text-[13px] text-[#1a211c] outline-none transition-all"
                   />
                 </div>
 
                 {/* 所属分组 */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="block text-[12px] font-medium text-[#44403c]">
+                    <label className="block text-[12px] font-medium text-[#4a534c]">
                       所属分组
                     </label>
-                    <span className="text-[11px] text-[#a8a29e]">
+                    <span className="text-[11px] text-[#949e97]">
                       会话归类分组
                     </span>
                   </div>
                   <select
                     value={newConvGroup}
                     onChange={(e) => setNewConvGroup(e.target.value)}
-                    className="w-full bg-[#f9f9f8] border border-[#e7e5e4] focus:border-[#c86a28] focus:bg-white rounded-xl px-3.5 py-2 text-[12.5px] text-[#1c1917] outline-none transition-all cursor-pointer"
+                    className="w-full bg-[#faf9f6] border border-[#eae6dc] focus:border-[#2d5a43] focus:bg-white rounded-xl px-3.5 py-2 text-[12.5px] text-[#1a211c] outline-none transition-all cursor-pointer"
                   >
                     {treeData.map((g) => (
                       <option key={g.name} value={g.name}>
@@ -6377,10 +6377,10 @@ export default function App() {
                 {/* 项目工作目录（项目空间） */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="block text-[12px] font-medium text-[#44403c]">
+                    <label className="block text-[12px] font-medium text-[#4a534c]">
                       项目工作目录（项目空间）
                     </label>
-                    <span className="text-[11px] text-[#a8a29e]">
+                    <span className="text-[11px] text-[#949e97]">
                       目录末尾即项目名称
                     </span>
                   </div>
@@ -6390,15 +6390,15 @@ export default function App() {
                       value={newConvPath}
                       onChange={(e) => setNewConvPath(e.target.value)}
                       placeholder="请输入或浏览选择物理目录..."
-                      className="flex-1 font-mono bg-[#f9f9f8] border border-[#e7e5e4] focus:border-[#c86a28] focus:bg-white rounded-xl px-3.5 py-2 text-[12px] text-[#1c1917] outline-none transition-all"
+                      className="flex-1 font-mono bg-[#faf9f6] border border-[#eae6dc] focus:border-[#2d5a43] focus:bg-white rounded-xl px-3.5 py-2 text-[12px] text-[#1a211c] outline-none transition-all"
                     />
                     <button
                       type="button"
                       onClick={() => handleBrowseNativeDirectory("newConv")}
-                      className="px-3.5 py-2 bg-[#f5f5f4] hover:bg-[#eae8e1] border border-[#e7e5e4] text-[#44403c] rounded-xl text-[12px] font-medium transition-colors cursor-pointer flex-shrink-0 flex items-center space-x-1"
+                      className="px-3.5 py-2 bg-[#f7f5ef] hover:bg-[#eae8e1] border border-[#eae6dc] text-[#4a534c] rounded-xl text-[12px] font-medium transition-colors cursor-pointer flex-shrink-0 flex items-center space-x-1"
                       title="调用系统资源管理器选择工作空间目录"
                     >
-                      <FolderOpen className="w-3.5 h-3.5 text-[#c86a28]" />
+                      <FolderOpen className="w-3.5 h-3.5 text-[#2d5a43]" />
                       <span>浏览...</span>
                     </button>
                   </div>
@@ -6420,9 +6420,9 @@ export default function App() {
 
                     return (
                       <div className="flex items-center justify-between pt-0.5 text-[11.5px]">
-                        <div className="flex items-center space-x-1 text-[#78716c]">
+                        <div className="flex items-center space-x-1 text-[#747f78]">
                           <span>识别项目:</span>
-                          <span className="font-mono font-semibold text-[#1c1917] bg-[#f5f5f4] px-1.5 py-0.2 rounded border border-[#e7e5e4]">
+                          <span className="font-mono font-semibold text-[#1a211c] bg-[#f7f5ef] px-1.5 py-0.2 rounded border border-[#eae6dc]">
                             {currentProjName}
                           </span>
                         </div>
@@ -6432,7 +6432,7 @@ export default function App() {
                             <span>已归属于「{newConvGroup}」下的已有项目</span>
                           </span>
                         ) : (
-                          <span className="text-[#c86a28] font-medium flex items-center space-x-1">
+                          <span className="text-[#2d5a43] font-medium flex items-center space-x-1">
                             <Plus className="w-3 h-3" />
                             <span>将在「{newConvGroup}」下自动新建该项目</span>
                           </span>
@@ -6443,7 +6443,7 @@ export default function App() {
 
                   {/* 常用项目空间快捷标签 */}
                   <div className="pt-2 space-y-1">
-                    <span className="text-[11px] text-[#a8a29e]">
+                    <span className="text-[11px] text-[#949e97]">
                       常用项目空间快捷选择:
                     </span>
                     <div className="flex flex-wrap gap-1.5">
@@ -6483,8 +6483,8 @@ export default function App() {
                           className={`px-2 py-0.8 rounded-lg text-[11px] font-mono border transition-all cursor-pointer ${
                             newConvPath.trim().toLowerCase() ===
                             preset.path.toLowerCase()
-                              ? "bg-[#fef8f4] border-[#c86a28] text-[#c86a28] font-semibold"
-                              : "bg-[#fafaf9] border-[#e7e5e4] hover:border-[#d6d3d1] text-[#57534e]"
+                              ? "bg-[#edf4ec] border-[#2d5a43] text-[#2d5a43] font-semibold"
+                              : "bg-[#ffffff] border-[#eae6dc] hover:border-[#d6d3d1] text-[#5c6760]"
                           }`}
                         >
                           {preset.name}
@@ -6496,16 +6496,16 @@ export default function App() {
               </div>
 
               {/* Modal Footer */}
-              <div className="h-[60px] border-t border-[#f0eee8] bg-[#faf9f6] flex items-center justify-end px-6 space-x-3 flex-shrink-0">
+              <div className="h-[60px] border-t border-[#eae6dc] bg-[#faf9f6] flex items-center justify-end px-6 space-x-3 flex-shrink-0">
                 <button
                   onClick={() => setShowNewConvModal(false)}
-                  className="px-4 py-2 rounded-xl border border-[#e7e5e4] hover:bg-[#eae8e1] text-[#57534e] text-[13px] font-medium transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-xl border border-[#eae6dc] hover:bg-[#eae8e1] text-[#5c6760] text-[13px] font-medium transition-colors cursor-pointer"
                 >
                   取消
                 </button>
                 <button
                   onClick={handleConfirmCreateNewConv}
-                  className="px-5 py-2 rounded-xl bg-[#c86a28] hover:bg-[#b45309] active:scale-98 text-white text-[13px] font-semibold transition-all shadow-xs cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-[#2d5a43] hover:bg-[#234937] active:scale-98 text-white text-[13px] font-semibold transition-all shadow-xs cursor-pointer"
                 >
                   创建并进入会话
                 </button>
@@ -6519,29 +6519,29 @@ export default function App() {
         {/* ========================================================= */}
         {showChangeWorkspaceModal && (
           <div className="fixed inset-0 bg-black/35 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="w-[480px] max-w-[94vw] bg-white border border-[#e7e5e4] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-150">
-              <div className="h-[52px] border-b border-[#f0eee8] flex items-center justify-between px-6 flex-shrink-0 bg-[#faf9f6]">
+            <div className="w-[480px] max-w-[94vw] bg-white border border-[#eae6dc] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-150">
+              <div className="h-[52px] border-b border-[#eae6dc] flex items-center justify-between px-6 flex-shrink-0 bg-[#faf9f6]">
                 <div className="flex items-center space-x-2">
-                  <FolderOpen className="w-4 h-4 text-[#c86a28]" />
-                  <h3 className="text-[14.5px] font-bold text-[#1c1917]">
+                  <FolderOpen className="w-4 h-4 text-[#2d5a43]" />
+                  <h3 className="text-[14.5px] font-bold text-[#1a211c]">
                     更换当前会话工作空间目录
                   </h3>
                 </div>
                 <button
                   onClick={() => setShowChangeWorkspaceModal(false)}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-[#78716c] hover:bg-[#eae8e1] transition-colors cursor-pointer"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center text-[#747f78] hover:bg-[#eae8e1] transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               <div className="p-6 space-y-3.5 text-[13px]">
-                <p className="text-[12px] text-[#78716c]">
+                <p className="text-[12px] text-[#747f78]">
                   当前会话尚未开始，您可以自定义工作空间路径。会话开始执行后，工作空间目录将永久锁定。
                 </p>
 
                 <div className="space-y-1.5">
-                  <label className="block text-[12px] font-medium text-[#44403c]">
+                  <label className="block text-[12px] font-medium text-[#4a534c]">
                     工作空间物理路径
                   </label>
                   <div className="flex items-center space-x-2">
@@ -6551,14 +6551,14 @@ export default function App() {
                       onChange={(e) =>
                         setChangeWorkspacePathInput(e.target.value)
                       }
-                      className="flex-1 font-mono bg-[#f9f9f8] border border-[#e7e5e4] focus:border-[#c86a28] focus:bg-white rounded-xl px-3.5 py-2 text-[12px] text-[#1c1917] outline-none transition-all"
+                      className="flex-1 font-mono bg-[#faf9f6] border border-[#eae6dc] focus:border-[#2d5a43] focus:bg-white rounded-xl px-3.5 py-2 text-[12px] text-[#1a211c] outline-none transition-all"
                     />
                     <button
                       type="button"
                       onClick={() =>
                         handleBrowseNativeDirectory("changeWorkspace")
                       }
-                      className="px-3 py-2 bg-[#f5f5f4] hover:bg-[#eae8e1] border border-[#e7e5e4] text-[#44403c] rounded-xl text-[12px] font-medium transition-colors cursor-pointer flex-shrink-0"
+                      className="px-3 py-2 bg-[#f7f5ef] hover:bg-[#eae8e1] border border-[#eae6dc] text-[#4a534c] rounded-xl text-[12px] font-medium transition-colors cursor-pointer flex-shrink-0"
                       title="调用系统资源管理器选择工作空间目录"
                     >
                       浏览...
@@ -6568,7 +6568,7 @@ export default function App() {
 
                 {/* 预设推荐路径 */}
                 <div className="space-y-1 pt-1">
-                  <span className="text-[11.5px] text-[#78716c]">
+                  <span className="text-[11.5px] text-[#747f78]">
                     常用项目空间:
                   </span>
                   <div className="space-y-1">
@@ -6597,12 +6597,12 @@ export default function App() {
                         key={preset.name}
                         type="button"
                         onClick={() => setChangeWorkspacePathInput(preset.path)}
-                        className="w-full text-left px-2.5 py-1.5 rounded-lg border border-[#e7e5e4] hover:border-[#c86a28] hover:bg-[#fef8f4] transition-colors flex items-center justify-between text-[11.5px] cursor-pointer"
+                        className="w-full text-left px-2.5 py-1.5 rounded-lg border border-[#eae6dc] hover:border-[#2d5a43] hover:bg-[#edf4ec] transition-colors flex items-center justify-between text-[11.5px] cursor-pointer"
                       >
-                        <span className="font-medium text-[#1c1917]">
+                        <span className="font-medium text-[#1a211c]">
                           {preset.name}
                         </span>
-                        <span className="font-mono text-[10.5px] text-[#78716c]">
+                        <span className="font-mono text-[10.5px] text-[#747f78]">
                           {preset.path}
                         </span>
                       </button>
@@ -6611,10 +6611,10 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="h-[56px] border-t border-[#f0eee8] bg-[#faf9f6] flex items-center justify-end px-6 space-x-3 flex-shrink-0">
+              <div className="h-[56px] border-t border-[#eae6dc] bg-[#faf9f6] flex items-center justify-end px-6 space-x-3 flex-shrink-0">
                 <button
                   onClick={() => setShowChangeWorkspaceModal(false)}
-                  className="px-4 py-1.5 rounded-xl border border-[#e7e5e4] hover:bg-[#eae8e1] text-[#57534e] text-[12.5px] font-medium transition-colors cursor-pointer"
+                  className="px-4 py-1.5 rounded-xl border border-[#eae6dc] hover:bg-[#eae8e1] text-[#5c6760] text-[12.5px] font-medium transition-colors cursor-pointer"
                 >
                   取消
                 </button>
@@ -6635,7 +6635,7 @@ export default function App() {
 
                     setShowChangeWorkspaceModal(false)
                   }}
-                  className="px-4 py-1.5 rounded-xl bg-[#c86a28] hover:bg-[#b45309] text-white text-[12.5px] font-semibold transition-all shadow-xs cursor-pointer"
+                  className="px-4 py-1.5 rounded-xl bg-[#2d5a43] hover:bg-[#234937] text-white text-[12.5px] font-semibold transition-all shadow-xs cursor-pointer"
                 >
                   确认更换
                 </button>
@@ -6658,36 +6658,36 @@ export default function App() {
         {/* ========================================================= */}
         {showSettingsModal && (
           <div className="fixed inset-0 bg-black/35 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="w-[960px] max-w-[94vw] h-[680px] max-h-[88vh] bg-white border border-[#e7e5e4] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-150">
+            <div className="w-[960px] max-w-[94vw] h-[680px] max-h-[88vh] bg-white border border-[#eae6dc] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-150">
               {/* Settings Toast Notification */}
               {settingsToast && (
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-[#1c1917]/95 text-white text-[12.5px] font-medium rounded-xl shadow-2xl border border-white/10 flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 duration-150 pointer-events-none backdrop-blur-md">
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-[#1a211c]/95 text-white text-[12.5px] font-medium rounded-xl shadow-2xl border border-white/10 flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 duration-150 pointer-events-none backdrop-blur-md">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   <span>{settingsToast}</span>
                 </div>
               )}
 
               {/* Top Bar inside Settings Modal */}
-              <div className="h-[56px] border-b border-[#f0eee8] flex items-center justify-between px-7 flex-shrink-0">
-                <h2 className="text-[22px] font-bold text-[#1c1917] tracking-tight">
+              <div className="h-[56px] border-b border-[#eae6dc] flex items-center justify-between px-7 flex-shrink-0">
+                <h2 className="text-[22px] font-bold text-[#1a211c] tracking-tight">
                   设置
                 </h2>
 
                 {/* Search input in settings */}
                 <div className="relative w-[360px]">
-                  <Search className="w-4 h-4 text-[#a8a29e] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-[#949e97] absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={settingsSearchQuery}
                     onChange={(e) => setSettingsSearchQuery(e.target.value)}
                     placeholder="搜索设置项"
-                    className="w-full bg-[#f9f9f8] border border-[#e7e5e4] rounded-xl pl-9 pr-3 py-1.5 text-[13px] text-[#1c1917] placeholder-[#a8a29e] focus:outline-none focus:border-[#f5a623]"
+                    className="w-full bg-[#faf9f6] border border-[#eae6dc] rounded-xl pl-9 pr-3 py-1.5 text-[13px] text-[#1a211c] placeholder-[#949e97] focus:outline-none focus:border-[#4a7860]"
                   />
                 </div>
 
                 <button
                   onClick={() => setShowSettingsModal(false)}
-                  className="p-1.5 hover:bg-[#f5f5f4] rounded-xl text-[#78716c] hover:text-[#1c1917] transition-colors cursor-pointer"
+                  className="p-1.5 hover:bg-[#f7f5ef] rounded-xl text-[#747f78] hover:text-[#1a211c] transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -6696,7 +6696,7 @@ export default function App() {
               {/* Main Content Body inside Settings */}
               <div className="flex-1 flex overflow-hidden">
                 {/* Settings Left Sidebar */}
-                <nav className="w-[220px] border-r border-[#f0eee8] p-4 space-y-1.5 flex-shrink-0 bg-[#fbfbf9]">
+                <nav className="w-[220px] border-r border-[#eae6dc] p-4 space-y-1.5 flex-shrink-0 bg-[#fbfbf9]">
                   {settingsCategories.map((cat) => {
                     const Icon = cat.icon
 
@@ -6708,13 +6708,13 @@ export default function App() {
                         onClick={() => setActiveSettingsTab(cat.id)}
                         className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-medium transition-all cursor-pointer ${
                           isActive
-                            ? "bg-[#f7efe5] text-[#8b5229] font-semibold shadow-2xs"
-                            : "text-[#57534e] hover:bg-[#f3f2eb]"
+                            ? "bg-[#eaf1e8] text-[#2d5a43] font-semibold shadow-2xs"
+                            : "text-[#5c6760] hover:bg-[#f5f3eb]"
                         }`}
                       >
                         <Icon
                           className={`w-4 h-4 ${
-                            isActive ? "text-[#c86a28]" : "text-[#78716c]"
+                            isActive ? "text-[#2d5a43]" : "text-[#747f78]"
                           }`}
                         />
                         <span>{cat.label}</span>
@@ -6729,14 +6729,14 @@ export default function App() {
                   {activeSettingsTab === "general" && (
                     <div className="space-y-6 text-[13px]">
                       {/* 应用语言 */}
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <span className="font-medium text-[#1a211c]">
                           应用语言
                         </span>
                         <select
                           value={settingLanguage}
                           onChange={(e) => setSettingLanguage(e.target.value)}
-                          className="bg-[#fafaf9] border border-[#e7e5e4] rounded-xl px-4 py-1.5 text-[13px] text-[#1c1917] focus:outline-none focus:border-[#f5a623] cursor-pointer"
+                          className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
                         >
                           <option value="简体中文">简体中文</option>
                           <option value="English">English</option>
@@ -6745,19 +6745,19 @@ export default function App() {
                       </div>
 
                       {/* 启动时打开 */}
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <span className="font-medium text-[#1a211c]">
                           启动时打开
                         </span>
-                        <div className="flex bg-[#f5f5f4] p-1 rounded-xl border border-[#e7e5e4]">
+                        <div className="flex bg-[#f7f5ef] p-1 rounded-xl border border-[#eae6dc]">
                           {(["首页", "上次打开的会话"] as const).map((opt) => (
                             <button
                               key={opt}
                               onClick={() => setSettingStartupOption(opt)}
                               className={`px-4 py-1.5 rounded-lg font-medium text-[12.5px] transition-all cursor-pointer ${
                                 settingStartupOption === opt
-                                  ? "bg-[#f7efe5] text-[#8b5229] font-semibold shadow-2xs"
-                                  : "text-[#78716c] hover:text-[#1c1917]"
+                                  ? "bg-[#eaf1e8] text-[#2d5a43] font-semibold shadow-2xs"
+                                  : "text-[#747f78] hover:text-[#1a211c]"
                               }`}
                             >
                               {opt}
@@ -6767,14 +6767,14 @@ export default function App() {
                       </div>
 
                       {/* 自动保存 */}
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <span className="font-medium text-[#1a211c]">
                           自动保存
                         </span>
                         <select
                           value={settingAutoSave}
                           onChange={(e) => setSettingAutoSave(e.target.value)}
-                          className="bg-[#fafaf9] border border-[#e7e5e4] rounded-xl px-4 py-1.5 text-[13px] text-[#1c1917] focus:outline-none focus:border-[#f5a623] cursor-pointer"
+                          className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
                         >
                           <option value="1 分钟">1 分钟</option>
                           <option value="5 分钟">5 分钟</option>
@@ -6785,18 +6785,18 @@ export default function App() {
 
                       {/* 更新通道 */}
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-[#1c1917]">
+                        <span className="font-medium text-[#1a211c]">
                           更新通道
                         </span>
-                        <div className="flex bg-[#f5f5f4] p-1 rounded-xl border border-[#e7e5e4]">
+                        <div className="flex bg-[#f7f5ef] p-1 rounded-xl border border-[#eae6dc]">
                           {(["稳定版", "测试版"] as const).map((channel) => (
                             <button
                               key={channel}
                               onClick={() => setSettingUpdateChannel(channel)}
                               className={`px-5 py-1.5 rounded-lg font-medium text-[12.5px] transition-all cursor-pointer ${
                                 settingUpdateChannel === channel
-                                  ? "bg-[#fef3d6] text-[#855702] font-semibold shadow-2xs"
-                                  : "text-[#78716c] hover:text-[#1c1917]"
+                                  ? "bg-[#edf4ec] text-[#2d5a43] font-semibold shadow-2xs"
+                                  : "text-[#747f78] hover:text-[#1a211c]"
                               }`}
                             >
                               {channel}
@@ -6810,8 +6810,8 @@ export default function App() {
                   {/* 2. CATEGORY: 智能体与模型 */}
                   {activeSettingsTab === "agents" && (
                     <div className="space-y-6 text-[13px]">
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <span className="font-medium text-[#1a211c]">
                           默认智能体
                         </span>
                         <select
@@ -6819,7 +6819,7 @@ export default function App() {
                           onChange={(e) =>
                             setSettingDefaultAgent(e.target.value)
                           }
-                          className="bg-[#fafaf9] border border-[#e7e5e4] rounded-xl px-4 py-1.5 text-[13px] text-[#1c1917] focus:outline-none focus:border-[#f5a623] cursor-pointer"
+                          className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
                         >
                           <option value="代码助手">代码助手</option>
                           <option value="翻译助手">翻译助手</option>
@@ -6828,11 +6828,11 @@ export default function App() {
                         </select>
                       </div>
 
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <span className="font-medium text-[#1a211c]">
                           模型提供方
                         </span>
-                        <div className="flex bg-[#f5f5f4] p-1 rounded-xl border border-[#e7e5e4]">
+                        <div className="flex bg-[#f7f5ef] p-1 rounded-xl border border-[#eae6dc]">
                           {(["Tokmon 官方", "自定义"] as const).map(
                             (provider) => (
                               <button
@@ -6842,8 +6842,8 @@ export default function App() {
                                 }
                                 className={`px-4 py-1.5 rounded-lg font-medium text-[12.5px] transition-all cursor-pointer ${
                                   settingModelProvider === provider
-                                    ? "bg-[#fef3d6] text-[#855702] font-semibold shadow-2xs"
-                                    : "text-[#78716c] hover:text-[#1c1917]"
+                                    ? "bg-[#edf4ec] text-[#2d5a43] font-semibold shadow-2xs"
+                                    : "text-[#747f78] hover:text-[#1a211c]"
                                 }`}
                               >
                                 {provider}
@@ -6853,14 +6853,14 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <span className="font-medium text-[#1a211c]">
                           主模型
                         </span>
                         <select
                           value={settingMainModel}
                           onChange={(e) => setSettingMainModel(e.target.value)}
-                          className="bg-[#fafaf9] border border-[#e7e5e4] rounded-xl px-4 py-1.5 text-[13px] text-[#1c1917] focus:outline-none focus:border-[#f5a623] cursor-pointer"
+                          className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
                         >
                           <option value="faster-whisper-large-v3-turbo">
                             faster-whisper-large-v3-turbo
@@ -6873,18 +6873,18 @@ export default function App() {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-[#1c1917]">
+                        <span className="font-medium text-[#1a211c]">
                           推理强度
                         </span>
-                        <div className="flex bg-[#f5f5f4] p-1 rounded-xl border border-[#e7e5e4]">
+                        <div className="flex bg-[#f7f5ef] p-1 rounded-xl border border-[#eae6dc]">
                           {(["低", "标准", "高"] as const).map((power) => (
                             <button
                               key={power}
                               onClick={() => setSettingInferencePower(power)}
                               className={`px-5 py-1.5 rounded-lg font-medium text-[12.5px] transition-all cursor-pointer ${
                                 settingInferencePower === power
-                                  ? "bg-[#fef3d6] text-[#855702] font-semibold shadow-2xs"
-                                  : "text-[#78716c] hover:text-[#1c1917]"
+                                  ? "bg-[#edf4ec] text-[#2d5a43] font-semibold shadow-2xs"
+                                  : "text-[#747f78] hover:text-[#1a211c]"
                               }`}
                             >
                               {power}
@@ -6898,14 +6898,14 @@ export default function App() {
                   {/* 3. CATEGORY: 权限与安全 */}
                   {activeSettingsTab === "security" && (
                     <div className="space-y-6 text-[13px]">
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <span className="font-medium text-[#1a211c]">
                           文件访问
                         </span>
                         <select
                           value={settingFileAccess}
                           onChange={(e) => setSettingFileAccess(e.target.value)}
-                          className="bg-[#fafaf9] border border-[#e7e5e4] rounded-xl px-4 py-1.5 text-[13px] text-[#1c1917] focus:outline-none focus:border-[#f5a623] cursor-pointer"
+                          className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
                         >
                           <option value="受信路径">受信路径</option>
                           <option value="完全访问">完全访问</option>
@@ -6913,11 +6913,11 @@ export default function App() {
                         </select>
                       </div>
 
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <span className="font-medium text-[#1a211c]">
                           命令审批
                         </span>
-                        <div className="flex bg-[#f5f5f4] p-1 rounded-xl border border-[#e7e5e4]">
+                        <div className="flex bg-[#f7f5ef] p-1 rounded-xl border border-[#eae6dc]">
                           {(["自动执行", "按需确认", "禁止执行"] as const).map(
                             (mode) => (
                               <button
@@ -6925,8 +6925,8 @@ export default function App() {
                                 onClick={() => setSettingCommandApproval(mode)}
                                 className={`px-4 py-1.5 rounded-lg font-medium text-[12.5px] transition-all cursor-pointer ${
                                   settingCommandApproval === mode
-                                    ? "bg-[#fef3d6] text-[#855702] font-semibold shadow-2xs"
-                                    : "text-[#78716c] hover:text-[#1c1917]"
+                                    ? "bg-[#edf4ec] text-[#2d5a43] font-semibold shadow-2xs"
+                                    : "text-[#747f78] hover:text-[#1a211c]"
                                 }`}
                               >
                                 {mode}
@@ -6936,8 +6936,8 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <span className="font-medium text-[#1a211c]">
                           网络访问
                         </span>
                         <ToggleSwitch
@@ -6947,7 +6947,7 @@ export default function App() {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-[#1c1917]">
+                        <span className="font-medium text-[#1a211c]">
                           高风险二次确认
                         </span>
                         <ToggleSwitch
@@ -6961,39 +6961,39 @@ export default function App() {
                   {/* 4. CATEGORY: 工作区 */}
                   {activeSettingsTab === "workspace" && (
                     <div className="space-y-6 text-[13px]">
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <span className="font-medium text-[#1a211c]">
                           默认工作区
                         </span>
-                        <div className="flex items-center space-x-2 bg-[#fafaf9] border border-[#e7e5e4] rounded-xl px-3 py-1.5 w-[280px]">
+                        <div className="flex items-center space-x-2 bg-[#ffffff] border border-[#eae6dc] rounded-xl px-3 py-1.5 w-[280px]">
                           <input
                             type="text"
                             value={settingWorkspacePath}
                             onChange={(e) =>
                               setSettingWorkspacePath(e.target.value)
                             }
-                            className="bg-transparent text-[12.5px] font-mono text-[#1c1917] focus:outline-none w-full"
+                            className="bg-transparent text-[12.5px] font-mono text-[#1a211c] focus:outline-none w-full"
                           />
-                          <Folder className="w-4 h-4 text-[#78716c] flex-shrink-0 cursor-pointer" />
+                          <Folder className="w-4 h-4 text-[#747f78] flex-shrink-0 cursor-pointer" />
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <span className="font-medium text-[#1a211c]">
                           索引模式
                         </span>
                         <select
                           value={settingIndexMode}
                           onChange={(e) => setSettingIndexMode(e.target.value)}
-                          className="bg-[#fafaf9] border border-[#e7e5e4] rounded-xl px-4 py-1.5 text-[13px] text-[#1c1917] focus:outline-none focus:border-[#f5a623] cursor-pointer"
+                          className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
                         >
                           <option value="标准">标准</option>
                           <option value="深度索引">深度索引</option>
                         </select>
                       </div>
 
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <span className="font-medium text-[#1a211c]">
                           自动同步
                         </span>
                         <ToggleSwitch
@@ -7003,7 +7003,7 @@ export default function App() {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-[#1c1917]">
+                        <span className="font-medium text-[#1a211c]">
                           Git 集成
                         </span>
                         <ToggleSwitch
@@ -7017,8 +7017,8 @@ export default function App() {
                   {/* 5. CATEGORY: 通知 */}
                   {activeSettingsTab === "notifications" && (
                     <div className="space-y-6 text-[13px]">
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <span className="font-medium text-[#1a211c]">
                           启用通知
                         </span>
                         <ToggleSwitch
@@ -7027,8 +7027,8 @@ export default function App() {
                         />
                       </div>
 
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <span className="font-medium text-[#1a211c]">
                           桌面通知
                         </span>
                         <ToggleSwitch
@@ -7037,8 +7037,8 @@ export default function App() {
                         />
                       </div>
 
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f5f5f4]">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <span className="font-medium text-[#1a211c]">
                           消息提醒
                         </span>
                         <ToggleSwitch
@@ -7048,7 +7048,7 @@ export default function App() {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-[#1c1917]">
+                        <span className="font-medium text-[#1a211c]">
                           免打扰
                         </span>
                         <select
@@ -7056,7 +7056,7 @@ export default function App() {
                           onChange={(e) =>
                             setSettingDoNotDisturb(e.target.value)
                           }
-                          className="bg-[#fafaf9] border border-[#e7e5e4] rounded-xl px-4 py-1.5 text-[13px] text-[#1c1917] focus:outline-none focus:border-[#f5a623] cursor-pointer font-mono"
+                          className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer font-mono"
                         >
                           <option value="22:00 - 08:00">22:00 - 08:00</option>
                           <option value="23:00 - 07:00">23:00 - 07:00</option>
@@ -7071,10 +7071,10 @@ export default function App() {
                     <div className="space-y-6 text-[13px]">
                       <div>
                         <div className="mb-3">
-                          <span className="font-semibold text-[#1c1917] text-[13.5px]">
+                          <span className="font-semibold text-[#1a211c] text-[13.5px]">
                             界面主题风格
                           </span>
-                          <p className="text-[12px] text-[#78716c] mt-0.5">
+                          <p className="text-[12px] text-[#747f78] mt-0.5">
                             为 Tokmon 工作空间选择契合视效氛围的暖色系主题
                           </p>
                         </div>
@@ -7086,40 +7086,40 @@ export default function App() {
                             onClick={() => setSettingThemeMode("浅色")}
                             className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
                               settingThemeMode === "浅色"
-                                ? "border-[#c86a28] bg-[#fef8f4] shadow-sm ring-2 ring-[#c86a28]/10"
-                                : "border-[#e7e5e4] hover:border-[#d4d1c8] bg-white"
+                                ? "border-[#2d5a43] bg-[#edf4ec] shadow-sm ring-2 ring-[#2d5a43]/10"
+                                : "border-[#eae6dc] hover:border-[#e2ded4] bg-white"
                             }`}
                           >
                             <div className="space-y-2">
                               {/* Mini UI Representation */}
-                              <div className="h-20 rounded-xl bg-[#faf9f6] border border-[#ebdcd0] p-2 flex flex-col justify-between overflow-hidden shadow-2xs">
+                              <div className="h-20 rounded-xl bg-[#faf9f6] border border-[#eae5da] p-2 flex flex-col justify-between overflow-hidden shadow-2xs">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center space-x-1.5">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-[#c86a28]" />
-                                    <div className="w-12 h-2 rounded-full bg-[#e5e2da]" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-[#2d5a43]" />
+                                    <div className="w-12 h-2 rounded-full bg-[#eae6dc]" />
                                   </div>
-                                  <div className="w-4 h-2 rounded-full bg-[#ebdcd0]" />
+                                  <div className="w-4 h-2 rounded-full bg-[#eae5da]" />
                                 </div>
                                 <div className="space-y-1">
-                                  <div className="w-3/4 h-2 rounded bg-[#edebe4]" />
-                                  <div className="w-1/2 h-2 rounded bg-[#f2ece2]" />
+                                  <div className="w-3/4 h-2 rounded bg-[#f3f1ea]" />
+                                  <div className="w-1/2 h-2 rounded bg-[#e6eee4]" />
                                 </div>
-                                <div className="h-4 rounded-lg bg-white border border-[#ebdcd0] flex items-center px-1.5">
-                                  <div className="w-2 h-2 rounded-full bg-[#c86a28]/60" />
+                                <div className="h-4 rounded-lg bg-white border border-[#eae5da] flex items-center px-1.5">
+                                  <div className="w-2 h-2 rounded-full bg-[#2d5a43]/60" />
                                 </div>
                               </div>
 
                               <div className="flex items-center justify-between pt-1">
                                 <div>
-                                  <h4 className="font-semibold text-[#1c1917] text-[13px]">
+                                  <h4 className="font-semibold text-[#1a211c] text-[13px]">
                                     浅色 · 暖白奶茶
                                   </h4>
-                                  <p className="text-[11.5px] text-[#78716c]">
+                                  <p className="text-[11.5px] text-[#747f78]">
                                     温润护眼的经典米白暖调
                                   </p>
                                 </div>
                                 {settingThemeMode === "浅色" && (
-                                  <div className="w-5 h-5 rounded-full bg-[#c86a28] text-white flex items-center justify-center shadow-xs">
+                                  <div className="w-5 h-5 rounded-full bg-[#2d5a43] text-white flex items-center justify-center shadow-xs">
                                     <Check className="w-3 h-3 stroke-[2.5]" />
                                   </div>
                                 )}
@@ -7133,7 +7133,7 @@ export default function App() {
                             className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
                               settingThemeMode === "深色"
                                 ? "border-[#e88d43] bg-[#2a2016] shadow-sm ring-2 ring-[#e88d43]/20"
-                                : "border-[#e7e5e4] hover:border-[#d4d1c8] bg-white"
+                                : "border-[#eae6dc] hover:border-[#e2ded4] bg-white"
                             }`}
                           >
                             <div className="space-y-2">
@@ -7157,10 +7157,10 @@ export default function App() {
 
                               <div className="flex items-center justify-between pt-1">
                                 <div>
-                                  <h4 className="font-semibold text-[#1c1917] text-[13px]">
+                                  <h4 className="font-semibold text-[#1a211c] text-[13px]">
                                     深色 · 暖黑摩卡
                                   </h4>
-                                  <p className="text-[11.5px] text-[#78716c]">
+                                  <p className="text-[11.5px] text-[#747f78]">
                                     深焙奶茶与沉浸暗光环境
                                   </p>
                                 </div>
@@ -7175,12 +7175,12 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pt-4 border-t border-[#f5f5f4]">
+                      <div className="flex items-center justify-between pt-4 border-t border-[#f7f5ef]">
                         <div>
-                          <span className="font-medium text-[#1c1917]">
+                          <span className="font-medium text-[#1a211c]">
                             界面字体缩放
                           </span>
-                          <p className="text-[11.5px] text-[#78716c] mt-0.5">
+                          <p className="text-[11.5px] text-[#747f78] mt-0.5">
                             调节编辑器与各面板的字号大小
                           </p>
                         </div>
@@ -7193,9 +7193,9 @@ export default function App() {
                             onChange={(e) =>
                               setSettingFontSize(Number(e.target.value))
                             }
-                            className="w-full accent-[#c86a28] cursor-pointer"
+                            className="w-full accent-[#2d5a43] cursor-pointer"
                           />
-                          <span className="font-mono text-[12px] text-[#78716c] w-10 text-right font-medium">
+                          <span className="font-mono text-[12px] text-[#747f78] w-10 text-right font-medium">
                             {settingFontSize}%
                           </span>
                         </div>
@@ -7206,61 +7206,61 @@ export default function App() {
                   {/* 7. CATEGORY: 快捷键 */}
                   {activeSettingsTab === "shortcuts" && (
                     <div className="space-y-3.5 text-[13px]">
-                      <div className="flex items-center justify-between p-3 bg-[#fafaf9] border border-[#e7e5e4] rounded-xl">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between p-3 bg-[#ffffff] border border-[#eae6dc] rounded-xl">
+                        <span className="font-medium text-[#1a211c]">
                           新建会话
                         </span>
                         <div className="flex items-center space-x-1 font-mono text-[12px]">
-                          <span className="px-2.5 py-1 bg-white border border-[#e7e5e4] rounded-lg shadow-2xs text-[#44403c]">
+                          <span className="px-2.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">
                             Ctrl
                           </span>
-                          <span className="text-[#a8a29e]">+</span>
-                          <span className="px-2.5 py-1 bg-white border border-[#e7e5e4] rounded-lg shadow-2xs text-[#44403c]">
+                          <span className="text-[#949e97]">+</span>
+                          <span className="px-2.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">
                             N
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between p-3 bg-[#fafaf9] border border-[#e7e5e4] rounded-xl">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between p-3 bg-[#ffffff] border border-[#eae6dc] rounded-xl">
+                        <span className="font-medium text-[#1a211c]">
                           打开设置
                         </span>
                         <div className="flex items-center space-x-1 font-mono text-[12px]">
-                          <span className="px-2.5 py-1 bg-white border border-[#e7e5e4] rounded-lg shadow-2xs text-[#44403c]">
+                          <span className="px-2.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">
                             Ctrl
                           </span>
-                          <span className="text-[#a8a29e]">+</span>
-                          <span className="px-2.5 py-1 bg-white border border-[#e7e5e4] rounded-lg shadow-2xs text-[#44403c]">
+                          <span className="text-[#949e97]">+</span>
+                          <span className="px-2.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">
                             ,
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between p-3 bg-[#fafaf9] border border-[#e7e5e4] rounded-xl">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between p-3 bg-[#ffffff] border border-[#eae6dc] rounded-xl">
+                        <span className="font-medium text-[#1a211c]">
                           发送消息
                         </span>
                         <div className="flex items-center space-x-1 font-mono text-[12px]">
-                          <span className="px-3.5 py-1 bg-white border border-[#e7e5e4] rounded-lg shadow-2xs text-[#44403c]">
+                          <span className="px-3.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">
                             Enter
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between p-3 bg-[#fafaf9] border border-[#e7e5e4] rounded-xl">
-                        <span className="font-medium text-[#1c1917]">
+                      <div className="flex items-center justify-between p-3 bg-[#ffffff] border border-[#eae6dc] rounded-xl">
+                        <span className="font-medium text-[#1a211c]">
                           命令面板
                         </span>
                         <div className="flex items-center space-x-1 font-mono text-[12px]">
-                          <span className="px-2.5 py-1 bg-white border border-[#e7e5e4] rounded-lg shadow-2xs text-[#44403c]">
+                          <span className="px-2.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">
                             Ctrl
                           </span>
-                          <span className="text-[#a8a29e]">+</span>
-                          <span className="px-2.5 py-1 bg-white border border-[#e7e5e4] rounded-lg shadow-2xs text-[#44403c]">
+                          <span className="text-[#949e97]">+</span>
+                          <span className="px-2.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">
                             Shift
                           </span>
-                          <span className="text-[#a8a29e]">+</span>
-                          <span className="px-2.5 py-1 bg-white border border-[#e7e5e4] rounded-lg shadow-2xs text-[#44403c]">
+                          <span className="text-[#949e97]">+</span>
+                          <span className="px-2.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">
                             P
                           </span>
                         </div>
@@ -7273,45 +7273,45 @@ export default function App() {
                     <div className="space-y-4 text-[13px]">
                       {/* Large User Avatar Icon */}
                       <div className="flex justify-center py-2">
-                        <div className="w-16 h-16 rounded-full bg-[#fef08a] border-2 border-[#fde68a] flex items-center justify-center text-[#855702] shadow-xs">
-                          <User className="w-8 h-8 text-[#855702]" />
+                        <div className="w-16 h-16 rounded-full bg-[#fef08a] border-2 border-[#fde68a] flex items-center justify-center text-[#2d5a43] shadow-xs">
+                          <User className="w-8 h-8 text-[#2d5a43]" />
                         </div>
                       </div>
 
                       {/* Account Settings Item List */}
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between p-3.5 bg-[#fafaf9] border border-[#e7e5e4] rounded-xl hover:bg-[#f5f5f4] cursor-pointer transition-colors">
-                          <span className="font-medium text-[#1c1917]">
+                        <div className="flex items-center justify-between p-3.5 bg-[#ffffff] border border-[#eae6dc] rounded-xl hover:bg-[#f7f5ef] cursor-pointer transition-colors">
+                          <span className="font-medium text-[#1a211c]">
                             昵称
                           </span>
-                          <div className="flex items-center space-x-1 text-[#57534e]">
+                          <div className="flex items-center space-x-1 text-[#5c6760]">
                             <span>{settingAccountName}</span>
-                            <ChevronRight className="w-4 h-4 text-[#a8a29e]" />
+                            <ChevronRight className="w-4 h-4 text-[#949e97]" />
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between p-3.5 bg-[#fafaf9] border border-[#e7e5e4] rounded-xl hover:bg-[#f5f5f4] cursor-pointer transition-colors">
-                          <span className="font-medium text-[#1c1917]">
+                        <div className="flex items-center justify-between p-3.5 bg-[#ffffff] border border-[#eae6dc] rounded-xl hover:bg-[#f7f5ef] cursor-pointer transition-colors">
+                          <span className="font-medium text-[#1a211c]">
                             登录邮箱
                           </span>
-                          <div className="flex items-center space-x-1 text-[#57534e] font-mono text-[12.5px]">
+                          <div className="flex items-center space-x-1 text-[#5c6760] font-mono text-[12.5px]">
                             <span>{settingAccountEmail}</span>
-                            <ChevronRight className="w-4 h-4 text-[#a8a29e]" />
+                            <ChevronRight className="w-4 h-4 text-[#949e97]" />
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between p-3.5 bg-[#fafaf9] border border-[#e7e5e4] rounded-xl hover:bg-[#f5f5f4] cursor-pointer transition-colors">
-                          <span className="font-medium text-[#1c1917]">
+                        <div className="flex items-center justify-between p-3.5 bg-[#ffffff] border border-[#eae6dc] rounded-xl hover:bg-[#f7f5ef] cursor-pointer transition-colors">
+                          <span className="font-medium text-[#1a211c]">
                             当前方案
                           </span>
-                          <div className="flex items-center space-x-1 text-[#d97706] font-semibold">
+                          <div className="flex items-center space-x-1 text-[#2d5a43] font-semibold">
                             <span>{settingAccountPlan}</span>
-                            <ChevronRight className="w-4 h-4 text-[#a8a29e]" />
+                            <ChevronRight className="w-4 h-4 text-[#949e97]" />
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between p-3.5 bg-[#fafaf9] border border-[#e7e5e4] rounded-xl">
-                          <span className="font-medium text-[#1c1917]">
+                        <div className="flex items-center justify-between p-3.5 bg-[#ffffff] border border-[#eae6dc] rounded-xl">
+                          <span className="font-medium text-[#1a211c]">
                             云同步
                           </span>
                           <ToggleSwitch
@@ -7326,15 +7326,15 @@ export default function App() {
               </div>
 
               {/* Modal Bottom Actions */}
-              <div className="h-[56px] border-t border-[#f0eee8] bg-[#ffffff] flex items-center justify-between px-6 flex-shrink-0">
+              <div className="h-[56px] border-t border-[#eae6dc] bg-[#ffffff] flex items-center justify-between px-6 flex-shrink-0">
                 {/* Left: Restore Defaults for Current Tab Button */}
                 <button
                   type="button"
                   onClick={handleResetCurrentSettingsTabToDefault}
                   title={`将「${settingsTabNameMap[activeSettingsTab] || "当前页"}」重置为默认预设`}
-                  className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-xl text-[12.5px] font-medium text-[#78716c] hover:text-[#c86a28] hover:bg-[#fef8f4] border border-transparent hover:border-[#f5d9c3] transition-all cursor-pointer group active:scale-95"
+                  className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-xl text-[12.5px] font-medium text-[#747f78] hover:text-[#2d5a43] hover:bg-[#edf4ec] border border-transparent hover:border-[#cddcd0] transition-all cursor-pointer group active:scale-95"
                 >
-                  <RotateCcw className="w-3.5 h-3.5 text-[#a8a29e] group-hover:text-[#c86a28] group-hover:-rotate-90 transition-all duration-300" />
+                  <RotateCcw className="w-3.5 h-3.5 text-[#949e97] group-hover:text-[#2d5a43] group-hover:-rotate-90 transition-all duration-300" />
                   <span>恢复本页默认设置</span>
                 </button>
 
@@ -7342,7 +7342,7 @@ export default function App() {
                 <div className="flex items-center space-x-3">
                   <button
                     onClick={() => setShowSettingsModal(false)}
-                    className="px-5 py-2 rounded-xl bg-[#f5f5f4] hover:bg-[#e7e5e4] text-[13px] font-medium text-[#57534e] transition-colors cursor-pointer"
+                    className="px-5 py-2 rounded-xl bg-[#f7f5ef] hover:bg-[#eae6dc] text-[13px] font-medium text-[#5c6760] transition-colors cursor-pointer"
                   >
                     取消
                   </button>
@@ -7352,7 +7352,7 @@ export default function App() {
                       setSettingsToast("设置更改已保存")
                       setTimeout(() => setSettingsToast(null), 2000)
                     }}
-                    className="px-5 py-2 rounded-xl bg-[#c86a28] hover:bg-[#b85e1f] active:scale-98 text-[13px] font-semibold text-white transition-all shadow-xs cursor-pointer"
+                    className="px-5 py-2 rounded-xl bg-[#2d5a43] hover:bg-[#234937] active:scale-98 text-[13px] font-semibold text-white transition-all shadow-xs cursor-pointer"
                   >
                     保存更改
                   </button>
