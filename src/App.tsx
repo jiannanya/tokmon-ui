@@ -895,9 +895,10 @@ export default function App() {
   const [copiedPathToast, setCopiedPathToast] = useState(false)
 
   // Environment Info Floating Panel & Apple AssistiveTouch State
-  const effectiveMainWidth = leftSidebarOpen
-    ? mainWidth
-    : mainWidth + leftSidebarWidth + 6
+  const effectiveMainWidth =
+    mainWidth +
+    (!leftSidebarOpen ? leftSidebarWidth + 6 : 0) +
+    (!rightPanelOpen ? rightPanelWidth + 6 : 0)
 
   // Automatically expand into compact side-by-side layout when middle column can fit message stream (max 874px) + gap (24px) + panel (278px) = 1176px
   const isSideBySideWidth =
@@ -4608,7 +4609,8 @@ export default function App() {
     leftSidebarWidth +
     6 +
     mainWidth +
-    (rightPanelOpen ? rightPanelWidth + 6 : 0)
+    6 +
+    rightPanelWidth
 
   return (
     <div
