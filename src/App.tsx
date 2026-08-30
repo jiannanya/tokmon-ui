@@ -2645,7 +2645,7 @@ export default function App() {
       regex.test(part) ? (
         <mark
           key={i}
-          className="bg-[#fed7aa] text-[#9a3412] font-semibold px-0.5 py-0 rounded"
+          className="bg-[#dcf0dc] text-[#1c4b33] font-semibold px-0.5 py-0 rounded"
         >
           {part}
         </mark>
@@ -2654,6 +2654,682 @@ export default function App() {
       ),
     )
   }
+
+  // Searchable Settings Index for Settings Modal
+  const allSettingsItems = [
+    // General
+    {
+      id: "general-language",
+      categoryId: "general",
+      categoryLabel: "通用设置",
+      title: "应用语言",
+      description: "切换 Tokmon 界面显示的语言（简体中文、English、日本語）",
+      keywords: "语言 language 界面语言 中文 英文 日文 locale",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("应用语言", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("切换 Tokmon 界面显示的语言（简体中文、English、日本語）", settingsSearchQuery)}
+            </span>
+          </div>
+          <select
+            value={settingLanguage}
+            onChange={(e) => setSettingLanguage(e.target.value)}
+            className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
+          >
+            <option value="简体中文">简体中文</option>
+            <option value="English">English</option>
+            <option value="日本語">日本語</option>
+          </select>
+        </div>
+      ),
+    },
+    {
+      id: "general-startup",
+      categoryId: "general",
+      categoryLabel: "通用设置",
+      title: "启动时打开",
+      description: "设置启动 Tokmon 时默认进入的初始页面（首页 / 上次打开的会话）",
+      keywords: "启动 初始 首页 会话 打开 startup home session",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("启动时打开", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("设置启动 Tokmon 时默认进入的初始页面", settingsSearchQuery)}
+            </span>
+          </div>
+          <div className="flex bg-[#f7f5ef] p-1 rounded-xl border border-[#eae6dc]">
+            {(["首页", "上次打开的会话"] as const).map((opt) => (
+              <button
+                key={opt}
+                onClick={() => setSettingStartupOption(opt)}
+                className={`px-4 py-1.5 rounded-lg font-medium text-[12.5px] transition-all cursor-pointer ${
+                  settingStartupOption === opt
+                    ? "bg-[#eaf1e8] text-[#2d5a43] font-semibold shadow-2xs"
+                    : "text-[#747f78] hover:text-[#1a211c]"
+                }`}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "general-workspace",
+      categoryId: "general",
+      categoryLabel: "通用设置",
+      title: "默认工作区",
+      description: "新建会话及默认打开的项目工作空间根目录路径",
+      keywords: "工作区 workspace 目录 路径 path 默认项目 folder directory",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("默认工作区", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("新建会话及默认打开的项目工作空间根目录路径", settingsSearchQuery)}
+            </span>
+          </div>
+          <div className="flex items-center space-x-2 bg-[#ffffff] border border-[#eae6dc] rounded-xl px-3 py-1.5 w-[280px]">
+            <input
+              type="text"
+              value={settingWorkspacePath}
+              onChange={(e) => setSettingWorkspacePath(e.target.value)}
+              className="bg-transparent text-[12.5px] font-mono text-[#1a211c] focus:outline-none w-full"
+            />
+            <Folder className="w-4 h-4 text-[#747f78] flex-shrink-0 cursor-pointer" />
+          </div>
+        </div>
+      ),
+    },
+    // Agents
+    {
+      id: "agents-default-agent",
+      categoryId: "agents",
+      categoryLabel: "智能体与模型",
+      title: "默认智能体",
+      description: "选择新建会话时默认使用的智能体角色（代码助手、翻译助手、演示文稿美化、数据分析师）",
+      keywords: "智能体 agent 助手 默认 代码助手 翻译助手 演示文稿 数据分析师",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("默认智能体", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("选择新建会话时默认使用的智能体角色", settingsSearchQuery)}
+            </span>
+          </div>
+          <select
+            value={settingDefaultAgent}
+            onChange={(e) => setSettingDefaultAgent(e.target.value)}
+            className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
+          >
+            <option value="代码助手">代码助手</option>
+            <option value="翻译助手">翻译助手</option>
+            <option value="演示文稿美化">演示文稿美化</option>
+            <option value="数据分析师">数据分析师</option>
+          </select>
+        </div>
+      ),
+    },
+    {
+      id: "agents-provider",
+      categoryId: "agents",
+      categoryLabel: "智能体与模型",
+      title: "模型提供方",
+      description: "选择 AI 大模型服务接入提供商（Tokmon 官方 / 自定义）",
+      keywords: "模型提供方 provider 官方 自定义 api host service",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("模型提供方", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("选择 AI 大模型服务接入提供商", settingsSearchQuery)}
+            </span>
+          </div>
+          <div className="flex bg-[#f7f5ef] p-1 rounded-xl border border-[#eae6dc]">
+            {(["Tokmon 官方", "自定义"] as const).map((provider) => (
+              <button
+                key={provider}
+                onClick={() => setSettingModelProvider(provider)}
+                className={`px-4 py-1.5 rounded-lg font-medium text-[12.5px] transition-all cursor-pointer ${
+                  settingModelProvider === provider
+                    ? "bg-[#edf4ec] text-[#2d5a43] font-semibold shadow-2xs"
+                    : "text-[#747f78] hover:text-[#1a211c]"
+                }`}
+              >
+                {provider}
+              </button>
+            ))}
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "agents-main-model",
+      categoryId: "agents",
+      categoryLabel: "智能体与模型",
+      title: "主模型",
+      description: "选择日常执行任务使用的主力大语言模型（faster-whisper-large-v3-turbo 等）",
+      keywords: "主模型 model llm 大模型 whisper turbo large",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("主模型", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("选择日常执行任务使用的主力大语言模型", settingsSearchQuery)}
+            </span>
+          </div>
+          <select
+            value={settingMainModel}
+            onChange={(e) => setSettingMainModel(e.target.value)}
+            className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
+          >
+            <option value="faster-whisper-large-v3-turbo">faster-whisper-large-v3-turbo</option>
+            <option value="whisper-large-v3">whisper-large-v3</option>
+            <option value="whisper-medium">whisper-medium</option>
+          </select>
+        </div>
+      ),
+    },
+    {
+      id: "agents-inference-power",
+      categoryId: "agents",
+      categoryLabel: "智能体与模型",
+      title: "推理强度",
+      description: "调节大模型的思考推理深度与耗时平衡（低、标准、高）",
+      keywords: "推理 强度 thinking reasoning 思考 深度 算力 power",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("推理强度", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("调节大模型的思考推理深度与耗时平衡", settingsSearchQuery)}
+            </span>
+          </div>
+          <div className="flex bg-[#f7f5ef] p-1 rounded-xl border border-[#eae6dc]">
+            {(["低", "标准", "高"] as const).map((power) => (
+              <button
+                key={power}
+                onClick={() => setSettingInferencePower(power)}
+                className={`px-5 py-1.5 rounded-lg font-medium text-[12.5px] transition-all cursor-pointer ${
+                  settingInferencePower === power
+                    ? "bg-[#edf4ec] text-[#2d5a43] font-semibold shadow-2xs"
+                    : "text-[#747f78] hover:text-[#1a211c]"
+                }`}
+              >
+                {power}
+              </button>
+            ))}
+          </div>
+        </div>
+      ),
+    },
+    // Security
+    {
+      id: "security-file-access",
+      categoryId: "security",
+      categoryLabel: "权限与安全",
+      title: "文件访问",
+      description: "控制智能体对本地文件系统的读写范围（受信路径、完全访问、严格禁止）",
+      keywords: "文件访问 权限 security file access 读写 受信路径",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("文件访问", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("控制智能体对本地文件系统的读写范围", settingsSearchQuery)}
+            </span>
+          </div>
+          <select
+            value={settingFileAccess}
+            onChange={(e) => setSettingFileAccess(e.target.value)}
+            className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
+          >
+            <option value="受信路径">受信路径</option>
+            <option value="完全访问">完全访问</option>
+            <option value="严格禁止">完全禁止</option>
+          </select>
+        </div>
+      ),
+    },
+    {
+      id: "security-command-approval",
+      categoryId: "security",
+      categoryLabel: "权限与安全",
+      title: "命令审批",
+      description: "控制终端 Shell 命令在执行前的用户确认流程（自动执行、按需确认、禁止执行）",
+      keywords: "命令审批 终端 terminal command shell 自动执行 确认 按需",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("命令审批", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("控制终端 Shell 命令在执行前的用户确认流程", settingsSearchQuery)}
+            </span>
+          </div>
+          <div className="flex bg-[#f7f5ef] p-1 rounded-xl border border-[#eae6dc]">
+            {(["自动执行", "按需确认", "禁止执行"] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setSettingCommandApproval(mode)}
+                className={`px-4 py-1.5 rounded-lg font-medium text-[12.5px] transition-all cursor-pointer ${
+                  settingCommandApproval === mode
+                    ? "bg-[#edf4ec] text-[#2d5a43] font-semibold shadow-2xs"
+                    : "text-[#747f78] hover:text-[#1a211c]"
+                }`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "security-network",
+      categoryId: "security",
+      categoryLabel: "权限与安全",
+      title: "网络访问权限",
+      description: "允许智能体在任务执行过程中发起外部网络请求与接口调用",
+      keywords: "网络 网络访问 出站 network http request 权限",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("网络访问权限", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("允许智能体在任务执行过程中发起外部网络请求", settingsSearchQuery)}
+            </span>
+          </div>
+          <ToggleSwitch
+            checked={settingNetworkAccess}
+            onChange={setSettingNetworkAccess}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "security-high-risk",
+      categoryId: "security",
+      categoryLabel: "权限与安全",
+      title: "高风险二次确认",
+      description: "在执行删除、覆盖等高危不可逆操作前强制进行弹窗二次确认",
+      keywords: "高风险 二次确认 警告 弹窗 delete dangerous risk confirm",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("高风险二次确认", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("在执行高危不可逆操作前强制进行弹窗二次确认", settingsSearchQuery)}
+            </span>
+          </div>
+          <ToggleSwitch
+            checked={settingHighRiskConfirmation}
+            onChange={setSettingHighRiskConfirmation}
+          />
+        </div>
+      ),
+    },
+    // Notifications
+    {
+      id: "notifications-enable",
+      categoryId: "notifications",
+      categoryLabel: "通知与提醒",
+      title: "启用通知",
+      description: "开启或关闭 Tokmon 应用的系统级通知提示功能",
+      keywords: "通知 notification 提醒 开启 消息 alert",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("启用通知", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("开启或关闭应用系统级通知功能", settingsSearchQuery)}
+            </span>
+          </div>
+          <ToggleSwitch
+            checked={settingEnableNotifications}
+            onChange={setSettingEnableNotifications}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "notifications-desktop",
+      categoryId: "notifications",
+      categoryLabel: "通知与提醒",
+      title: "桌面弹窗",
+      description: "在后台运行完成任务或需要决策时弹出桌面横幅提示",
+      keywords: "桌面 弹窗 banner toast 任务完成 popup",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("桌面弹窗", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("在后台运行完成任务时弹出桌面横幅提示", settingsSearchQuery)}
+            </span>
+          </div>
+          <ToggleSwitch
+            checked={settingDesktopNotifications}
+            onChange={setSettingDesktopNotifications}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "notifications-reminders",
+      categoryId: "notifications",
+      categoryLabel: "通知与提醒",
+      title: "消息提醒",
+      description: "新消息到达与智能体回复完成时的声音与角标提示",
+      keywords: "消息 提醒 声音 sound badge 角标 提示音",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("消息提醒", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("新消息到达与智能体回复完成时的提示", settingsSearchQuery)}
+            </span>
+          </div>
+          <ToggleSwitch
+            checked={settingMessageReminders}
+            onChange={setSettingMessageReminders}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "notifications-dnd",
+      categoryId: "notifications",
+      categoryLabel: "通知与提醒",
+      title: "免打扰时段",
+      description: "设定每日免打扰时间区间，自动静默所有通知提醒",
+      keywords: "免打扰 dnd 夜间 静音 do not disturb 时间",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("免打扰时段", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("设定每日免打扰时间区间，自动静默所有通知提醒", settingsSearchQuery)}
+            </span>
+          </div>
+          <div className="flex items-center space-x-2 bg-[#ffffff] border border-[#eae6dc] rounded-xl px-3 py-1.5 w-[200px]">
+            <input
+              type="text"
+              value={settingDoNotDisturb}
+              onChange={(e) => setSettingDoNotDisturb(e.target.value)}
+              className="bg-transparent text-[12.5px] font-mono text-[#1a211c] focus:outline-none w-full"
+            />
+          </div>
+        </div>
+      ),
+    },
+    // Appearance
+    {
+      id: "appearance-theme",
+      categoryId: "appearance",
+      categoryLabel: "外观与界面",
+      title: "主题外观",
+      description: "切换应用主题色彩模式（浅色 · 自然雅绿 / 深色 · 暖黑摩卡）",
+      keywords: "外观 theme 主题 深色 浅色 dark light 颜色 皮肤",
+      render: () => (
+        <div className="pb-4 border-b border-[#f7f5ef] space-y-3">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("主题外观", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("选择适合您工作习惯的界面明暗色彩主题", settingsSearchQuery)}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div
+              onClick={() => setSettingThemeMode("浅色")}
+              className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+                settingThemeMode === "浅色"
+                  ? "border-[#2d5a43] bg-[#f0f6ef]/40 shadow-sm ring-2 ring-[#2d5a43]/20"
+                  : "border-[#eae6dc] hover:border-[#ded9cd] bg-white"
+              }`}
+            >
+              <div className="font-semibold text-[#1a211c] text-[13px] flex items-center justify-between">
+                <span>浅色 · 暖白奶茶</span>
+                {settingThemeMode === "浅色" && (
+                  <div className="w-5 h-5 rounded-full bg-[#2d5a43] text-white flex items-center justify-center">
+                    <Check className="w-3 h-3 stroke-[2.5]" />
+                  </div>
+                )}
+              </div>
+              <p className="text-[11.5px] text-[#747f78]">温润护眼的经典米白暖调</p>
+            </div>
+            <div
+              onClick={() => setSettingThemeMode("深色")}
+              className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+                settingThemeMode === "深色"
+                  ? "border-[#e88d43] bg-[#2a2016] shadow-sm ring-2 ring-[#e88d43]/20"
+                  : "border-[#eae6dc] hover:border-[#e2ded4] bg-white"
+              }`}
+            >
+              <div className="font-semibold text-[#1a211c] text-[13px] flex items-center justify-between">
+                <span>深色 · 暖黑摩卡</span>
+                {settingThemeMode === "深色" && (
+                  <div className="w-5 h-5 rounded-full bg-[#e88d43] text-white flex items-center justify-center">
+                    <Check className="w-3 h-3 stroke-[2.5]" />
+                  </div>
+                )}
+              </div>
+              <p className="text-[11.5px] text-[#747f78]">深焙奶茶与沉浸暗光环境</p>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "appearance-font-size",
+      categoryId: "appearance",
+      categoryLabel: "外观与界面",
+      title: "界面字体缩放",
+      description: "调节编辑器与各工作区面板字号大小（85% - 115%）",
+      keywords: "字体 font size 缩放 字号 大小 界面缩放",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("界面字体缩放", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("调节编辑器与各工作区面板字号大小", settingsSearchQuery)}
+            </span>
+          </div>
+          <div className="flex items-center space-x-3 w-[220px]">
+            <input
+              type="range"
+              min={85}
+              max={115}
+              value={settingFontSize}
+              onChange={(e) => setSettingFontSize(Number(e.target.value))}
+              className="w-full accent-[#2d5a43] cursor-pointer"
+            />
+            <span className="font-mono text-[12px] text-[#747f78] w-10 text-right font-medium">
+              {settingFontSize}%
+            </span>
+          </div>
+        </div>
+      ),
+    },
+    // Shortcuts
+    {
+      id: "shortcuts-new-conv",
+      categoryId: "shortcuts",
+      categoryLabel: "快捷键",
+      title: "新建会话快捷键",
+      description: "快速创建新的对话会话（Ctrl + N）",
+      keywords: "快捷键 shortcut 新建会话 ctrl n 新建",
+      render: () => (
+        <div className="flex items-center justify-between p-3 bg-[#ffffff] border border-[#eae6dc] rounded-xl">
+          <span className="font-medium text-[#1a211c]">
+            {renderHighlightedText("新建会话", settingsSearchQuery)}
+          </span>
+          <div className="flex items-center space-x-1 font-mono text-[12px]">
+            <span className="px-2.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">Ctrl</span>
+            <span className="text-[#949e97]">+</span>
+            <span className="px-2.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">N</span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "shortcuts-open-settings",
+      categoryId: "shortcuts",
+      categoryLabel: "快捷键",
+      title: "打开设置快捷键",
+      description: "快速调出系统设置窗口（Ctrl + ,）",
+      keywords: "快捷键 shortcut 打开设置 ctrl comma 设置",
+      render: () => (
+        <div className="flex items-center justify-between p-3 bg-[#ffffff] border border-[#eae6dc] rounded-xl">
+          <span className="font-medium text-[#1a211c]">
+            {renderHighlightedText("打开设置", settingsSearchQuery)}
+          </span>
+          <div className="flex items-center space-x-1 font-mono text-[12px]">
+            <span className="px-2.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">Ctrl</span>
+            <span className="text-[#949e97]">+</span>
+            <span className="px-2.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">,</span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "shortcuts-send-message",
+      categoryId: "shortcuts",
+      categoryLabel: "快捷键",
+      title: "发送消息快捷键",
+      description: "发送当前对话输入框中的指令或消息（Enter）",
+      keywords: "快捷键 shortcut 发送 enter 回车 发送消息",
+      render: () => (
+        <div className="flex items-center justify-between p-3 bg-[#ffffff] border border-[#eae6dc] rounded-xl">
+          <span className="font-medium text-[#1a211c]">
+            {renderHighlightedText("发送消息", settingsSearchQuery)}
+          </span>
+          <div className="flex items-center space-x-1 font-mono text-[12px]">
+            <span className="px-3.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">Enter</span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "shortcuts-command-palette",
+      categoryId: "shortcuts",
+      categoryLabel: "快捷键",
+      title: "命令面板快捷键",
+      description: "快速调出全局全局搜索与命令面板（Ctrl + Shift + P）",
+      keywords: "快捷键 shortcut 命令面板 palette ctrl shift p 全局命令",
+      render: () => (
+        <div className="flex items-center justify-between p-3 bg-[#ffffff] border border-[#eae6dc] rounded-xl">
+          <span className="font-medium text-[#1a211c]">
+            {renderHighlightedText("命令面板", settingsSearchQuery)}
+          </span>
+          <div className="flex items-center space-x-1 font-mono text-[12px]">
+            <span className="px-2.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">Ctrl</span>
+            <span className="text-[#949e97]">+</span>
+            <span className="px-2.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">Shift</span>
+            <span className="text-[#949e97]">+</span>
+            <span className="px-2.5 py-1 bg-white border border-[#eae6dc] rounded-lg shadow-2xs text-[#4a534c]">P</span>
+          </div>
+        </div>
+      ),
+    },
+    // Account
+    {
+      id: "account-name",
+      categoryId: "account",
+      categoryLabel: "账户",
+      title: "用户昵称",
+      description: "修改当前登录用户的个性化显示名称",
+      keywords: "昵称 账户 用户 name user account profile",
+      render: () => (
+        <div className="flex items-center justify-between p-3.5 bg-[#ffffff] border border-[#eae6dc] rounded-xl hover:bg-[#f7f5ef] cursor-pointer transition-colors">
+          <span className="font-medium text-[#1a211c]">
+            {renderHighlightedText("昵称", settingsSearchQuery)}
+          </span>
+          <div className="flex items-center space-x-1 text-[#5c6760]">
+            <span>{settingAccountName}</span>
+            <ChevronRight className="w-4 h-4 text-[#949e97]" />
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "account-email",
+      categoryId: "account",
+      categoryLabel: "账户",
+      title: "登录邮箱",
+      description: "绑定与接收系统动态通知的登录账号邮箱地址",
+      keywords: "邮箱 email 登录 账号 account mail",
+      render: () => (
+        <div className="flex items-center justify-between p-3.5 bg-[#ffffff] border border-[#eae6dc] rounded-xl hover:bg-[#f7f5ef] cursor-pointer transition-colors">
+          <span className="font-medium text-[#1a211c]">
+            {renderHighlightedText("登录邮箱", settingsSearchQuery)}
+          </span>
+          <div className="flex items-center space-x-1 text-[#5c6760] font-mono text-[12.5px]">
+            <span>{settingAccountEmail}</span>
+            <ChevronRight className="w-4 h-4 text-[#949e97]" />
+          </div>
+        </div>
+      ),
+    },
+  ]
+
+  // Filtered Settings Search Matching Items
+  const normalizedSettingsQuery = settingsSearchQuery.trim().toLowerCase()
+  const matchingSettingsItems = normalizedSettingsQuery
+    ? allSettingsItems.filter(
+        (item) =>
+          item.title.toLowerCase().includes(normalizedSettingsQuery) ||
+          item.description.toLowerCase().includes(normalizedSettingsQuery) ||
+          item.categoryLabel.toLowerCase().includes(normalizedSettingsQuery) ||
+          item.keywords.toLowerCase().includes(normalizedSettingsQuery),
+      )
+    : []
+
+  const groupedSearchResults = Array.from(
+    matchingSettingsItems.reduce((acc, item) => {
+      if (!acc.has(item.categoryLabel)) {
+        acc.set(item.categoryLabel, [])
+      }
+      acc.get(item.categoryLabel)!.push(item)
+      return acc
+    }, new Map<string, typeof allSettingsItems>()),
+  )
 
   // Filtered Tree Data according to search query (supports searching Groups, Projects, and Conversations)
 
@@ -6658,9 +7334,18 @@ export default function App() {
                     type="text"
                     value={settingsSearchQuery}
                     onChange={(e) => setSettingsSearchQuery(e.target.value)}
-                    placeholder="搜索设置项"
-                    className="w-full bg-[#faf9f6] border border-[#eae6dc] rounded-xl pl-9 pr-3 py-1.5 text-[13px] text-[#1a211c] placeholder-[#949e97] focus:outline-none focus:border-[#4a7860]"
+                    placeholder="搜索设置项（例如：语言、模型、权限、快捷键...）"
+                    className="w-full bg-[#faf9f6] border border-[#eae6dc] rounded-xl pl-9 pr-8 py-1.5 text-[13px] text-[#1a211c] placeholder-[#949e97] focus:outline-none focus:border-[#4a7860]"
                   />
+                  {settingsSearchQuery && (
+                    <button
+                      onClick={() => setSettingsSearchQuery("")}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 hover:bg-[#eae6dc] rounded-full text-[#949e97] hover:text-[#1a211c] transition-colors cursor-pointer"
+                      title="清除搜索"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
 
                 <button
@@ -6675,35 +7360,150 @@ export default function App() {
               <div className="flex-1 flex overflow-hidden">
                 {/* Settings Left Sidebar */}
                 <nav className="w-[220px] border-r border-[#eae6dc] p-4 space-y-1.5 flex-shrink-0 bg-[#fbfbf9]">
-                  {settingsCategories.map((cat) => {
-                    const Icon = cat.icon
-
-                    const isActive = activeSettingsTab === cat.id
-
-                    return (
+                  {settingsSearchQuery.trim() ? (
+                    <div className="space-y-1">
+                      <div className="text-[11px] font-semibold uppercase text-[#949e97] px-3 py-1">
+                        搜索范围
+                      </div>
                       <button
-                        key={cat.id}
-                        onClick={() => setActiveSettingsTab(cat.id)}
-                        className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-medium transition-all cursor-pointer ${
-                          isActive
-                            ? "bg-[#eaf1e8] text-[#2d5a43] font-semibold shadow-2xs"
-                            : "text-[#5c6760] hover:bg-[#f5f3eb]"
-                        }`}
+                        onClick={() => {}}
+                        className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-medium bg-[#eaf1e8] text-[#2d5a43] font-semibold shadow-2xs cursor-pointer"
                       >
-                        <Icon
-                          className={`w-4 h-4 ${
-                            isActive ? "text-[#2d5a43]" : "text-[#747f78]"
-                          }`}
-                        />
-                        <span>{cat.label}</span>
+                        <div className="flex items-center space-x-2.5">
+                          <Search className="w-4 h-4 text-[#2d5a43]" />
+                          <span>全部结果</span>
+                        </div>
+                        <span className="text-[11.5px] px-2 py-0.5 rounded-full bg-[#2d5a43]/10 text-[#2d5a43] font-semibold">
+                          {matchingSettingsItems.length}
+                        </span>
                       </button>
-                    )
-                  })}
+
+                      <div className="pt-3 border-t border-[#eae6dc]/60 mt-3 space-y-1">
+                        <div className="text-[11px] font-semibold uppercase text-[#949e97] px-3 py-1">
+                          分类目录
+                        </div>
+                        {settingsCategories.map((cat) => {
+                          const Icon = cat.icon
+                          const count = matchingSettingsItems.filter(
+                            (item) => item.categoryId === cat.id,
+                          ).length
+
+                          return (
+                            <button
+                              key={cat.id}
+                              onClick={() => {
+                                setSettingsSearchQuery("")
+                                setActiveSettingsTab(cat.id)
+                              }}
+                              className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-[12.5px] font-medium text-[#5c6760] hover:bg-[#f5f3eb] transition-all cursor-pointer"
+                            >
+                              <div className="flex items-center space-x-2.5">
+                                <Icon className="w-3.5 h-3.5 text-[#747f78]" />
+                                <span>{cat.label}</span>
+                              </div>
+                              {count > 0 && (
+                                <span className="text-[11px] px-1.5 py-0.2 rounded-full bg-[#eae6dc] text-[#5c6760]">
+                                  {count}
+                                </span>
+                              )}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    settingsCategories.map((cat) => {
+                      const Icon = cat.icon
+
+                      const isActive = activeSettingsTab === cat.id
+
+                      return (
+                        <button
+                          key={cat.id}
+                          onClick={() => setActiveSettingsTab(cat.id)}
+                          className={`w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-medium transition-all cursor-pointer ${
+                            isActive
+                              ? "bg-[#eaf1e8] text-[#2d5a43] font-semibold shadow-2xs"
+                              : "text-[#5c6760] hover:bg-[#f5f3eb]"
+                          }`}
+                        >
+                          <Icon
+                            className={`w-4 h-4 ${
+                              isActive ? "text-[#2d5a43]" : "text-[#747f78]"
+                            }`}
+                          />
+                          <span>{cat.label}</span>
+                        </button>
+                      )
+                    })
+                  )}
                 </nav>
 
                 {/* Settings Center Options Panel */}
                 <div className="flex-1 p-6 overflow-y-auto custom-scrollbar space-y-6">
-                  {/* 1. CATEGORY: 通用 (General) */}
+                  {settingsSearchQuery.trim() ? (
+                    <div className="space-y-6">
+                      {/* Search Results Header */}
+                      <div className="flex items-center justify-between pb-3 border-b border-[#eae6dc]">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-[14px] font-semibold text-[#1a211c]">
+                            搜索结果
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[11.5px] font-medium bg-[#eaf1e8] text-[#2d5a43]">
+                            找到 {matchingSettingsItems.length} 项
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => setSettingsSearchQuery("")}
+                          className="text-[12px] text-[#2d5a43] hover:underline cursor-pointer font-medium"
+                        >
+                          清除搜索
+                        </button>
+                      </div>
+
+                      {matchingSettingsItems.length > 0 ? (
+                        <div className="space-y-6">
+                          {groupedSearchResults.map(([categoryLabel, items]) => (
+                            <div key={categoryLabel} className="space-y-3">
+                              <div className="text-[12px] font-semibold text-[#747f78] uppercase tracking-wider px-1">
+                                {categoryLabel}
+                              </div>
+                              <div className="space-y-4 bg-[#fbfbf9] p-4.5 rounded-2xl border border-[#eae6dc]">
+                                {items.map((item) => (
+                                  <div key={item.id}>
+                                    {item.render()}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        /* Empty Search State */
+                        <div className="py-16 flex flex-col items-center justify-center text-center space-y-3">
+                          <div className="w-12 h-12 rounded-2xl bg-[#f7f5ef] border border-[#eae6dc] flex items-center justify-center text-[#949e97]">
+                            <Search className="w-6 h-6" />
+                          </div>
+                          <div className="space-y-1">
+                            <h4 className="text-[14.5px] font-semibold text-[#1a211c]">
+                              未找到与“{settingsSearchQuery}”相关的设置项
+                            </h4>
+                            <p className="text-[12.5px] text-[#747f78]">
+                              请尝试输入关键词，如“语言”、“模型”、“权限”、“快捷键”或“通知”
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => setSettingsSearchQuery("")}
+                            className="mt-2 px-4 py-1.5 rounded-xl bg-[#f7f5ef] hover:bg-[#eae6dc] text-[12.5px] font-medium text-[#2d5a43] transition-colors cursor-pointer"
+                          >
+                            清除搜索
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      {/* 1. CATEGORY: 通用 (General) */}
                   {activeSettingsTab === "general" && (
                     <div className="space-y-6 text-[13px]">
                       {/* 1. CATEGORY: 通用 (General) */}
@@ -7208,6 +8008,8 @@ export default function App() {
                         </div>
                       </div>
                     </div>
+                  )}
+                    </>
                   )}
                 </div>
               </div>
