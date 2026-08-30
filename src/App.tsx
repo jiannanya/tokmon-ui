@@ -62,6 +62,15 @@ import {
   ArrowUpRight,
   Link2,
   Image as ImageIcon,
+  Server,
+  Plug,
+  Layers,
+  Radio,
+  Trash2,
+  Play,
+  Code2,
+  Wrench,
+  ShieldCheck,
 } from "lucide-react"
 
 // Custom Precise Icons matching Review & Git Toolbar (Screenshots 1, 2, 3)
@@ -993,11 +1002,12 @@ export default function App() {
   const settingsTabNameMap: Record<string, string> = {
     general: "通用设置",
     agents: "智能体与模型",
+    mcp: "MCP 扩展与服务",
     security: "权限与安全",
     notifications: "通知与提醒",
     appearance: "外观与界面",
     shortcuts: "快捷键",
-    account: "账户与同步",
+    account: "账户",
   }
 
   const handleResetCurrentSettingsTabToDefault = () => {
@@ -1013,6 +1023,11 @@ export default function App() {
         setSettingMainModel("faster-whisper-large-v3-turbo")
         setSettingInferencePower("标准")
         setEnableWebSearch(true)
+        break
+      case "mcp":
+        setSettingMcpAutoStart(true)
+        setSettingMcpApprovalMode("高风险时询问")
+        setSettingMcpTimeout("60 秒")
         break
       case "security":
         setSettingFileAccess("受信路径")
@@ -1047,9 +1062,111 @@ export default function App() {
   }
 
   const [activeSettingsTab, setActiveSettingsTab] =
-    useState<"general" | "agents" | "security" | "notifications" | "appearance" | "shortcuts" | "account">(
+    useState<"general" | "agents" | "mcp" | "security" | "notifications" | "appearance" | "shortcuts" | "account">(
       "general",
     )
+
+  // MCP Settings State
+  const [settingMcpAutoStart, setSettingMcpAutoStart] = useState(true)
+  const [settingMcpApprovalMode, setSettingMcpApprovalMode] = useState<"自动执行" | "高风险时询问" | "每次调用均需确认">("高风险时询问")
+  const [settingMcpTimeout, setSettingMcpTimeout] = useState("60 秒")
+  const [mcpRefreshing, setMcpRefreshing] = useState(false)
+  const [expandedMcpServerId, setExpandedMcpServerId] = useState<string | null>(null)
+  const [showAddMcpModal, setShowAddMcpModal] = useState(false)
+  const [showMcpConfigJson, setShowMcpConfigJson] = useState(false)
+  const [newMcpName, setNewMcpName] = useState("")
+  const [newMcpTransport, setNewMcpTransport] = useState<"stdio" | "sse">("stdio")
+  const [newMcpCommand, setNewMcpCommand] = useState("npx")
+  const [newMcpArgs, setNewMcpArgs] = useState("-y @modelcontextprotocol/server-name")
+  const [newMcpUrl, setNewMcpUrl] = useState("http://localhost:8080/sse")
+  const [newMcpDesc, setNewMcpDesc] = useState("")
+
+  const [mcpServers, setMcpServers] = useState<Array<{
+    id: string
+    name: string
+    transport: "stdio" | "sse"
+    command?: string
+    args?: string[]
+    url?: string
+    status: "running" | "stopped" | "error"
+    enabled: boolean
+    description: string
+    toolsCount: number
+    resourcesCount: number
+    tools: Array<{ name: string; description: string; params?: string }>
+  }>>([
+    {
+      id: "filesystem",
+      name: "filesystem",
+      transport: "stdio",
+      command: "npx",
+      args: ["-y", "@modelcontextprotocol/server-filesystem", "C:\\Projects"],
+      status: "running",
+      enabled: true,
+      description: "提供受保护工作区沙箱内的本地文件读写、目录递归遍历与属性检索",
+      toolsCount: 4,
+      resourcesCount: 2,
+      tools: [
+        { name: "read_file", description: "读取指定路径的文件纯文本或二进制内容", params: "path: string" },
+        { name: "write_file", description: "向指定路径写入或覆写文件内容", params: "path: string, content: string" },
+        { name: "list_directory", description: "列出目标目录下的全部文件与子文件夹", params: "path: string" },
+        { name: "get_file_info", description: "获取指定文件的大小、修改时间及权限元数据", params: "path: string" },
+      ],
+    },
+    {
+      id: "figma-ai-bridge",
+      name: "figma-bridge",
+      transport: "stdio",
+      command: "node",
+      args: ["./mcp/figma-bridge/dist/index.js"],
+      status: "running",
+      enabled: true,
+      description: "双向同步 Figma 画布图层、设计规范组件库与高保真矢量导出",
+      toolsCount: 3,
+      resourcesCount: 1,
+      tools: [
+        { name: "get_figma_data", description: "获取指定 Figma 文件或选中文档的节点树结构与图层属性", params: "fileKey: string, nodeId?: string" },
+        { name: "download_figma_images", description: "将 Figma 选定节点渲染并下载为高分辨率 PNG/SVG 图像", params: "nodeIds: string[], format: 'png' | 'svg'" },
+        { name: "create_component_instance", description: "在画布中基于组件库创建对应的高保真实例图层", params: "componentKey: string" },
+      ],
+    },
+    {
+      id: "github",
+      name: "github",
+      transport: "stdio",
+      command: "npx",
+      args: ["-y", "@modelcontextprotocol/server-github"],
+      status: "running",
+      enabled: true,
+      description: "连接 GitHub REST / GraphQL API，直接检视代码仓库、分支、Pull Request 与 Issue",
+      toolsCount: 5,
+      resourcesCount: 1,
+      tools: [
+        { name: "search_repositories", description: "根据关键词或语义在 GitHub 全网或组织内检索仓库", params: "query: string" },
+        { name: "get_pull_request", description: "获取指定 Pull Request 的 Diff、变更行数与审查状态", params: "owner: string, repo: string, pullNumber: number" },
+        { name: "create_issue", description: "在目标仓库中创建 Issue 任务", params: "owner: string, repo: string, title: string, body?: string" },
+        { name: "get_file_contents", description: "获取指定仓库分支上的文件原始内容", params: "owner: string, repo: string, path: string" },
+        { name: "list_commits", description: "获取指定分支或 PR 的提交历史记录列表", params: "owner: string, repo: string, branch?: string" },
+      ],
+    },
+    {
+      id: "postgresql",
+      name: "postgresql",
+      transport: "stdio",
+      command: "npx",
+      args: ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost:5432/tokmon_prod"],
+      status: "stopped",
+      enabled: false,
+      description: "安全只读连接 Postgres 数据库，执行 SQL 查询测试与数据字典元数据分析",
+      toolsCount: 3,
+      resourcesCount: 2,
+      tools: [
+        { name: "query_database", description: "在数据库上安全执行只读 SELECT 查询并返回表格结果", params: "sql: string" },
+        { name: "describe_table", description: "获取指定数据表的所有字段类型、主外键与索引定义", params: "tableName: string" },
+        { name: "list_tables", description: "列出数据库当前 Schema 下的所有可用数据表与视图", params: "schema?: string" },
+      ],
+    },
+  ])
 
   // 1. General Configs
 
@@ -2620,6 +2737,7 @@ export default function App() {
   const settingsCategories = [
     { id: "general", label: "通用", icon: Settings },
     { id: "agents", label: "智能体与模型", icon: Bot },
+    { id: "mcp", label: "MCP 服务", icon: Server },
     { id: "security", label: "权限与安全", icon: Lock },
     { id: "notifications", label: "通知", icon: Bell },
     { id: "appearance", label: "外观", icon: Palette },
@@ -2878,6 +2996,126 @@ export default function App() {
               </button>
             ))}
           </div>
+        </div>
+      ),
+    },
+    // MCP
+    {
+      id: "mcp-servers-list",
+      categoryId: "mcp",
+      categoryLabel: "MCP 服务",
+      title: "MCP 服务器管理",
+      description: "配置与管理 Model Context Protocol (MCP) 扩展插件、本地工具与远程服务",
+      keywords: "mcp server 服务器 扩展 插件 工具 stdio sse protocol filesystem github figma postgres",
+      render: () => (
+        <div className="pb-4 border-b border-[#f7f5ef] space-y-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="font-medium text-[#1a211c] block">
+                {renderHighlightedText("已配置的 MCP 服务器", settingsSearchQuery)}
+              </span>
+              <span className="text-[12px] text-[#747f78] block mt-0.5">
+                {renderHighlightedText(`当前共配置 ${mcpServers.length} 个 MCP 服务，${mcpServers.filter(s => s.enabled).length} 个处于运行状态`, settingsSearchQuery)}
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                setSettingsSearchQuery("")
+                setActiveSettingsTab("mcp")
+              }}
+              className="px-3.5 py-1.5 rounded-xl bg-[#2d5a43] text-white text-[12px] font-medium hover:bg-[#234937] transition-all shadow-2xs cursor-pointer"
+            >
+              前往 MCP 控制台
+            </button>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "mcp-auto-start",
+      categoryId: "mcp",
+      categoryLabel: "MCP 服务",
+      title: "自动启动 MCP 服务",
+      description: "启动 Tokmon 时自动拉起已启用的 stdio 子进程与 SSE 远程长连接",
+      keywords: "mcp 自动启动 auto start stdio sse",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("自动启动 MCP 服务", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("应用启动时自动建立已启用 MCP 服务的连接", settingsSearchQuery)}
+            </span>
+          </div>
+          <ToggleSwitch
+            checked={settingMcpAutoStart}
+            onChange={setSettingMcpAutoStart}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "mcp-approval",
+      categoryId: "mcp",
+      categoryLabel: "MCP 服务",
+      title: "工具调用审批策略",
+      description: "设置智能体在调用 MCP 导出的工具与函数时的用户审批策略（自动执行、高风险时询问、每次调用均需确认）",
+      keywords: "mcp 工具审批 权限 approval permission 确认",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("工具调用审批策略", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("控制智能体调用 MCP 外部工具时的用户确认规则", settingsSearchQuery)}
+            </span>
+          </div>
+          <div className="flex bg-[#f7f5ef] p-1 rounded-xl border border-[#eae6dc]">
+            {(["自动执行", "高风险时询问", "每次调用均需确认"] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setSettingMcpApprovalMode(mode)}
+                className={`px-3.5 py-1.5 rounded-lg font-medium text-[12px] transition-all cursor-pointer ${
+                  settingMcpApprovalMode === mode
+                    ? "bg-[#edf4ec] text-[#2d5a43] font-semibold shadow-2xs"
+                    : "text-[#747f78] hover:text-[#1a211c]"
+                }`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "mcp-timeout",
+      categoryId: "mcp",
+      categoryLabel: "MCP 服务",
+      title: "请求超时时间",
+      description: "单次 MCP 工具调用与资源请求的最大等待时间（30 秒、60 秒、120 秒）",
+      keywords: "mcp 超时 timeout 请求时间 等待",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("请求超时时间", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("设置单次 MCP 工具执行的最长等待响应时间", settingsSearchQuery)}
+            </span>
+          </div>
+          <select
+            value={settingMcpTimeout}
+            onChange={(e) => setSettingMcpTimeout(e.target.value)}
+            className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
+          >
+            <option value="30 秒">30 秒</option>
+            <option value="60 秒">60 秒</option>
+            <option value="120 秒">120 秒</option>
+          </select>
         </div>
       ),
     },
@@ -7658,7 +7896,479 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* 3. CATEGORY: 权限与安全 */}
+                  {/* 3. CATEGORY: MCP 扩展与服务 */}
+                  {activeSettingsTab === "mcp" && (
+                    <div className="space-y-6 text-[13px]">
+                      {/* MCP Top Overview & Quick Actions Bar */}
+                      <div className="p-4 rounded-2xl bg-[#f7f5ef]/80 border border-[#eae6dc] flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div className="space-y-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-semibold text-[14px] text-[#1a211c]">
+                              Model Context Protocol (MCP)
+                            </span>
+                            <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#edf4ec] text-[#2d5a43] border border-[#2d5a43]/20">
+                              协议版本 2024-11-05
+                            </span>
+                          </div>
+                          <p className="text-[12px] text-[#747f78]">
+                            连接和管理本地与远程工具协议，赋予智能体自主执行外部工具、查询数据库与调用 API 的能力
+                          </p>
+                        </div>
+
+                        {/* Top Actions */}
+                        <div className="flex items-center space-x-2 flex-shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setMcpRefreshing(true)
+                              setSettingsToast("正在重新连接并刷新所有 MCP 服务...")
+                              setTimeout(() => {
+                                setMcpRefreshing(false)
+                                setSettingsToast("已成功刷新所有 MCP 服务连接")
+                                setTimeout(() => setSettingsToast(null), 2000)
+                              }, 800)
+                            }}
+                            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#eae6dc] hover:bg-[#faf9f6] text-[12px] font-medium text-[#5c6760] transition-colors cursor-pointer active:scale-95 shadow-2xs"
+                            title="重新探测并连接全部 MCP 服务"
+                          >
+                            <RotateCw
+                              className={`w-3.5 h-3.5 ${
+                                mcpRefreshing ? "animate-spin text-[#2d5a43]" : "text-[#747f78]"
+                              }`}
+                            />
+                            <span>刷新连接</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setShowMcpConfigJson(true)}
+                            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#eae6dc] hover:bg-[#faf9f6] text-[12px] font-medium text-[#5c6760] transition-colors cursor-pointer active:scale-95 shadow-2xs"
+                            title="查看 mcp_config.json 配置文件"
+                          >
+                            <FileCode className="w-3.5 h-3.5 text-[#747f78]" />
+                            <span>配置文件</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setShowAddMcpModal(true)}
+                            className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-[#2d5a43] hover:bg-[#234937] text-white text-[12px] font-semibold transition-all shadow-2xs cursor-pointer active:scale-95"
+                          >
+                            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                            <span>添加服务器</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Global MCP Configuration Options */}
+                      <div className="space-y-4 pt-2">
+                        <div className="text-[12px] font-semibold uppercase tracking-wider text-[#747f78] px-1">
+                          全局运行参数
+                        </div>
+
+                        <div className="bg-[#ffffff] border border-[#eae6dc] rounded-2xl p-4 space-y-4">
+                          {/* 自动启动 */}
+                          <div className="flex items-center justify-between pb-3.5 border-b border-[#f7f5ef]">
+                            <div>
+                              <span className="font-medium text-[#1a211c] block">
+                                自动启动 MCP 服务
+                              </span>
+                              <span className="text-[12px] text-[#747f78] block mt-0.5">
+                                应用启动时自动拉起所有已启用的 stdio 子进程与 SSE 长连接
+                              </span>
+                            </div>
+                            <ToggleSwitch
+                              checked={settingMcpAutoStart}
+                              onChange={setSettingMcpAutoStart}
+                            />
+                          </div>
+
+                          {/* 工具调用审批 */}
+                          <div className="flex items-center justify-between pb-3.5 border-b border-[#f7f5ef]">
+                            <div>
+                              <span className="font-medium text-[#1a211c] block">
+                                工具调用审批策略
+                              </span>
+                              <span className="text-[12px] text-[#747f78] block mt-0.5">
+                                控制智能体调用 MCP 外部工具时的用户确认规则
+                              </span>
+                            </div>
+                            <div className="flex bg-[#f7f5ef] p-1 rounded-xl border border-[#eae6dc]">
+                              {(["自动执行", "高风险时询问", "每次调用均需确认"] as const).map((mode) => (
+                                <button
+                                  key={mode}
+                                  onClick={() => setSettingMcpApprovalMode(mode)}
+                                  className={`px-3.5 py-1 rounded-lg font-medium text-[12px] transition-all cursor-pointer ${
+                                    settingMcpApprovalMode === mode
+                                      ? "bg-[#edf4ec] text-[#2d5a43] font-semibold shadow-2xs"
+                                      : "text-[#747f78] hover:text-[#1a211c]"
+                                  }`}
+                                >
+                                  {mode}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* 超时时间 */}
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="font-medium text-[#1a211c] block">
+                                请求超时时间
+                              </span>
+                              <span className="text-[12px] text-[#747f78] block mt-0.5">
+                                设置单次 MCP 工具执行的最长等待响应时间
+                              </span>
+                            </div>
+                            <select
+                              value={settingMcpTimeout}
+                              onChange={(e) => setSettingMcpTimeout(e.target.value)}
+                              className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
+                            >
+                              <option value="30 秒">30 秒</option>
+                              <option value="60 秒">60 秒</option>
+                              <option value="120 秒">120 秒</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Configured MCP Server Cards List */}
+                      <div className="space-y-3 pt-2">
+                        <div className="flex items-center justify-between px-1">
+                          <div className="text-[12px] font-semibold uppercase tracking-wider text-[#747f78]">
+                            已配置的 MCP 服务器 ({mcpServers.length})
+                          </div>
+                          <span className="text-[11.5px] text-[#2d5a43] font-medium">
+                            {mcpServers.filter((s) => s.enabled).length} 个运行中 ·{" "}
+                            {mcpServers.reduce((acc, s) => acc + (s.enabled ? s.toolsCount : 0), 0)} 个可用工具
+                          </span>
+                        </div>
+
+                        <div className="space-y-3">
+                          {mcpServers.map((server) => {
+                            const isExpanded = expandedMcpServerId === server.id
+
+                            return (
+                              <div
+                                key={server.id}
+                                className={`rounded-2xl border transition-all ${
+                                  server.enabled
+                                    ? "bg-white border-[#eae6dc] shadow-2xs hover:border-[#2d5a43]/40"
+                                    : "bg-[#faf9f6] border-[#eae6dc]/80 opacity-80"
+                                } overflow-hidden`}
+                              >
+                                {/* Server Item Main Row */}
+                                <div className="p-4 flex items-start justify-between gap-4">
+                                  <div className="flex items-start space-x-3.5 min-w-0">
+                                    <div
+                                      className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                                        server.enabled
+                                          ? "bg-[#edf4ec] text-[#2d5a43] border border-[#2d5a43]/20"
+                                          : "bg-[#eae6dc]/60 text-[#949e97]"
+                                      }`}
+                                    >
+                                      <Server className="w-4 h-4" />
+                                    </div>
+
+                                    <div className="space-y-1.5 min-w-0">
+                                      <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                                        <h4 className="font-semibold text-[#1a211c] text-[13.5px]">
+                                          {server.name}
+                                        </h4>
+                                        <span className="px-2 py-0.2 rounded-md font-mono text-[11px] font-medium bg-[#f0f6ef] text-[#2d5a43] border border-[#2d5a43]/20">
+                                          {server.transport}
+                                        </span>
+                                        <span
+                                          className={`inline-flex items-center space-x-1 px-2 py-0.2 rounded-md text-[11px] font-medium ${
+                                            server.enabled
+                                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                              : "bg-gray-100 text-gray-600 border border-gray-200"
+                                          }`}
+                                        >
+                                          <span
+                                            className={`w-1.5 h-1.5 rounded-full ${
+                                              server.enabled ? "bg-emerald-500 animate-pulse" : "bg-gray-400"
+                                            }`}
+                                          />
+                                          <span>{server.enabled ? "运行中" : "已停用"}</span>
+                                        </span>
+                                      </div>
+
+                                      <p className="text-[12px] text-[#747f78] leading-relaxed">
+                                        {server.description}
+                                      </p>
+
+                                      {/* Command or URL String preview */}
+                                      <div className="flex items-center space-x-2 pt-1 font-mono text-[11.5px] text-[#5c6760]">
+                                        <div className="px-2.5 py-1 rounded-lg bg-[#f7f5ef] border border-[#eae6dc] truncate max-w-[420px]">
+                                          {server.transport === "stdio"
+                                            ? `${server.command} ${server.args?.join(" ")}`
+                                            : server.url}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Right side controls */}
+                                  <div className="flex items-center space-x-3 flex-shrink-0 pt-0.5">
+                                    <div className="flex items-center space-x-1.5">
+                                      <span className="px-2 py-0.5 rounded-lg text-[11px] font-medium bg-[#f7f5ef] text-[#5c6760] border border-[#eae6dc]">
+                                        {server.toolsCount} 工具
+                                      </span>
+                                      {server.resourcesCount > 0 && (
+                                        <span className="px-2 py-0.5 rounded-lg text-[11px] font-medium bg-[#f7f5ef] text-[#5c6760] border border-[#eae6dc]">
+                                          {server.resourcesCount} 资源
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    {/* Enable Switch */}
+                                    <ToggleSwitch
+                                      checked={server.enabled}
+                                      onChange={() => {
+                                        setMcpServers((prev) =>
+                                          prev.map((s) =>
+                                            s.id === server.id
+                                              ? {
+                                                  ...s,
+                                                  enabled: !s.enabled,
+                                                  status: !s.enabled ? "running" : "stopped",
+                                                }
+                                              : s,
+                                          ),
+                                        )
+                                        setSettingsToast(
+                                          server.enabled
+                                            ? `已停用「${server.name}」MCP 服务`
+                                            : `已启动「${server.name}」MCP 服务`,
+                                        )
+                                        setTimeout(() => setSettingsToast(null), 2000)
+                                      }}
+                                    />
+
+                                    {/* Expand Tools Button */}
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setExpandedMcpServerId(isExpanded ? null : server.id)
+                                      }
+                                      className={`p-1.5 rounded-lg border border-[#eae6dc] hover:bg-[#f7f5ef] text-[#747f78] hover:text-[#1a211c] transition-colors cursor-pointer ${
+                                        isExpanded ? "bg-[#edf4ec] text-[#2d5a43] border-[#2d5a43]/30" : "bg-white"
+                                      }`}
+                                      title={isExpanded ? "收起导出工具" : "展开导出工具详情"}
+                                    >
+                                      {isExpanded ? (
+                                        <ChevronUp className="w-4 h-4" />
+                                      ) : (
+                                        <ChevronDown className="w-4 h-4" />
+                                      )}
+                                    </button>
+
+                                    {/* Delete Server Button */}
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setMcpServers((prev) => prev.filter((s) => s.id !== server.id))
+                                        setSettingsToast(`已移除 MCP 服务器「${server.name}」`)
+                                        setTimeout(() => setSettingsToast(null), 2000)
+                                      }}
+                                      className="p-1.5 rounded-lg border border-transparent hover:border-rose-200 hover:bg-rose-50 text-[#949e97] hover:text-rose-600 transition-colors cursor-pointer"
+                                      title="移除该服务器"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Expanded Exported Tools Drawer */}
+                                {isExpanded && (
+                                  <div className="border-t border-[#eae6dc] bg-[#faf9f6] p-4 space-y-2.5 animate-in fade-in slide-in-from-top-1 duration-150">
+                                    <div className="flex items-center justify-between text-[11.5px] font-semibold text-[#747f78] px-1">
+                                      <span>该 MCP 服务导出的可调用函数与工具：</span>
+                                      <span className="font-mono">共 {server.tools.length} 个注册工具</span>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-2">
+                                      {server.tools.map((tool) => (
+                                        <div
+                                          key={tool.name}
+                                          className="p-2.5 rounded-xl bg-white border border-[#eae6dc] flex items-start justify-between gap-3 text-[12px]"
+                                        >
+                                          <div className="space-y-0.5 min-w-0">
+                                            <div className="flex items-center space-x-2">
+                                              <Code2 className="w-3.5 h-3.5 text-[#2d5a43] flex-shrink-0" />
+                                              <span className="font-mono font-semibold text-[#1a211c]">
+                                                {tool.name}
+                                              </span>
+                                              {tool.params && (
+                                                <span className="font-mono text-[11px] text-[#747f78] bg-[#f7f5ef] px-1.5 py-0.2 rounded border border-[#eae6dc]">
+                                                  ({tool.params})
+                                                </span>
+                                              )}
+                                            </div>
+                                            <p className="text-[11.5px] text-[#747f78] pl-5.5">
+                                              {tool.description}
+                                            </p>
+                                          </div>
+                                          <span className="px-2 py-0.5 rounded-full text-[10.5px] font-medium bg-[#edf4ec] text-[#2d5a43] flex-shrink-0">
+                                            就绪
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Quick Add Community & Official Templates */}
+                      <div className="space-y-3 pt-4 border-t border-[#eae6dc]/80">
+                        <div className="flex items-center justify-between px-1">
+                          <div className="text-[12px] font-semibold uppercase tracking-wider text-[#747f78]">
+                            精选与官方 MCP 模板库
+                          </div>
+                          <span className="text-[11.5px] text-[#747f78]">一键快速配置</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {[
+                            {
+                              id: "brave-search",
+                              name: "brave-search",
+                              label: "Brave 全网实时搜索",
+                              transport: "stdio" as const,
+                              command: "npx",
+                              args: ["-y", "@modelcontextprotocol/server-brave-search"],
+                              description: "集成 Brave 独立索引，为智能体提供全球实时网络与网页快照检索",
+                              toolsCount: 2,
+                              resourcesCount: 0,
+                              tools: [
+                                { name: "brave_web_search", description: "搜索全网返回最新摘要与引用网址", params: "query: string, count?: number" },
+                                { name: "brave_local_search", description: "搜索地点与商户详情", params: "query: string" },
+                              ],
+                            },
+                            {
+                              id: "sqlite",
+                              name: "sqlite",
+                              label: "SQLite 本地数据库",
+                              transport: "stdio" as const,
+                              command: "npx",
+                              args: ["-y", "@modelcontextprotocol/server-sqlite", "--db-path", "./tokmon.db"],
+                              description: "轻量级嵌入式 SQLite 数据库读写、表结构探索与分析工具",
+                              toolsCount: 3,
+                              resourcesCount: 1,
+                              tools: [
+                                { name: "read_query", description: "执行只读 SQL 查询", params: "query: string" },
+                                { name: "write_query", description: "执行数据写入与事务", params: "query: string" },
+                                { name: "describe_table", description: "获取表结构定义", params: "table_name: string" },
+                              ],
+                            },
+                            {
+                              id: "puppeteer",
+                              name: "puppeteer",
+                              label: "Puppeteer 无头浏览器",
+                              transport: "stdio" as const,
+                              command: "npx",
+                              args: ["-y", "@modelcontextprotocol/server-puppeteer"],
+                              description: "自动化浏览器操作，支持网页全屏截图、DOM 提取与表单交互",
+                              toolsCount: 4,
+                              resourcesCount: 0,
+                              tools: [
+                                { name: "navigate", description: "跳转至目标 URL", params: "url: string" },
+                                { name: "screenshot", description: "截取当前网页完整截图", params: "name: string" },
+                                { name: "click", description: "点击页面元素", params: "selector: string" },
+                                { name: "fill", description: "填写输入框文本", params: "selector: string, value: string" },
+                              ],
+                            },
+                            {
+                              id: "slack",
+                              name: "slack",
+                              label: "Slack 团队协同",
+                              transport: "sse" as const,
+                              url: "https://mcp-gateway.tokmon.internal/slack/sse",
+                              description: "连接团队 Slack 工作区，收发频道讨论、历史记录与工作流通知",
+                              toolsCount: 3,
+                              resourcesCount: 1,
+                              tools: [
+                                { name: "list_channels", description: "列出工作区频道", params: "types?: string" },
+                                { name: "post_message", description: "向指定频道发送消息", params: "channel_id: string, text: string" },
+                                { name: "get_channel_history", description: "获取频道历史上下文", params: "channel_id: string" },
+                              ],
+                            },
+                          ].map((tmpl) => {
+                            const isAdded = mcpServers.some((s) => s.id === tmpl.id)
+
+                            return (
+                              <div
+                                key={tmpl.id}
+                                className="p-3.5 rounded-2xl bg-white border border-[#eae6dc] flex flex-col justify-between space-y-3 hover:border-[#2d5a43]/40 transition-colors shadow-2xs"
+                              >
+                                <div className="space-y-1">
+                                  <div className="flex items-center justify-between">
+                                    <h5 className="font-semibold text-[#1a211c] text-[13px]">
+                                      {tmpl.label}
+                                    </h5>
+                                    <span className="px-1.5 py-0.2 rounded font-mono text-[10.5px] bg-[#f7f5ef] text-[#5c6760] border border-[#eae6dc]">
+                                      {tmpl.transport}
+                                    </span>
+                                  </div>
+                                  <p className="text-[11.5px] text-[#747f78] leading-relaxed">
+                                    {tmpl.description}
+                                  </p>
+                                </div>
+
+                                <div className="flex items-center justify-between pt-1">
+                                  <span className="text-[11px] text-[#949e97]">
+                                    包含 {tmpl.toolsCount} 个工具
+                                  </span>
+                                  <button
+                                    type="button"
+                                    disabled={isAdded}
+                                    onClick={() => {
+                                      if (!isAdded) {
+                                        setMcpServers((prev) => [
+                                          ...prev,
+                                          {
+                                            id: tmpl.id,
+                                            name: tmpl.name,
+                                            transport: tmpl.transport,
+                                            command: tmpl.command,
+                                            args: tmpl.args,
+                                            url: tmpl.url,
+                                            status: "running",
+                                            enabled: true,
+                                            description: tmpl.description,
+                                            toolsCount: tmpl.toolsCount,
+                                            resourcesCount: tmpl.resourcesCount,
+                                            tools: tmpl.tools,
+                                          },
+                                        ])
+                                        setSettingsToast(`已成功添加「${tmpl.label}」MCP 服务`)
+                                        setTimeout(() => setSettingsToast(null), 2000)
+                                      }
+                                    }}
+                                    className={`px-3 py-1 rounded-xl text-[12px] font-semibold transition-all cursor-pointer ${
+                                      isAdded
+                                        ? "bg-[#edf4ec] text-[#2d5a43] cursor-default font-medium"
+                                        : "bg-[#2d5a43] hover:bg-[#234937] text-white shadow-2xs active:scale-95"
+                                    }`}
+                                  >
+                                    {isAdded ? "已添加" : "+ 一键添加"}
+                                  </button>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 4. CATEGORY: 权限与安全 */}
                   {activeSettingsTab === "security" && (
                     <div className="space-y-6 text-[13px]">
                       <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
@@ -8044,6 +8754,282 @@ export default function App() {
                     className="px-5 py-2 rounded-xl bg-[#2d5a43] hover:bg-[#234937] active:scale-98 text-[13px] font-semibold text-white transition-all shadow-xs cursor-pointer"
                   >
                     保存更改
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ADD CUSTOM MCP SERVER MODAL */}
+        {showAddMcpModal && (
+          <div className="fixed inset-0 bg-black/45 backdrop-blur-xs z-60 flex items-center justify-center p-4">
+            <div className="w-[520px] max-w-[94vw] bg-white border border-[#eae6dc] rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col">
+              <div className="h-[52px] border-b border-[#eae6dc] flex items-center justify-between px-6">
+                <div className="flex items-center space-x-2">
+                  <Server className="w-4 h-4 text-[#2d5a43]" />
+                  <h3 className="font-semibold text-[15px] text-[#1a211c]">
+                    添加 MCP 服务器
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddMcpModal(false)}
+                  className="p-1 hover:bg-[#f7f5ef] rounded-lg text-[#747f78] hover:text-[#1a211c] cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-4 text-[13px]">
+                {/* Server Name */}
+                <div className="space-y-1.5">
+                  <label className="font-medium text-[#1a211c] block">
+                    服务标识名称 (Server Name) *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="例如：my-custom-tool 或 mysql-db"
+                    value={newMcpName}
+                    onChange={(e) => setNewMcpName(e.target.value)}
+                    className="w-full bg-[#faf9f6] border border-[#eae6dc] rounded-xl px-3.5 py-2 text-[#1a211c] placeholder-[#949e97] focus:outline-none focus:border-[#4a7860]"
+                  />
+                </div>
+
+                {/* Transport Selector */}
+                <div className="space-y-1.5">
+                  <label className="font-medium text-[#1a211c] block">
+                    通信传输协议 (Transport) *
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setNewMcpTransport("stdio")}
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        newMcpTransport === "stdio"
+                          ? "bg-[#edf4ec] border-[#2d5a43] text-[#2d5a43] font-semibold"
+                          : "bg-white border-[#eae6dc] text-[#5c6760] hover:bg-[#faf9f6]"
+                      }`}
+                    >
+                      <div className="font-mono text-[12.5px]">stdio (标准输入输出)</div>
+                      <div className="text-[11px] text-[#747f78] font-normal mt-0.5">本地子进程命令行执行</div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setNewMcpTransport("sse")}
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        newMcpTransport === "sse"
+                          ? "bg-[#edf4ec] border-[#2d5a43] text-[#2d5a43] font-semibold"
+                          : "bg-white border-[#eae6dc] text-[#5c6760] hover:bg-[#faf9f6]"
+                      }`}
+                    >
+                      <div className="font-mono text-[12.5px]">SSE (Server-Sent Events)</div>
+                      <div className="text-[11px] text-[#747f78] font-normal mt-0.5">远程 HTTP / WebSocket 长连接</div>
+                    </button>
+                  </div>
+                </div>
+
+                {newMcpTransport === "stdio" ? (
+                  <>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="space-y-1.5 col-span-1">
+                        <label className="font-medium text-[#1a211c] block">
+                          执行程序 (Command)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="npx / node / python"
+                          value={newMcpCommand}
+                          onChange={(e) => setNewMcpCommand(e.target.value)}
+                          className="w-full bg-[#faf9f6] border border-[#eae6dc] rounded-xl px-3 py-2 font-mono text-[12.5px] text-[#1a211c] focus:outline-none focus:border-[#4a7860]"
+                        />
+                      </div>
+                      <div className="space-y-1.5 col-span-2">
+                        <label className="font-medium text-[#1a211c] block">
+                          运行参数 (Args)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="-y @modelcontextprotocol/server-name"
+                          value={newMcpArgs}
+                          onChange={(e) => setNewMcpArgs(e.target.value)}
+                          className="w-full bg-[#faf9f6] border border-[#eae6dc] rounded-xl px-3 py-2 font-mono text-[12.5px] text-[#1a211c] focus:outline-none focus:border-[#4a7860]"
+                        />
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-1.5">
+                    <label className="font-medium text-[#1a211c] block">
+                      远程 SSE 端点 URL *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="https://api.example.com/mcp/sse"
+                      value={newMcpUrl}
+                      onChange={(e) => setNewMcpUrl(e.target.value)}
+                      className="w-full bg-[#faf9f6] border border-[#eae6dc] rounded-xl px-3.5 py-2 font-mono text-[12.5px] text-[#1a211c] focus:outline-none focus:border-[#4a7860]"
+                    />
+                  </div>
+                )}
+
+                {/* Description */}
+                <div className="space-y-1.5">
+                  <label className="font-medium text-[#1a211c] block">
+                    服务描述 (可选)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="简述该服务导出的工具用途..."
+                    value={newMcpDesc}
+                    onChange={(e) => setNewMcpDesc(e.target.value)}
+                    className="w-full bg-[#faf9f6] border border-[#eae6dc] rounded-xl px-3.5 py-2 text-[#1a211c] placeholder-[#949e97] focus:outline-none focus:border-[#4a7860]"
+                  />
+                </div>
+              </div>
+
+              <div className="h-[56px] border-t border-[#eae6dc] bg-[#faf9f6] flex items-center justify-end px-6 space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowAddMcpModal(false)}
+                  className="px-4 py-1.5 rounded-xl bg-white border border-[#eae6dc] text-[#5c6760] text-[12.5px] font-medium hover:bg-[#f7f5ef] cursor-pointer"
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!newMcpName.trim()) {
+                      setSettingsToast("请填写 MCP 服务标识名称")
+                      setTimeout(() => setSettingsToast(null), 2000)
+                      return
+                    }
+                    const newServer = {
+                      id: newMcpName.toLowerCase().replace(/\s+/g, "-"),
+                      name: newMcpName.trim(),
+                      transport: newMcpTransport,
+                      command: newMcpTransport === "stdio" ? newMcpCommand.trim() : undefined,
+                      args: newMcpTransport === "stdio" ? newMcpArgs.trim().split(" ").filter(Boolean) : undefined,
+                      url: newMcpTransport === "sse" ? newMcpUrl.trim() : undefined,
+                      status: "running" as const,
+                      enabled: true,
+                      description: newMcpDesc.trim() || "用户自定义配置的 Model Context Protocol 扩展服务器",
+                      toolsCount: 2,
+                      resourcesCount: 0,
+                      tools: [
+                        { name: "custom_query", description: "自定义扩展工具函数调用", params: "input: string" },
+                        { name: "custom_exec", description: "执行自定义动作指令", params: "action: string" },
+                      ],
+                    }
+                    setMcpServers((prev) => [...prev, newServer])
+                    setShowAddMcpModal(false)
+                    setNewMcpName("")
+                    setNewMcpDesc("")
+                    setSettingsToast(`已成功添加 MCP 服务「${newServer.name}」`)
+                    setTimeout(() => setSettingsToast(null), 2000)
+                  }}
+                  className="px-4 py-1.5 rounded-xl bg-[#2d5a43] hover:bg-[#234937] text-white text-[12.5px] font-semibold transition-all shadow-xs cursor-pointer active:scale-95"
+                >
+                  确认添加
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* MCP CONFIG JSON PREVIEW MODAL */}
+        {showMcpConfigJson && (
+          <div className="fixed inset-0 bg-black/45 backdrop-blur-xs z-60 flex items-center justify-center p-4">
+            <div className="w-[580px] max-w-[94vw] bg-white border border-[#eae6dc] rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col">
+              <div className="h-[52px] border-b border-[#eae6dc] flex items-center justify-between px-6">
+                <div className="flex items-center space-x-2">
+                  <FileCode className="w-4 h-4 text-[#2d5a43]" />
+                  <h3 className="font-semibold text-[15px] text-[#1a211c]">
+                    mcp_config.json 配置文件
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowMcpConfigJson(false)}
+                  className="p-1 hover:bg-[#f7f5ef] rounded-lg text-[#747f78] hover:text-[#1a211c] cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="p-5">
+                <div className="p-4 rounded-xl bg-[#181614] text-[#e2ded4] font-mono text-[12px] overflow-x-auto max-h-[380px] custom-scrollbar leading-relaxed">
+                  <pre>
+                    {JSON.stringify(
+                      {
+                        mcpServers: mcpServers.reduce((acc, s) => {
+                          if (s.transport === "stdio") {
+                            acc[s.name] = {
+                              command: s.command || "npx",
+                              args: s.args || [],
+                              enabled: s.enabled,
+                            }
+                          } else {
+                            acc[s.name] = {
+                              url: s.url,
+                              enabled: s.enabled,
+                            }
+                          }
+                          return acc
+                        }, {} as Record<string, any>),
+                      },
+                      null,
+                      2,
+                    )}
+                  </pre>
+                </div>
+              </div>
+
+              <div className="h-[54px] border-t border-[#eae6dc] bg-[#faf9f6] flex items-center justify-between px-6">
+                <span className="text-[12px] text-[#747f78]">
+                  配置文件已自动同步至本地 AppData 目录
+                </span>
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard?.writeText(
+                        JSON.stringify(
+                          {
+                            mcpServers: mcpServers.reduce((acc, s) => {
+                              if (s.transport === "stdio") {
+                                acc[s.name] = {
+                                  command: s.command || "npx",
+                                  args: s.args || [],
+                                  enabled: s.enabled,
+                                }
+                              } else {
+                                acc[s.name] = {
+                                  url: s.url,
+                                  enabled: s.enabled,
+                                }
+                              }
+                              return acc
+                            }, {} as Record<string, any>),
+                          },
+                          null,
+                          2,
+                        ),
+                      )
+                      setSettingsToast("已复制 MCP 配置 JSON 到剪贴板")
+                      setTimeout(() => setSettingsToast(null), 2000)
+                    }}
+                    className="px-3.5 py-1.5 rounded-xl bg-white border border-[#eae6dc] hover:bg-[#f7f5ef] text-[#2d5a43] text-[12px] font-medium transition-colors cursor-pointer shadow-2xs"
+                  >
+                    复制配置 JSON
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowMcpConfigJson(false)}
+                    className="px-4 py-1.5 rounded-xl bg-[#2d5a43] hover:bg-[#234937] text-white text-[12px] font-semibold transition-all shadow-xs cursor-pointer"
+                  >
+                    完成
                   </button>
                 </div>
               </div>
