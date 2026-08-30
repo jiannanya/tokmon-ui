@@ -851,7 +851,7 @@ export default function App() {
   const [settingAccessLevel, setSettingAccessLevel] =
     useState<"完全访问" | "受信路径" | "按需确认">("完全访问")
 
-  const [enableWebSearch, setEnableWebSearch] = useState(false)
+  const [enableWebSearch, setEnableWebSearch] = useState(true)
 
   const [showAccessDropdown, setShowAccessDropdown] = useState(false)
 
@@ -994,7 +994,6 @@ export default function App() {
     general: "通用设置",
     agents: "智能体与模型",
     security: "权限与安全",
-    workspace: "工作区设置",
     notifications: "通知与提醒",
     appearance: "外观与界面",
     shortcuts: "快捷键",
@@ -1006,26 +1005,20 @@ export default function App() {
       case "general":
         setSettingLanguage("简体中文")
         setSettingStartupOption("首页")
-        setSettingAutoSave("5 分钟")
-        setSettingUpdateChannel("稳定版")
+        setSettingWorkspacePath("C:\\Users\\User\\Tokmon\\Projects")
         break
       case "agents":
         setSettingDefaultAgent("代码助手")
         setSettingModelProvider("Tokmon 官方")
         setSettingMainModel("faster-whisper-large-v3-turbo")
         setSettingInferencePower("标准")
+        setEnableWebSearch(true)
         break
       case "security":
         setSettingFileAccess("受信路径")
         setSettingCommandApproval("按需确认")
         setSettingNetworkAccess(true)
         setSettingHighRiskConfirmation(true)
-        break
-      case "workspace":
-        setSettingWorkspacePath("C:\\Users\\User\\Tokmon\\Projects")
-        setSettingIndexMode("标准")
-        setSettingAutoSync(true)
-        setSettingGitIntegration(true)
         break
       case "notifications":
         setSettingEnableNotifications(true)
@@ -1054,7 +1047,7 @@ export default function App() {
   }
 
   const [activeSettingsTab, setActiveSettingsTab] =
-    useState<"general" | "agents" | "security" | "workspace" | "notifications" | "appearance" | "shortcuts" | "account">(
+    useState<"general" | "agents" | "security" | "notifications" | "appearance" | "shortcuts" | "account">(
       "general",
     )
 
@@ -2626,19 +2619,11 @@ export default function App() {
 
   const settingsCategories = [
     { id: "general", label: "通用", icon: Settings },
-
     { id: "agents", label: "智能体与模型", icon: Bot },
-
     { id: "security", label: "权限与安全", icon: Lock },
-
-    { id: "workspace", label: "工作区", icon: Folder },
-
     { id: "notifications", label: "通知", icon: Bell },
-
     { id: "appearance", label: "外观", icon: Palette },
-
     { id: "shortcuts", label: "快捷键", icon: Keyboard },
-
     { id: "account", label: "账户", icon: User },
   ] as const
 
@@ -5062,20 +5047,6 @@ export default function App() {
                         <Plus className="w-4 h-4" />
                       </button>
 
-                      {/* Web Search Toggle Badge */}
-                      <button
-                        onClick={() => setEnableWebSearch(!enableWebSearch)}
-                        className={`flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11.5px] font-medium transition-all cursor-pointer select-none active:scale-95 ${
-                          enableWebSearch
-                            ? "bg-transparent text-[#2d5a43] border border-[#2d5a43]/40 shadow-2xs font-semibold"
-                            : "bg-transparent hover:bg-black/[0.04] text-[#747f78] hover:text-[#1a211c]"
-                        }`}
-                        title="联网搜索开关"
-                      >
-                        <Globe className="w-3.5 h-3.5" />
-                        <span>联网</span>
-                      </button>
-
                       {/* Access Level Dropdown Badge */}
                       <div className="relative">
                         <button
@@ -6735,6 +6706,7 @@ export default function App() {
                   {/* 1. CATEGORY: 通用 (General) */}
                   {activeSettingsTab === "general" && (
                     <div className="space-y-6 text-[13px]">
+                      {/* 1. CATEGORY: 通用 (General) */}
                       {/* 应用语言 */}
                       <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
                         <span className="font-medium text-[#1a211c]">
@@ -6773,42 +6745,26 @@ export default function App() {
                         </div>
                       </div>
 
-                      {/* 自动保存 */}
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
-                        <span className="font-medium text-[#1a211c]">
-                          自动保存
-                        </span>
-                        <select
-                          value={settingAutoSave}
-                          onChange={(e) => setSettingAutoSave(e.target.value)}
-                          className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
-                        >
-                          <option value="1 分钟">1 分钟</option>
-                          <option value="5 分钟">5 分钟</option>
-                          <option value="10 分钟">10 分钟</option>
-                          <option value="从不">从不</option>
-                        </select>
-                      </div>
-
-                      {/* 更新通道 */}
+                      {/* 默认工作区 */}
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-[#1a211c]">
-                          更新通道
-                        </span>
-                        <div className="flex bg-[#f7f5ef] p-1 rounded-xl border border-[#eae6dc]">
-                          {(["稳定版", "测试版"] as const).map((channel) => (
-                            <button
-                              key={channel}
-                              onClick={() => setSettingUpdateChannel(channel)}
-                              className={`px-5 py-1.5 rounded-lg font-medium text-[12.5px] transition-all cursor-pointer ${
-                                settingUpdateChannel === channel
-                                  ? "bg-[#edf4ec] text-[#2d5a43] font-semibold shadow-2xs"
-                                  : "text-[#747f78] hover:text-[#1a211c]"
-                              }`}
-                            >
-                              {channel}
-                            </button>
-                          ))}
+                        <div>
+                          <span className="font-medium text-[#1a211c] block">
+                            默认工作区
+                          </span>
+                          <span className="text-[12px] text-[#747f78] block mt-0.5">
+                            新建会话及默认打开的项目工作空间根目录路径
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2 bg-[#ffffff] border border-[#eae6dc] rounded-xl px-3 py-1.5 w-[280px]">
+                          <input
+                            type="text"
+                            value={settingWorkspacePath}
+                            onChange={(e) =>
+                              setSettingWorkspacePath(e.target.value)
+                            }
+                            className="bg-transparent text-[12.5px] font-mono text-[#1a211c] focus:outline-none w-full"
+                          />
+                          <Folder className="w-4 h-4 text-[#747f78] flex-shrink-0 cursor-pointer" />
                         </div>
                       </div>
                     </div>
@@ -6965,63 +6921,7 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* 4. CATEGORY: 工作区 */}
-                  {activeSettingsTab === "workspace" && (
-                    <div className="space-y-6 text-[13px]">
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
-                        <span className="font-medium text-[#1a211c]">
-                          默认工作区
-                        </span>
-                        <div className="flex items-center space-x-2 bg-[#ffffff] border border-[#eae6dc] rounded-xl px-3 py-1.5 w-[280px]">
-                          <input
-                            type="text"
-                            value={settingWorkspacePath}
-                            onChange={(e) =>
-                              setSettingWorkspacePath(e.target.value)
-                            }
-                            className="bg-transparent text-[12.5px] font-mono text-[#1a211c] focus:outline-none w-full"
-                          />
-                          <Folder className="w-4 h-4 text-[#747f78] flex-shrink-0 cursor-pointer" />
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
-                        <span className="font-medium text-[#1a211c]">
-                          索引模式
-                        </span>
-                        <select
-                          value={settingIndexMode}
-                          onChange={(e) => setSettingIndexMode(e.target.value)}
-                          className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
-                        >
-                          <option value="标准">标准</option>
-                          <option value="深度索引">深度索引</option>
-                        </select>
-                      </div>
-
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
-                        <span className="font-medium text-[#1a211c]">
-                          自动同步
-                        </span>
-                        <ToggleSwitch
-                          checked={settingAutoSync}
-                          onChange={setSettingAutoSync}
-                        />
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-[#1a211c]">
-                          Git 集成
-                        </span>
-                        <ToggleSwitch
-                          checked={settingGitIntegration}
-                          onChange={setSettingGitIntegration}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 5. CATEGORY: 通知 */}
+                  {/* 4. CATEGORY: 通知 */}
                   {activeSettingsTab === "notifications" && (
                     <div className="space-y-6 text-[13px]">
                       <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
@@ -7305,26 +7205,6 @@ export default function App() {
                             <span>{settingAccountEmail}</span>
                             <ChevronRight className="w-4 h-4 text-[#949e97]" />
                           </div>
-                        </div>
-
-                        <div className="flex items-center justify-between p-3.5 bg-[#ffffff] border border-[#eae6dc] rounded-xl hover:bg-[#f7f5ef] cursor-pointer transition-colors">
-                          <span className="font-medium text-[#1a211c]">
-                            当前方案
-                          </span>
-                          <div className="flex items-center space-x-1 text-[#2d5a43] font-semibold">
-                            <span>{settingAccountPlan}</span>
-                            <ChevronRight className="w-4 h-4 text-[#949e97]" />
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between p-3.5 bg-[#ffffff] border border-[#eae6dc] rounded-xl">
-                          <span className="font-medium text-[#1a211c]">
-                            云同步
-                          </span>
-                          <ToggleSwitch
-                            checked={settingAccountCloudSync}
-                            onChange={setSettingAccountCloudSync}
-                          />
                         </div>
                       </div>
                     </div>
