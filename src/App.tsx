@@ -1001,7 +1001,10 @@ export default function App() {
 
   const settingsTabNameMap: Record<string, string> = {
     general: "通用设置",
-    agents: "智能体与模型",
+    models: "模型设置",
+    agents: "智能体设置",
+    skills: "Skill 技能设置",
+    rules: "规则设置",
     mcp: "MCP 扩展与服务",
     security: "权限与安全",
     notifications: "通知与提醒",
@@ -1017,12 +1020,26 @@ export default function App() {
         setSettingStartupOption("首页")
         setSettingWorkspacePath("C:\\Users\\User\\Tokmon\\Projects")
         break
-      case "agents":
-        setSettingDefaultAgent("代码助手")
+      case "models":
         setSettingModelProvider("Tokmon 官方")
         setSettingMainModel("faster-whisper-large-v3-turbo")
         setSettingInferencePower("标准")
-        setEnableWebSearch(true)
+        break
+      case "agents":
+        setSettingDefaultAgent("代码助手")
+        setSettingAgentAutonomous(true)
+        setSettingAgentShowThoughts(true)
+        break
+      case "skills":
+        setSettingSkillsEnabled(true)
+        setSettingSkillsAutoInvoke(true)
+        break
+      case "rules":
+        setSettingRulesEnabled(true)
+        setSettingPreferProjectRules(true)
+        setSettingGlobalCustomRules(
+          "优先使用 TypeScript 严格模式；遵循 Tailwind CSS 规范；代码注释使用中文。",
+        )
         break
       case "mcp":
         setSettingMcpAutoStart(true)
@@ -1062,9 +1079,94 @@ export default function App() {
   }
 
   const [activeSettingsTab, setActiveSettingsTab] =
-    useState<"general" | "agents" | "mcp" | "security" | "notifications" | "appearance" | "shortcuts" | "account">(
-      "general",
-    )
+    useState<
+      | "general"
+      | "models"
+      | "agents"
+      | "skills"
+      | "rules"
+      | "mcp"
+      | "security"
+      | "notifications"
+      | "appearance"
+      | "shortcuts"
+      | "account"
+    >("general")
+
+  // Agents Settings State (Separated)
+  const [settingAgentAutonomous, setSettingAgentAutonomous] = useState(true)
+  const [settingAgentShowThoughts, setSettingAgentShowThoughts] = useState(true)
+  const [agentRolesList, setAgentRolesList] = useState([
+    {
+      id: "code-assistant",
+      name: "代码助手",
+      desc: "代码编写、函数重构与单元测试生成",
+      enabled: true,
+    },
+    {
+      id: "architect",
+      name: "架构专家",
+      desc: "系统方案设计、技术选型与模块拆解",
+      enabled: true,
+    },
+    {
+      id: "translator",
+      name: "翻译助手",
+      desc: "多语言精准本地化与技术文档翻译",
+      enabled: true,
+    },
+    {
+      id: "data-analyst",
+      name: "数据分析师",
+      desc: "SQL 查询分析、数据清洗与报表可视化",
+      enabled: true,
+    },
+  ])
+
+  // Skills Settings State
+  const [settingSkillsEnabled, setSettingSkillsEnabled] = useState(true)
+  const [settingSkillsAutoInvoke, setSettingSkillsAutoInvoke] = useState(true)
+  const [skillsList, setSkillsList] = useState([
+    {
+      id: "agy-customizations",
+      name: "agy-customizations",
+      label: "扩展与自定义指南",
+      desc: "指导智能体正确编写 Skill、Rules、MCP 与扩展插件",
+      enabled: true,
+      category: "开发配置",
+    },
+    {
+      id: "generative-ui",
+      name: "generative_ui",
+      label: "交互式富组件渲染",
+      desc: "在对话流中动态渲染交互式 HTML / Tailwind UI 与图表控件",
+      enabled: true,
+      category: "界面渲染",
+    },
+    {
+      id: "code-refactor",
+      name: "code-refactor",
+      label: "代码重构与检查",
+      desc: "识别代码坏味道并遵循设计模式进行模块重构",
+      enabled: true,
+      category: "代码工程",
+    },
+    {
+      id: "mermaid-charts",
+      name: "mermaid-charts",
+      label: "架构与流程图引擎",
+      desc: "基于 Mermaid 规范自动绘制系统架构与时序交互图",
+      enabled: true,
+      category: "图表设计",
+    },
+  ])
+
+  // Rules Settings State
+  const [settingRulesEnabled, setSettingRulesEnabled] = useState(true)
+  const [settingPreferProjectRules, setSettingPreferProjectRules] = useState(true)
+  const [settingGlobalCustomRules, setSettingGlobalCustomRules] = useState(
+    "优先使用 TypeScript 严格模式；遵循 Tailwind CSS 规范；代码注释使用中文。",
+  )
 
   // MCP Settings State
   const [settingMcpAutoStart, setSettingMcpAutoStart] = useState(true)
@@ -2736,7 +2838,10 @@ export default function App() {
 
   const settingsCategories = [
     { id: "general", label: "通用", icon: Settings },
-    { id: "agents", label: "智能体与模型", icon: Bot },
+    { id: "models", label: "模型", icon: Cpu },
+    { id: "agents", label: "智能体", icon: Bot },
+    { id: "skills", label: "Skill 技能", icon: Wrench },
+    { id: "rules", label: "规则", icon: FileText },
     { id: "mcp", label: "MCP 服务", icon: Server },
     { id: "security", label: "权限与安全", icon: Lock },
     { id: "notifications", label: "通知", icon: Bell },
@@ -2869,41 +2974,11 @@ export default function App() {
         </div>
       ),
     },
-    // Agents
+    // Models
     {
-      id: "agents-default-agent",
-      categoryId: "agents",
-      categoryLabel: "智能体与模型",
-      title: "默认智能体",
-      description: "选择新建会话时默认使用的智能体角色（代码助手、翻译助手、演示文稿美化、数据分析师）",
-      keywords: "智能体 agent 助手 默认 代码助手 翻译助手 演示文稿 数据分析师",
-      render: () => (
-        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
-          <div>
-            <span className="font-medium text-[#1a211c] block">
-              {renderHighlightedText("默认智能体", settingsSearchQuery)}
-            </span>
-            <span className="text-[12px] text-[#747f78] block mt-0.5">
-              {renderHighlightedText("选择新建会话时默认使用的智能体角色", settingsSearchQuery)}
-            </span>
-          </div>
-          <select
-            value={settingDefaultAgent}
-            onChange={(e) => setSettingDefaultAgent(e.target.value)}
-            className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
-          >
-            <option value="代码助手">代码助手</option>
-            <option value="翻译助手">翻译助手</option>
-            <option value="演示文稿美化">演示文稿美化</option>
-            <option value="数据分析师">数据分析师</option>
-          </select>
-        </div>
-      ),
-    },
-    {
-      id: "agents-provider",
-      categoryId: "agents",
-      categoryLabel: "智能体与模型",
+      id: "models-provider",
+      categoryId: "models",
+      categoryLabel: "模型设置",
       title: "模型提供方",
       description: "选择 AI 大模型服务接入提供商（Tokmon 官方 / 自定义）",
       keywords: "模型提供方 provider 官方 自定义 api host service",
@@ -2936,9 +3011,9 @@ export default function App() {
       ),
     },
     {
-      id: "agents-main-model",
-      categoryId: "agents",
-      categoryLabel: "智能体与模型",
+      id: "models-main-model",
+      categoryId: "models",
+      categoryLabel: "模型设置",
       title: "主模型",
       description: "选择日常执行任务使用的主力大语言模型（faster-whisper-large-v3-turbo 等）",
       keywords: "主模型 model llm 大模型 whisper turbo large",
@@ -2965,9 +3040,9 @@ export default function App() {
       ),
     },
     {
-      id: "agents-inference-power",
-      categoryId: "agents",
-      categoryLabel: "智能体与模型",
+      id: "models-inference-power",
+      categoryId: "models",
+      categoryLabel: "模型设置",
       title: "推理强度",
       description: "调节大模型的思考推理深度与耗时平衡（低、标准、高）",
       keywords: "推理 强度 thinking reasoning 思考 深度 算力 power",
@@ -2996,6 +3071,209 @@ export default function App() {
               </button>
             ))}
           </div>
+        </div>
+      ),
+    },
+    // Agents
+    {
+      id: "agents-default-agent",
+      categoryId: "agents",
+      categoryLabel: "智能体设置",
+      title: "默认智能体",
+      description: "选择新建会话时默认使用的智能体角色（代码助手、翻译助手、演示文稿美化、数据分析师）",
+      keywords: "智能体 agent 助手 默认 代码助手 翻译助手 演示文稿 数据分析师",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("默认智能体", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("选择新建会话时默认使用的智能体角色", settingsSearchQuery)}
+            </span>
+          </div>
+          <select
+            value={settingDefaultAgent}
+            onChange={(e) => setSettingDefaultAgent(e.target.value)}
+            className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
+          >
+            <option value="代码助手">代码助手</option>
+            <option value="翻译助手">翻译助手</option>
+            <option value="演示文稿美化">演示文稿美化</option>
+            <option value="数据分析师">数据分析师</option>
+          </select>
+        </div>
+      ),
+    },
+    {
+      id: "agents-autonomous",
+      categoryId: "agents",
+      categoryLabel: "智能体设置",
+      title: "自主子任务执行",
+      description: "允许智能体根据复杂目标自主拆解并调用子智能体并发执行",
+      keywords: "自主 子任务 执行 autonomous subagent 智能体",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("自主子任务执行", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("允许智能体根据复杂目标自主拆解并调用子智能体", settingsSearchQuery)}
+            </span>
+          </div>
+          <ToggleSwitch
+            checked={settingAgentAutonomous}
+            onChange={setSettingAgentAutonomous}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "agents-show-thoughts",
+      categoryId: "agents",
+      categoryLabel: "智能体设置",
+      title: "思考过程展示",
+      description: "在对话流中展示智能体的思维链、反思推理与执行计划",
+      keywords: "思考 过程 思维链 reasoning thoughts 计划",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("思考过程展示", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("在对话流中展开展示智能体的思考推理折叠卡片", settingsSearchQuery)}
+            </span>
+          </div>
+          <ToggleSwitch
+            checked={settingAgentShowThoughts}
+            onChange={setSettingAgentShowThoughts}
+          />
+        </div>
+      ),
+    },
+    // Skills
+    {
+      id: "skills-enabled",
+      categoryId: "skills",
+      categoryLabel: "Skill 技能设置",
+      title: "启用 Skill 技能系统",
+      description: "开启后智能体可挂载并加载专业 Skill 技能脚本与最佳实践指南",
+      keywords: "skill 技能 启用 扩展 capabilities",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("启用 Skill 技能系统", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("允许智能体在对话与任务中加载专业 Skill", settingsSearchQuery)}
+            </span>
+          </div>
+          <ToggleSwitch
+            checked={settingSkillsEnabled}
+            onChange={setSettingSkillsEnabled}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "skills-auto-invoke",
+      categoryId: "skills",
+      categoryLabel: "Skill 技能设置",
+      title: "按需自动唤起 Skill",
+      description: "智能体在识别到特定领域任务时无需人工干预自动激活对应 Skill",
+      keywords: "skill 自动唤起 auto invoke 智能匹配",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("按需自动唤起 Skill", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("识别特定领域任务时智能体自动激活对应技能", settingsSearchQuery)}
+            </span>
+          </div>
+          <ToggleSwitch
+            checked={settingSkillsAutoInvoke}
+            onChange={setSettingSkillsAutoInvoke}
+          />
+        </div>
+      ),
+    },
+    // Rules
+    {
+      id: "rules-enabled",
+      categoryId: "rules",
+      categoryLabel: "规则设置",
+      title: "启用规则系统",
+      description: "在每次模型对话与代码生成前自动注入行为规范与代码规则",
+      keywords: "rules 规则 规范 system prompt 注入",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("启用规则系统", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("在每次任务执行前自动附加代码与行为规范", settingsSearchQuery)}
+            </span>
+          </div>
+          <ToggleSwitch
+            checked={settingRulesEnabled}
+            onChange={setSettingRulesEnabled}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "rules-prefer-project",
+      categoryId: "rules",
+      categoryLabel: "规则设置",
+      title: "优先遵循项目本地规则",
+      description: "优先读取项目根目录的 AGENTS.md / .rules 规则文件",
+      keywords: "rules 项目规则 agents.md 本地规则",
+      render: () => (
+        <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("优先遵循项目本地规则", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("优先读取项目根目录的 AGENTS.md 规范文件", settingsSearchQuery)}
+            </span>
+          </div>
+          <ToggleSwitch
+            checked={settingPreferProjectRules}
+            onChange={setSettingPreferProjectRules}
+          />
+        </div>
+      ),
+    },
+    {
+      id: "rules-global-text",
+      categoryId: "rules",
+      categoryLabel: "规则设置",
+      title: "全局通用提示词规则",
+      description: "适用于所有项目与会话的全局行为准则与代码编写偏好",
+      keywords: "rules 全局规则 prompt 提示词 规范 偏好",
+      render: () => (
+        <div className="space-y-2 pb-4 border-b border-[#f7f5ef]">
+          <div>
+            <span className="font-medium text-[#1a211c] block">
+              {renderHighlightedText("全局通用提示词规则", settingsSearchQuery)}
+            </span>
+            <span className="text-[12px] text-[#747f78] block mt-0.5">
+              {renderHighlightedText("配置跨项目的全局默认代码与响应偏好准则", settingsSearchQuery)}
+            </span>
+          </div>
+          <textarea
+            rows={2}
+            value={settingGlobalCustomRules}
+            onChange={(e) => setSettingGlobalCustomRules(e.target.value)}
+            className="w-full bg-[#faf9f6] border border-[#eae6dc] rounded-xl p-2.5 text-[12px] font-mono text-[#1a211c] focus:outline-none focus:border-[#4a7860]"
+          />
         </div>
       ),
     },
@@ -7808,56 +8086,46 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* 2. CATEGORY: 智能体与模型 */}
-                  {activeSettingsTab === "agents" && (
+                  {/* 2. CATEGORY: 模型 (Models) */}
+                  {activeSettingsTab === "models" && (
                     <div className="space-y-6 text-[13px]">
+                      {/* 模型提供方 */}
                       <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
-                        <span className="font-medium text-[#1a211c]">
-                          默认智能体
-                        </span>
-                        <select
-                          value={settingDefaultAgent}
-                          onChange={(e) =>
-                            setSettingDefaultAgent(e.target.value)
-                          }
-                          className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
-                        >
-                          <option value="代码助手">代码助手</option>
-                          <option value="翻译助手">翻译助手</option>
-                          <option value="演示文稿美化">演示文稿美化</option>
-                          <option value="数据分析师">数据分析师</option>
-                        </select>
-                      </div>
-
-                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
-                        <span className="font-medium text-[#1a211c]">
-                          模型提供方
-                        </span>
+                        <div>
+                          <span className="font-medium text-[#1a211c] block">
+                            模型提供方
+                          </span>
+                          <span className="text-[12px] text-[#747f78] block mt-0.5">
+                            选择大语言模型服务接入源
+                          </span>
+                        </div>
                         <div className="flex bg-[#f7f5ef] p-1 rounded-xl border border-[#eae6dc]">
-                          {(["Tokmon 官方", "自定义"] as const).map(
-                            (provider) => (
-                              <button
-                                key={provider}
-                                onClick={() =>
-                                  setSettingModelProvider(provider)
-                                }
-                                className={`px-4 py-1.5 rounded-lg font-medium text-[12.5px] transition-all cursor-pointer ${
-                                  settingModelProvider === provider
-                                    ? "bg-[#edf4ec] text-[#2d5a43] font-semibold shadow-2xs"
-                                    : "text-[#747f78] hover:text-[#1a211c]"
-                                }`}
-                              >
-                                {provider}
-                              </button>
-                            ),
-                          )}
+                          {(["Tokmon 官方", "自定义"] as const).map((provider) => (
+                            <button
+                              key={provider}
+                              onClick={() => setSettingModelProvider(provider)}
+                              className={`px-4 py-1.5 rounded-lg font-medium text-[12.5px] transition-all cursor-pointer ${
+                                settingModelProvider === provider
+                                  ? "bg-[#edf4ec] text-[#2d5a43] font-semibold shadow-2xs"
+                                  : "text-[#747f78] hover:text-[#1a211c]"
+                              }`}
+                            >
+                              {provider}
+                            </button>
+                          ))}
                         </div>
                       </div>
 
+                      {/* 主模型 */}
                       <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
-                        <span className="font-medium text-[#1a211c]">
-                          主模型
-                        </span>
+                        <div>
+                          <span className="font-medium text-[#1a211c] block">
+                            主模型
+                          </span>
+                          <span className="text-[12px] text-[#747f78] block mt-0.5">
+                            日常任务与代码编写的主力模型
+                          </span>
+                        </div>
                         <select
                           value={settingMainModel}
                           onChange={(e) => setSettingMainModel(e.target.value)}
@@ -7866,17 +8134,21 @@ export default function App() {
                           <option value="faster-whisper-large-v3-turbo">
                             faster-whisper-large-v3-turbo
                           </option>
-                          <option value="whisper-large-v3">
-                            whisper-large-v3
-                          </option>
+                          <option value="whisper-large-v3">whisper-large-v3</option>
                           <option value="whisper-medium">whisper-medium</option>
                         </select>
                       </div>
 
+                      {/* 推理强度 */}
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-[#1a211c]">
-                          推理强度
-                        </span>
+                        <div>
+                          <span className="font-medium text-[#1a211c] block">
+                            推理强度
+                          </span>
+                          <span className="text-[12px] text-[#747f78] block mt-0.5">
+                            调节模型思考推理深度与响应耗时
+                          </span>
+                        </div>
                         <div className="flex bg-[#f7f5ef] p-1 rounded-xl border border-[#eae6dc]">
                           {(["低", "标准", "高"] as const).map((power) => (
                             <button
@@ -7896,7 +8168,242 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* 3. CATEGORY: MCP 扩展与服务 */}
+                  {/* 3. CATEGORY: 智能体 (Agents) */}
+                  {activeSettingsTab === "agents" && (
+                    <div className="space-y-6 text-[13px]">
+                      {/* 默认智能体 */}
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <div>
+                          <span className="font-medium text-[#1a211c] block">
+                            默认智能体
+                          </span>
+                          <span className="text-[12px] text-[#747f78] block mt-0.5">
+                            新建会话时默认激活的专家角色
+                          </span>
+                        </div>
+                        <select
+                          value={settingDefaultAgent}
+                          onChange={(e) => setSettingDefaultAgent(e.target.value)}
+                          className="bg-[#ffffff] border border-[#eae6dc] rounded-xl px-4 py-1.5 text-[13px] text-[#1a211c] focus:outline-none focus:border-[#4a7860] cursor-pointer"
+                        >
+                          <option value="代码助手">代码助手</option>
+                          <option value="翻译助手">翻译助手</option>
+                          <option value="演示文稿美化">演示文稿美化</option>
+                          <option value="数据分析师">数据分析师</option>
+                        </select>
+                      </div>
+
+                      {/* 自主子任务执行 */}
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <div>
+                          <span className="font-medium text-[#1a211c] block">
+                            自主子任务派发
+                          </span>
+                          <span className="text-[12px] text-[#747f78] block mt-0.5">
+                            允许智能体将复杂目标自主拆解给子智能体执行
+                          </span>
+                        </div>
+                        <ToggleSwitch
+                          checked={settingAgentAutonomous}
+                          onChange={setSettingAgentAutonomous}
+                        />
+                      </div>
+
+                      {/* 思考过程展示 */}
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <div>
+                          <span className="font-medium text-[#1a211c] block">
+                            展示思考与推理过程
+                          </span>
+                          <span className="text-[12px] text-[#747f78] block mt-0.5">
+                            在对话流中展示智能体的思维链与反思步骤
+                          </span>
+                        </div>
+                        <ToggleSwitch
+                          checked={settingAgentShowThoughts}
+                          onChange={setSettingAgentShowThoughts}
+                        />
+                      </div>
+
+                      {/* 极简角色启停列表 */}
+                      <div className="space-y-3 pt-1">
+                        <div className="text-[12px] font-semibold uppercase tracking-wider text-[#747f78] px-1">
+                          可用智能体角色
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                          {agentRolesList.map((agent) => (
+                            <div
+                              key={agent.id}
+                              className="p-3 bg-[#ffffff] border border-[#eae6dc] rounded-xl flex items-center justify-between hover:border-[#2d5a43]/40 transition-colors"
+                            >
+                              <div className="space-y-0.5 min-w-0 pr-2">
+                                <div className="font-medium text-[#1a211c] text-[13px]">
+                                  {agent.name}
+                                </div>
+                                <div className="text-[11.5px] text-[#747f78] truncate">
+                                  {agent.desc}
+                                </div>
+                              </div>
+                              <ToggleSwitch
+                                checked={agent.enabled}
+                                onChange={() =>
+                                  setAgentRolesList((prev) =>
+                                    prev.map((a) =>
+                                      a.id === agent.id ? { ...a, enabled: !a.enabled } : a,
+                                    ),
+                                  )
+                                }
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 4. CATEGORY: Skill 技能 (Skills) */}
+                  {activeSettingsTab === "skills" && (
+                    <div className="space-y-6 text-[13px]">
+                      {/* 启用 Skill 系统 */}
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <div>
+                          <span className="font-medium text-[#1a211c] block">
+                            启用 Skill 技能系统
+                          </span>
+                          <span className="text-[12px] text-[#747f78] block mt-0.5">
+                            允许智能体加载专业领域技能与指令集
+                          </span>
+                        </div>
+                        <ToggleSwitch
+                          checked={settingSkillsEnabled}
+                          onChange={setSettingSkillsEnabled}
+                        />
+                      </div>
+
+                      {/* 按需自动唤起 */}
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <div>
+                          <span className="font-medium text-[#1a211c] block">
+                            按需自动唤起
+                          </span>
+                          <span className="text-[12px] text-[#747f78] block mt-0.5">
+                            根据对话意图自动识别并调用对应技能扩展
+                          </span>
+                        </div>
+                        <ToggleSwitch
+                          checked={settingSkillsAutoInvoke}
+                          onChange={setSettingSkillsAutoInvoke}
+                        />
+                      </div>
+
+                      {/* Skill 列表卡片 */}
+                      <div className="space-y-3 pt-1">
+                        <div className="flex items-center justify-between px-1">
+                          <div className="text-[12px] font-semibold uppercase tracking-wider text-[#747f78]">
+                            已安装技能 ({skillsList.length})
+                          </div>
+                          <span className="text-[11.5px] text-[#2d5a43] font-medium">
+                            {skillsList.filter((s) => s.enabled).length} 个已激活
+                          </span>
+                        </div>
+
+                        <div className="space-y-2.5">
+                          {skillsList.map((skill) => (
+                            <div
+                              key={skill.id}
+                              className="p-3.5 bg-[#ffffff] border border-[#eae6dc] rounded-xl flex items-center justify-between gap-3 hover:border-[#2d5a43]/40 transition-colors"
+                            >
+                              <div className="space-y-1 min-w-0">
+                                <div className="flex items-center space-x-2">
+                                  <span className="font-semibold text-[#1a211c] text-[13px]">
+                                    {skill.label}
+                                  </span>
+                                  <span className="font-mono text-[11px] text-[#747f78] bg-[#f7f5ef] px-1.5 py-0.2 rounded border border-[#eae6dc]">
+                                    {skill.name}
+                                  </span>
+                                  <span className="text-[10.5px] text-[#2d5a43] bg-[#edf4ec] px-1.5 py-0.2 rounded font-medium">
+                                    {skill.category}
+                                  </span>
+                                </div>
+                                <p className="text-[12px] text-[#747f78]">
+                                  {skill.desc}
+                                </p>
+                              </div>
+
+                              <ToggleSwitch
+                                checked={skill.enabled}
+                                onChange={() =>
+                                  setSkillsList((prev) =>
+                                    prev.map((s) =>
+                                      s.id === skill.id ? { ...s, enabled: !s.enabled } : s,
+                                    ),
+                                  )
+                                }
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 5. CATEGORY: 规则 (Rules) */}
+                  {activeSettingsTab === "rules" && (
+                    <div className="space-y-6 text-[13px]">
+                      {/* 启用规则系统 */}
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <div>
+                          <span className="font-medium text-[#1a211c] block">
+                            启用指令规则系统
+                          </span>
+                          <span className="text-[12px] text-[#747f78] block mt-0.5">
+                            执行任务前自动注入行为规范与代码准则
+                          </span>
+                        </div>
+                        <ToggleSwitch
+                          checked={settingRulesEnabled}
+                          onChange={setSettingRulesEnabled}
+                        />
+                      </div>
+
+                      {/* 优先遵循项目本地规则 */}
+                      <div className="flex items-center justify-between pb-4 border-b border-[#f7f5ef]">
+                        <div>
+                          <span className="font-medium text-[#1a211c] block">
+                            优先读取项目规则
+                          </span>
+                          <span className="text-[12px] text-[#747f78] block mt-0.5">
+                            优先遵循当前工作区中的 AGENTS.md 或 .rules 规范文件
+                          </span>
+                        </div>
+                        <ToggleSwitch
+                          checked={settingPreferProjectRules}
+                          onChange={setSettingPreferProjectRules}
+                        />
+                      </div>
+
+                      {/* 全局规则编辑器 */}
+                      <div className="space-y-2.5 pt-1">
+                        <div className="flex items-center justify-between px-1">
+                          <span className="font-medium text-[#1a211c]">
+                            全局通用规则与偏好
+                          </span>
+                          <span className="text-[11.5px] text-[#747f78]">
+                            应用于所有新建任务
+                          </span>
+                        </div>
+                        <textarea
+                          rows={4}
+                          value={settingGlobalCustomRules}
+                          onChange={(e) => setSettingGlobalCustomRules(e.target.value)}
+                          placeholder="输入全局提示词规则，如代码规范、格式要求、常用语言偏好..."
+                          className="w-full bg-[#faf9f6] border border-[#eae6dc] rounded-xl p-3 text-[12.5px] font-mono text-[#1a211c] placeholder-[#949e97] focus:outline-none focus:border-[#4a7860] leading-relaxed resize-none"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 6. CATEGORY: MCP 扩展与服务 */}
                   {activeSettingsTab === "mcp" && (
                     <div className="space-y-6 text-[13px]">
                       {/* MCP Top Overview & Quick Actions Bar */}
