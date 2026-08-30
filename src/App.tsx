@@ -266,7 +266,7 @@ function ThoughtProcessCard({
     .filter(Boolean)
 
   return (
-    <div className="bg-[#faf9f5] border border-[#ece8df] rounded-xl transition-all select-text overflow-hidden">
+    <div className="bg-[#faf9f5] rounded-xl transition-all select-text overflow-hidden shadow-2xs">
       {!isExpanded ? (
         /* Collapsed State: Slim single line bar with dot, truncated preview text and chevron down (matches screenshot 2) */
         <button
@@ -3487,7 +3487,7 @@ export default function App() {
               {/* New Conversation Button */}
               <button
                 onClick={handleOpenNewConvModal}
-                className="flex items-center justify-center space-x-1.5 w-full py-2.5 px-4 rounded-xl bg-[#f0f6ef] hover:bg-[#e4efe2] text-[#2d5a43] font-medium text-[13px] border border-[#d6e3d5] active:scale-98 transition-all cursor-pointer shadow-2xs"
+                className="flex items-center justify-center space-x-1.5 w-full py-2.5 px-4 rounded-xl bg-[#f0f6ef] hover:bg-[#e4efe2] text-[#2d5a43] font-medium text-[13px] active:scale-98 transition-all cursor-pointer shadow-2xs"
               >
                 <Plus className="w-4 h-4 text-[#2d5a43]" strokeWidth={2.2} />
                 <span>新建会话</span>
@@ -3665,7 +3665,7 @@ export default function App() {
                                       }
                                       className={`cursor-pointer flex items-center space-x-2 px-2.5 py-1.5 rounded-xl text-[12px] transition-all ${
                                         selectedConversation === item
-                                          ? "bg-[#edf5ec] text-[#2d5a43] font-semibold border border-[#d0ded0] shadow-2xs"
+                                          ? "bg-[#edf5ec] text-[#2d5a43] font-semibold shadow-2xs"
                                           : "text-[#5c6760] hover:bg-[#f7f6f2]"
                                       }`}
                                     >
@@ -4186,17 +4186,17 @@ export default function App() {
                         <div key={msg.id}>
                           {msg.sender === "user" ? (
                             <div className="flex justify-end">
-                              <div className="max-w-[713px] bg-[#f8f6f0] dark:bg-[#251d16] border border-[#eae5da]/70 dark:border-[#e88d43]/15 rounded-[22px] rounded-br-[6px] p-3.5 sm:p-4 text-[13px] text-[#252d27] dark:text-[#ede5da] leading-relaxed shadow-2xs">
+                              <div className="max-w-[713px] bg-[#f0f6ef] dark:bg-[#251d16] rounded-[22px] rounded-br-[6px] p-3.5 sm:p-4 text-[13px] text-[#252d27] dark:text-[#ede5da] leading-relaxed shadow-2xs">
                                 <p className="font-medium text-[#1a211c] dark:text-[#f5ece3] mb-1">
                                   {msg.text}
                                 </p>
                                 {msg.details && (
-                                  <div className="font-mono text-[12px] text-[#5c6760] dark:text-[#dcd3c6] space-y-1 bg-[#eaf1e8]/60 dark:bg-[#1a140e]/95 p-2.5 rounded-xl border border-[#eae5da]/60 dark:border-white/[0.04] mt-2">
+                                  <div className="font-mono text-[12px] text-[#5c6760] dark:text-[#dcd3c6] space-y-1 bg-white/70 dark:bg-[#1a140e]/95 p-2.5 rounded-xl mt-2">
                                     <p className="flex items-center space-x-1.5">
                                       <span className="text-[#949e97] dark:text-[#9c9282]">
                                         模型路径:
                                       </span>{" "}
-                                      <span className="text-[#5c6760] dark:text-[#e88d43] font-medium">
+                                      <span className="text-[#2d5a43] dark:text-[#e88d43] font-medium">
                                         {msg.details.modelPath}
                                       </span>
                                     </p>
@@ -4246,7 +4246,7 @@ export default function App() {
                                 /* Red Box 2 in Screenshot: Animated Loading Typing Bubble */
                                 isGenerating &&
                                 msg.id === messages[messages.length - 1]?.id && (
-                                  <div className="flex items-center space-x-1.5 px-3.5 py-2 bg-[#faf9f5] border border-black/[0.05] rounded-xl w-fit animate-in fade-in duration-200">
+                                  <div className="flex items-center space-x-1.5 px-3.5 py-2 bg-[#faf9f5] rounded-xl w-fit shadow-2xs animate-in fade-in duration-200">
                                     <span className="w-1.5 h-1.5 rounded-full bg-[#2d5a43] animate-bounce [animation-delay:-0.3s]" />
                                     <span className="w-1.5 h-1.5 rounded-full bg-[#2d5a43] animate-bounce [animation-delay:-0.15s]" />
                                     <span className="w-1.5 h-1.5 rounded-full bg-[#2d5a43] animate-bounce" />
@@ -4259,7 +4259,7 @@ export default function App() {
                       ))}
 
                       {/* Workflow Execution Log Container (Collapsible, Unified with Thought Process style) */}
-                      <div className="bg-[#faf9f5] border border-[#ece8df] rounded-xl transition-all select-text overflow-hidden">
+                      <div className="bg-[#faf9f5] rounded-xl transition-all select-text overflow-hidden shadow-2xs">
                         {!isWorkflowExpanded ? (
                           /* Collapsed State: Slim single line bar matching thought process collapsed style */
                           <button
