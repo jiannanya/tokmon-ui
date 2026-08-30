@@ -73,6 +73,8 @@ import {
   ShieldCheck,
 } from "lucide-react"
 import TrajectoryView from "./components/trajectory/TrajectoryView"
+import TerminalTab from "./components/rightpanel/TerminalTab"
+import BrowserTab from "./components/rightpanel/BrowserTab"
 
 // Custom Precise Icons matching Review & Git Toolbar (Screenshots 1, 2, 3)
 function ReviewIcon({ className = "w-4 h-4" }: { className?: string }) {
@@ -630,13 +632,14 @@ export default function App() {
     }
   }, [isDraggingLeft, isDraggingRight, isDraggingMainRight])
 
-  // RIGHT PANEL: Review (Diff), Workspace Tree & Launcher States
+  // RIGHT PANEL: Review (Diff), Workspace Tree, Terminal, Browser & Launcher States
   const [rightPanelTab, setRightPanelTab] =
-    useState<"launcher" | "review" | "openFile">("launcher")
+    useState<"launcher" | "review" | "openFile" | "terminal" | "browser">("launcher")
   const [openTabs, setOpenTabs] = useState<Array<{
-    id: "review" | "openFile"
+    id: "review" | "openFile" | "terminal" | "browser"
     title: string
   }>>([])
+  const [showNewTabMenu, setShowNewTabMenu] = useState(false)
 
   // Review (Diff) States
   const [selectedReviewFileId, setSelectedReviewFileId] =
@@ -692,7 +695,23 @@ export default function App() {
     if (fileName) setSelectedWorkspaceFile(fileName)
   }
 
-  const closeTab = (id: "review" | "openFile") => {
+  const openTerminalTab = () => {
+    setOpenTabs((prev) => {
+      if (prev.find((t) => t.id === "terminal")) return prev
+      return [...prev, { id: "terminal", title: "终端" }]
+    })
+    setRightPanelTab("terminal")
+  }
+
+  const openBrowserTab = () => {
+    setOpenTabs((prev) => {
+      if (prev.find((t) => t.id === "browser")) return prev
+      return [...prev, { id: "browser", title: "浏览器" }]
+    })
+    setRightPanelTab("browser")
+  }
+
+  const closeTab = (id: "review" | "openFile" | "terminal" | "browser") => {
     const nextTabs = openTabs.filter((t) => t.id !== id)
     setOpenTabs(nextTabs)
     if (nextTabs.length === 0) {
@@ -702,7 +721,7 @@ export default function App() {
     }
   }
 
-  // Keyboard shortcut listener (Ctrl+Shift+G for Review, Ctrl+P for File)
+  // Keyboard shortcut listener (Ctrl+Shift+G for Review, Ctrl+P for File, Ctrl+` for Terminal, Ctrl+Shift+B for Browser)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
@@ -721,6 +740,21 @@ export default function App() {
         e.preventDefault()
         if (!rightPanelOpen) setRightPanelOpen(true)
         openWorkspaceFileTab()
+      } else if (
+        (e.ctrlKey || e.metaKey) &&
+        (e.key === "`" || e.key === "~")
+      ) {
+        e.preventDefault()
+        if (!rightPanelOpen) setRightPanelOpen(true)
+        openTerminalTab()
+      } else if (
+        (e.ctrlKey || e.metaKey) &&
+        e.shiftKey &&
+        (e.key === "B" || e.key === "b")
+      ) {
+        e.preventDefault()
+        if (!rightPanelOpen) setRightPanelOpen(true)
+        openBrowserTab()
       }
     }
     window.addEventListener("keydown", handleKeyDown)
@@ -6166,54 +6200,123 @@ export default function App() {
 
               {/* TOP TABS BAR (Height 46px aligned with Left Sidebar and Middle Column) */}
               <div className="h-[46px] flex-shrink-0 border-b border-[#eae6dc]/60 bg-[#ffffff] flex items-center justify-between px-3 text-[12.5px] select-none">
-                <div className="flex items-center space-x-1.5 h-full overflow-x-auto no-scrollbar">
-                  {openTabs.map((tab) => {
-                    const isActive = rightPanelTab === tab.id
-                    return (
-                      <div
-                        key={tab.id}
-                        onClick={() => setRightPanelTab(tab.id)}
-                        className={`h-[28px] px-3 rounded-full flex items-center space-x-1.5 cursor-pointer transition-all ${
-                          isActive
-                            ? "bg-white text-[#1a211c] font-medium shadow-2xs border border-black/[0.06]"
-                            : "text-[#747f78] hover:bg-black/[0.04] hover:text-[#1a211c]"
-                        }`}
-                      >
-                        {tab.id === "review" ? (
-                          <ReviewIcon className="w-3.5 h-3.5 text-[#747f78]" />
-                        ) : (
-                          <FileText className="w-3.5 h-3.5 text-[#747f78]" />
-                        )}
-                        <span>{tab.title}</span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            closeTab(tab.id)
-                          }}
-                          className="p-0.5 hover:bg-black/[0.06] rounded-full text-[#949e97] hover:text-[#1a211c] transition-colors"
+                <div className="flex items-center h-full min-w-0 flex-1 mr-2">
+                  <div className="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-1 min-w-0">
+                    {openTabs.map((tab) => {
+                      const isActive = rightPanelTab === tab.id
+                      return (
+                        <div
+                          key={tab.id}
+                          onClick={() => setRightPanelTab(tab.id)}
+                          className={`h-[28px] px-3 rounded-full flex items-center space-x-1.5 cursor-pointer transition-all shrink-0 ${
+                            isActive
+                              ? "bg-white text-[#1a211c] font-medium shadow-2xs border border-black/[0.06]"
+                              : "text-[#747f78] hover:bg-black/[0.04] hover:text-[#1a211c]"
+                          }`}
                         >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    )
-                  })}
+                          {tab.id === "review" ? (
+                            <ReviewIcon className="w-3.5 h-3.5 text-[#747f78]" />
+                          ) : tab.id === "openFile" ? (
+                            <FileText className="w-3.5 h-3.5 text-[#747f78]" />
+                          ) : tab.id === "terminal" ? (
+                            <Terminal className="w-3.5 h-3.5 text-[#747f78]" />
+                          ) : (
+                            <Globe className="w-3.5 h-3.5 text-[#747f78]" />
+                          )}
+                          <span className="whitespace-nowrap">{tab.title}</span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              closeTab(tab.id)
+                            }}
+                            className="p-0.5 hover:bg-black/[0.06] rounded-full text-[#949e97] hover:text-[#1a211c] transition-colors cursor-pointer"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
 
-                  {/* Open new tab button (+) */}
-                  <button
-                    onClick={() => {
-                      if (!openTabs.find((t) => t.id === "review")) {
-                        openReviewTab()
-                      } else if (!openTabs.find((t) => t.id === "openFile")) {
-                        openWorkspaceFileTab()
-                      } else {
-                        showToast("已打开全部标签页")
-                      }
-                    }}
-                    title="添加标签页"
-                    className="w-6 h-6 flex items-center justify-center hover:bg-black/[0.05] rounded-full text-[#747f78] hover:text-[#1a211c] transition-colors cursor-pointer ml-0.5"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
+                  {/* Open new tab button (+) with Dropdown Menu (Outside scrollable container) */}
+                  <div className="relative shrink-0 ml-1">
+                    <button
+                      onClick={() => setShowNewTabMenu(!showNewTabMenu)}
+                      title="添加标签页"
+                      className={`w-6 h-6 flex items-center justify-center rounded-full text-[#747f78] hover:text-[#1a211c] transition-colors cursor-pointer ${
+                        showNewTabMenu ? "bg-black/[0.08] text-[#1a211c]" : "hover:bg-black/[0.05]"
+                      }`}
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+
+                    {showNewTabMenu && (
+                      <>
+                        {/* Backdrop to close dropdown on click outside */}
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setShowNewTabMenu(false)}
+                        />
+                        <div className="absolute left-0 top-8 w-48 bg-white border border-[#eae6dc] rounded-xl shadow-xl py-1.5 z-50 text-[12px] animate-in fade-in zoom-in-95 duration-100">
+                          <div className="px-3 py-1 text-[10.5px] text-[#949e97] font-semibold border-b border-[#f7f5ef]">
+                            新建标签页
+                          </div>
+                          <button
+                            onClick={() => {
+                              setShowNewTabMenu(false)
+                              openReviewTab()
+                            }}
+                            className="w-full text-left px-3 py-1.5 hover:bg-[#edf4ec] text-[#252d27] hover:text-[#2d5a43] flex items-center justify-between cursor-pointer"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <ReviewIcon className="w-3.5 h-3.5 text-[#747f78]" />
+                              <span>审查 (Review)</span>
+                            </div>
+                            <span className="text-[10px] font-mono text-[#949e97]">Ctrl+Shift+G</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowNewTabMenu(false)
+                              openWorkspaceFileTab()
+                            }}
+                            className="w-full text-left px-3 py-1.5 hover:bg-[#edf4ec] text-[#252d27] hover:text-[#2d5a43] flex items-center justify-between cursor-pointer"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <Folder className="w-3.5 h-3.5 text-[#747f78]" />
+                              <span>工作区文件 (File)</span>
+                            </div>
+                            <span className="text-[10px] font-mono text-[#949e97]">Ctrl+P</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowNewTabMenu(false)
+                              openTerminalTab()
+                            }}
+                            className="w-full text-left px-3 py-1.5 hover:bg-[#edf4ec] text-[#252d27] hover:text-[#2d5a43] flex items-center justify-between cursor-pointer"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <Terminal className="w-3.5 h-3.5 text-[#747f78]" />
+                              <span>终端 (Terminal)</span>
+                            </div>
+                            <span className="text-[10px] font-mono text-[#949e97]">Ctrl+`</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowNewTabMenu(false)
+                              openBrowserTab()
+                            }}
+                            className="w-full text-left px-3 py-1.5 hover:bg-[#edf4ec] text-[#252d27] hover:text-[#2d5a43] flex items-center justify-between cursor-pointer"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <Globe className="w-3.5 h-3.5 text-[#747f78]" />
+                              <span>浏览器 (Browser)</span>
+                            </div>
+                            <span className="text-[10px] font-mono text-[#949e97]">Ctrl+Shift+B</span>
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
 
                 {/* Standard Window Controls (最小化, 窗口化, 关闭) */}
@@ -6228,30 +6331,56 @@ export default function App() {
               {/* ========================================================================= */}
               {rightPanelTab === "launcher" ? (
                 <div className="flex-1 flex flex-col items-center justify-center select-none bg-[#ffffff] p-6 animate-in fade-in duration-150">
-                  <div className="w-full max-w-[260px] space-y-2.5">
+                  <div className="w-full max-w-[280px] space-y-2">
                     <button
                       onClick={() => openReviewTab()}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-2xl hover:bg-black/[0.04] text-[#252d27] transition-all group cursor-pointer border border-transparent hover:border-black/[0.05] shadow-2xs"
+                      className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-black/[0.04] text-[#252d27] transition-all group cursor-pointer border border-transparent hover:border-black/[0.05] shadow-2xs"
                     >
                       <div className="flex items-center space-x-3">
                         <ReviewIcon className="w-4 h-4 text-[#747f78] group-hover:text-[#2d5a43] transition-colors" />
-                        <span className="text-[13.5px] font-medium">审查</span>
+                        <span className="text-[13px] font-medium">审查</span>
                       </div>
-                      <kbd className="px-2.5 py-0.5 text-[11px] font-mono text-[#949e97] bg-white group-hover:bg-white rounded-full border border-black/[0.07] shadow-2xs">
+                      <kbd className="px-2 py-0.5 text-[10.5px] font-mono text-[#949e97] bg-white group-hover:bg-white rounded-full border border-black/[0.07] shadow-2xs">
                         Ctrl+Shift+G
                       </kbd>
                     </button>
 
                     <button
                       onClick={() => openWorkspaceFileTab()}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-2xl hover:bg-black/[0.04] text-[#252d27] transition-all group cursor-pointer border border-transparent hover:border-black/[0.05] shadow-2xs"
+                      className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-black/[0.04] text-[#252d27] transition-all group cursor-pointer border border-transparent hover:border-black/[0.05] shadow-2xs"
                     >
                       <div className="flex items-center space-x-3">
                         <Folder className="w-4 h-4 text-[#747f78] group-hover:text-[#2d5a43] transition-colors" />
-                        <span className="text-[13.5px] font-medium">文件</span>
+                        <span className="text-[13px] font-medium">文件</span>
                       </div>
-                      <kbd className="px-2.5 py-0.5 text-[11px] font-mono text-[#949e97] bg-white group-hover:bg-white rounded-full border border-black/[0.07] shadow-2xs">
+                      <kbd className="px-2 py-0.5 text-[10.5px] font-mono text-[#949e97] bg-white group-hover:bg-white rounded-full border border-black/[0.07] shadow-2xs">
                         Ctrl+P
+                      </kbd>
+                    </button>
+
+                    <button
+                      onClick={() => openTerminalTab()}
+                      className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-black/[0.04] text-[#252d27] transition-all group cursor-pointer border border-transparent hover:border-black/[0.05] shadow-2xs"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Terminal className="w-4 h-4 text-[#747f78] group-hover:text-[#2d5a43] transition-colors" />
+                        <span className="text-[13px] font-medium">终端</span>
+                      </div>
+                      <kbd className="px-2 py-0.5 text-[10.5px] font-mono text-[#949e97] bg-white group-hover:bg-white rounded-full border border-black/[0.07] shadow-2xs">
+                        Ctrl+`
+                      </kbd>
+                    </button>
+
+                    <button
+                      onClick={() => openBrowserTab()}
+                      className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-black/[0.04] text-[#252d27] transition-all group cursor-pointer border border-transparent hover:border-black/[0.05] shadow-2xs"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Globe className="w-4 h-4 text-[#747f78] group-hover:text-[#2d5a43] transition-colors" />
+                        <span className="text-[13px] font-medium">浏览器</span>
+                      </div>
+                      <kbd className="px-2 py-0.5 text-[10.5px] font-mono text-[#949e97] bg-white group-hover:bg-white rounded-full border border-black/[0.07] shadow-2xs">
+                        Ctrl+Shift+B
                       </kbd>
                     </button>
                   </div>
@@ -6784,7 +6913,7 @@ export default function App() {
                     )}
                   </div>
                 </div>
-              ) : (
+              ) : rightPanelTab === "openFile" ? (
                 /* ========================================================================= */
                 /* VIEW 3: WORKSPACE OPEN FILE PANEL (SCREENSHOT 2)                          */
                 /* ========================================================================= */
@@ -6950,7 +7079,23 @@ export default function App() {
                     </div>
                   )}
                 </div>
-              )}
+              ) : rightPanelTab === "terminal" ? (
+                /* ========================================================================= */
+                /* VIEW 4: TERMINAL CONSOLE PANEL                                            */
+                /* ========================================================================= */
+                <TerminalTab
+                  workspaceName={activeWorkspace.name}
+                  workspacePath={activeWorkspace.path}
+                />
+              ) : rightPanelTab === "browser" ? (
+                /* ========================================================================= */
+                /* VIEW 5: BROWSER WEB PREVIEW PANEL                                         */
+                /* ========================================================================= */
+                <BrowserTab
+                  initialUrl="http://localhost:8443"
+                  workspaceName={activeWorkspace.name}
+                />
+              ) : null}
 
               {/* WINDOW RIGHT BORDER RESIZER (when right panel open) */}
               <div
