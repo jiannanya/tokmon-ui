@@ -4949,10 +4949,6 @@ export default function App() {
                 <span className="font-semibold text-[13.5px] text-[#1a211c] truncate">
                   {selectedConversation || "生成音频时间轴字幕"}
                 </span>
-                <span className="text-[11px] font-mono text-[#747f78] bg-[#f7f5ef] px-2 py-0.5 rounded-full border border-[#eae6dc]/60 flex items-center space-x-1 flex-shrink-0">
-                  <Folder className="w-3 h-3 text-[#747f78]" />
-                  <span>{activeWorkspace.name}</span>
-                </span>
               </div>
 
               {/* Right Section: Sleek Integrated Header Tabs (对话 / 轨迹) + Window Controls */}
