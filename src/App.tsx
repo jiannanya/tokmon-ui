@@ -3990,7 +3990,7 @@ export default function App() {
                   onClick={() => {
                     setEnvDropdown("none")
                     setShowSettingsModal(true)
-                    setActiveSettingsTab("workspace")
+                    setActiveSettingsTab("general")
                   }}
                   className="w-full px-3 py-1.5 text-left text-[#4a534c] hover:bg-[#edf4ec] hover:text-[#2d5a43] flex items-center space-x-2 transition-colors cursor-pointer"
                 >
@@ -5020,7 +5020,7 @@ export default function App() {
               ref={envPanelRef}
               className="absolute top-[56px] right-4 z-40 select-none pointer-events-auto"
             >
-              {/* Collapsed State: Apple iPhone AssistiveTouch Floating Button */}
+              {/* Collapsed State: Compact Apple AssistiveTouch Concentric Ring Button */}
               <div
                 className={`transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top-right transform-gpu ${
                   !isEnvPanelOpen
@@ -5028,7 +5028,7 @@ export default function App() {
                     : "opacity-0 scale-75 pointer-events-none absolute top-0 right-0"
                 }`}
               >
-                <div className="relative group">
+                <div className="relative group/env-btn">
                   <button
                     type="button"
                     onClick={() => {
@@ -5036,11 +5036,11 @@ export default function App() {
                       setEnvDropdown("none")
                     }}
                     title="环境信息 (点击展开)"
-                    className="w-12 h-12 rounded-[18px] bg-gradient-to-b from-white/95 via-white/90 to-[#f7f5ef]/90 hover:from-white hover:to-[#fcfbfa] active:scale-95 text-[#252d27] backdrop-blur-2xl border border-white/90 shadow-[0_12px_28px_-4px_rgba(0,0,0,0.1),0_4px_12px_-2px_rgba(0,0,0,0.05),inset_0_1px_1px_rgba(255,255,255,1)] flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 ring-1 ring-[#eae6dc]/70 select-none"
+                    className="relative w-9 h-9 rounded-[13px] bg-gradient-to-b from-white via-[#faf9f6] to-[#f4f2ec] hover:from-white hover:to-[#f0f6ef] active:scale-95 text-[#252d27] backdrop-blur-2xl border border-[#eae6dc] hover:border-[#2d5a43]/40 shadow-[0_6px_16px_-2px_rgba(45,90,67,0.12),0_2px_4px_rgba(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,1)] flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105 select-none ring-1 ring-black/[0.03]"
                   >
-                    {/* Authentic Apple AssistiveTouch Geometric Vector Glyph */}
+                    {/* Concentric Circle Vector Glyph */}
                     <svg
-                      className="w-7.5 h-7.5 text-[#343d37] group-hover:text-[#2d5a43] transition-colors duration-200"
+                      className="w-5.5 h-5.5 text-[#343d37] group-hover/env-btn:text-[#2d5a43] transition-colors duration-200"
                       viewBox="0 0 32 32"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
@@ -5080,16 +5080,10 @@ export default function App() {
                         fillOpacity="0.9"
                       />
                     </svg>
-
-                    {/* Pulsing Status Dot with Ping Effect */}
-                    <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 ring-2 ring-white shadow-xs"></span>
-                    </span>
                   </button>
 
                   {/* Tooltip on Hover */}
-                  <div className="absolute right-0 top-14 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0 whitespace-nowrap bg-[#1a211c]/90 text-white text-[11px] font-medium px-2.5 py-1 rounded-xl shadow-xl backdrop-blur-md border border-white/10 z-50 flex items-center space-x-1.5">
+                  <div className="absolute right-0 top-11 pointer-events-none opacity-0 group-hover/env-btn:opacity-100 transition-all duration-200 translate-y-1 group-hover/env-btn:translate-y-0 whitespace-nowrap bg-[#1a211c]/90 text-white text-[11px] font-medium px-2.5 py-1 rounded-xl shadow-xl backdrop-blur-md border border-white/10 z-50 flex items-center space-x-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     <span>环境信息 · {activeWorkspace.name}</span>
                     <span className="text-[#949e97] font-mono">
